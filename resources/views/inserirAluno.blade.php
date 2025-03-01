@@ -58,7 +58,7 @@
     <div class="form-container">
         <h1>Inserir Aluno e Habilidades</h1>
 
-        <form action="{{ route('aluno.store') }}" method="POST">
+        <form action="{{ route('aluno.store', [], true) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <label for="nome">Nome do Aluno</label>
             <input type="text" id="nome" name="nome" required>
