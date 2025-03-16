@@ -4,7 +4,7 @@
 Passo a passo como hospedar no raillway
 
 1 - hospedar no git e upar atraves dele
-2 - Coloque o projeto no laragon, no larago vai precisar rodar o composer update se for rodar local mudar o .env para local e se for rodar no raillway mudar o .env para production
+2 - Coloque o projeto no laragon, no larago vai precisar rodar o composer update se for rodar local mudar o .env para local e se for rodar no raillway mudar o .env para production depois do env configurado com o banco rode as migrates
 
 3 - mudar o env. 
     * APP_ENV=production
