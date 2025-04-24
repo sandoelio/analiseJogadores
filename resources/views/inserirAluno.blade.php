@@ -54,8 +54,24 @@
     </style>
 </head>
     <body>
+        
+        <div class="form-container">
+            @if(session('success'))
+                <div id="success-message" style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                    <strong>Parabéns!</strong>
+                    {{ session('success') }}
+                </div>
+                <script>
+                    // Espera 3 segundos e remove a mensagem
+                    setTimeout(function() {
+                        let msg = document.getElementById('success-message');
+                        if (msg) {
+                            msg.remove();
+                        }
+                    }, 3000); // 3000 milissegundos = 3 segundos
+                </script>
+            @endif
 
-    <div class="form-container">
         <h1>Inserir Aluno e Habilidades</h1>
 
         <form action="{{ route('aluno.store', [], true) }}" method="POST" enctype="multipart/form-data">

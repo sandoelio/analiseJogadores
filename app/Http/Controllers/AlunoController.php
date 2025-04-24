@@ -38,20 +38,7 @@ class AlunoController extends Controller
        $this->alunoService->storeAlunoComAnalise($validated);
 
        // Redirecionamento com sucesso
-       return redirect()->route('aluno.create')->with('success', 'Aluno e habilidades cadastrados com sucesso!');
-   }
-
-   // Método para exibir as últimas análises do aluno
-   public function show($id)
-   {
-        $aluno = $this->alunoService->getUltimasAnalises($id);
-
-        // Verifica se há análises suficientes
-        if ($aluno->analises->count() < 2) {
-            return response()->json(['error' => 'Não há análises suficientes para comparação'], 400);
-        }
-
-       return response()->json($aluno->analises);
+       return redirect()->route('aluno.create')->with('success', 'Cadastrado com sucesso!');
    }
 }
 
