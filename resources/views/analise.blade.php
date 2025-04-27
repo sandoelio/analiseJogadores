@@ -58,6 +58,25 @@
 <body>
 
     <div class="container">
+    
+        <a href="#" onclick="abrirModal()" style="display: inline-block; text-decoration: none; background-color: #45a049; color: white; padding: 10px 15px; border-radius: 5px; font-size: 14px; margin-bottom: 15px;">
+            Novo Aluno
+        </a>
+
+        <!-- Modal -->
+        <div id="modalSenha" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000;">
+
+            <div style="background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 300px; text-align: center;">
+                <h3>Digite a senha</h3>
+                <input type="password" id="senhaInput" placeholder="Senha" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc;">
+
+                <button onclick="verificarSenha()" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 5px; font-size: 14px;">Confirmar</button>
+
+                <button onclick="fecharModal()" style="background-color: #f44336; color: white; padding: 10px 15px; border: none; border-radius: 5px; font-size: 14px; margin-top: 10px;">Cancelar</button>
+            </div>
+
+        </div>
+        
         <img src="{{ asset('imagem/slogan.png') }}" alt="Imagem" class="thumbnail">
         <h1>Análise de Habilidades</h1>
         <select id="alunoSelect" onchange="carregarGrafico()">
@@ -126,7 +145,43 @@
                 }
             });
         }
-    </script>
 
+        function abrirModal() {
+            document.getElementById("modalSenha").style.display = "flex";
+        }
+
+        function fecharModal() {
+            const senhaInput = document.getElementById("senhaInput");
+            senhaInput.value = ""; // Limpa o campo de senha
+            document.getElementById("modalSenha").style.display = "none";
+        }
+
+        function verificarSenha() {
+            const senhaCorreta = "san@prj"; // Defina aqui a senha de 8 dígitos
+            const senhaInput = document.getElementById("senhaInput");
+
+            if (senhaInput.value === senhaCorreta) {
+                senhaInput.value = ""; // Limpa o campo de senha
+                senhaInput.style.border = ""; // Remove a borda de erro, caso tenha sido adicionada
+                window.location.href = "/aluno/create"; // Redireciona para a rota
+            } else {
+                // Exibe o erro no input
+                senhaInput.style.border = "2px solid red";
+                senhaInput.value = ""; // Limpa o valor digitado
+            }
+        }
+
+        // Garante que o modal esteja fechado no carregamento da página
+        document.addEventListener("DOMContentLoaded", function() {
+            const modal = document.getElementById("modalSenha");
+            if (modal) {
+                modal.style.display = "none"; // Fecha o modal ao carregar a página
+                const senhaInput = document.getElementById("senhaInput");
+                if (senhaInput) {
+                    senhaInput.value = ""; // Limpa o campo de senha
+                }
+            }
+        });
+    </script>
 </body>
 </html>
