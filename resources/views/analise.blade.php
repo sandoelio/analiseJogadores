@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise de Habilidades</title>
+    <title>Basquete Piraja</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -78,7 +78,7 @@
         </div>
         
         <img src="{{ asset('imagem/slogan.png') }}" alt="Imagem" class="thumbnail">
-        <h1>Análise de Habilidades</h1>
+        <h1>Análise do jogador</h1>
         <select id="alunoSelect" onchange="carregarGrafico()">
             <option value="">Selecione um aluno</option>
             @foreach($alunos as $aluno)
