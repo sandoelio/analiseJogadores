@@ -23,9 +23,9 @@ Este é um sistema web construído com **Laravel** para auxiliar treinadores e j
 
 ## 🧱 Funcionalidades Principais
 
-- Cadastro de atletas com CPF único
+- Cadastro de atletas com CPF único - A desenvolver
 - Upload de imagens em base64
-- Atualização e exclusão de registros com base no CPF
+- Atualização e exclusão de registros com base no CPF - A desenvolver
 - Comparação de habilidades entre análises anteriores
 - Visualização de gráficos individuais
 - Interface adaptada para treinadores e jogadores
