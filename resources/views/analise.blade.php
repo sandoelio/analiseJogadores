@@ -78,7 +78,7 @@
         </div>
         
         <img src="{{ asset('imagem/slogan.png') }}" alt="Imagem" class="thumbnail">
-        <h1>Análise do jogador</h1>
+        <h2>Análise do jogador</h2><br>
         <select id="alunoSelect" onchange="carregarGrafico()">
             <option value="">Selecione um aluno</option>
             @foreach($alunos as $aluno)
@@ -184,4 +184,8 @@
         });
     </script>
 </body>
+
+<footer style="position: fixed; bottom: 0; width: 100%; text-align: center; background-color: #426aee; color: white; padding: 10px;">
+    <p>&copy; 2025 Desenvolvido por Basquete Piraja. Todos os direitos reservados.</p>
+</footer>
 </html>

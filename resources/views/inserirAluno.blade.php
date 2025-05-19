@@ -14,18 +14,20 @@
             align-items: center;
             height: 100vh;
             padding: 20px;
+            margin-bottom: 60px
         }
         .form-container {
             background-color: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 4px 8px rgba(8, 8, 8, 0.2);
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
+            height: auto;
         }
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         label {
             display: block;
@@ -43,16 +45,25 @@
             background-color: #4CAF50;
             color: white;
             padding: 10px;
-            width: 100%;
+            width: 50%;
             border: none;
             border-radius: 5px;
             font-size: 16px;
-            margin-top: 5px;
+           
         }
 
         button:hover {
             background-color: #45a049;
         }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 1px;
+            width: 100%;
+        }
+
     </style>
 </head>
     <body>       
@@ -98,12 +109,14 @@
                 <label for="dominio">Dominio</label>
                 <input type="number" id="dominio" name="dominio" min="0" max="100" required>
 
-                <button type="submit">Salvar</button>
+                <div class="button-group">
+                    <button type="submit">Salvar</button>
 
-                <button type="button" onclick="voltarParaAnalise()" style="background-color: #426aee; color: white; padding: 10px; width: 100%; border: none; border-radius: 5px; font-size: 16px; margin-top: 10px;">
-                    Voltar
-                </button>
-                
+                    <button type="button" onclick="voltarParaAnalise()" style="background-color: #426aee;">
+                        Voltar
+                    </button>
+                </div>
+
                 <script>
                     function voltarParaAnalise() {
                         window.location.href = "/analise"; // Redireciona diretamente para a página analise.blade
@@ -112,4 +125,7 @@
             </form>
         </div>
     </body>
+    <footer style="position: fixed; bottom: 0; width: 100%; text-align: center; background-color: #426aee; color: white; padding: 5px; margin-top: 5%;">
+        <p>&copy; 2025 Desenvolvido por Basquete Piraja. Todos os direitos reservados.</p>
+    </footer>
 </html>
