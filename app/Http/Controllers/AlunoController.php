@@ -2,100 +2,99 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\AlunoService;
+use App\Models\Aluno;
+use Termwind\Components\Dd;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class AlunoController extends Controller
 {
-
-    protected $alunoService;
-
-    public function __construct(AlunoService $alunoService)
+    public function __construct()
     {
-        $this->alunoService = $alunoService;
+        // Aplica checagem de sessão em todas as routes deste controller
+        $this->middleware(\App\Http\Middleware\CheckSession::class);
     }
 
-    // Método para exibir o formulário de inserção
+    /**
+     * Exibe formulário para inserir aluno + análise.
+     */
     public function create()
     {
-        return view('inserirAluno');
+        return view('aluno.create');
     }
 
-    // Método para armazenar aluno e habilidades
+    /**
+     * Cria ou recupera o Aluno e registra uma nova Análise.
+     */
     public function store(Request $request)
     {
-        // Adicionar validação personalizada ou mais descritiva
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'arremesso' => 'required|numeric|between:0,100',
-            'passe' => 'required|numeric|between:0,100',
-            'marcacao' => 'required|numeric|between:0,100',
-            'finalizacao' => 'required|numeric|between:0,100',
-            'jogada' => 'required|numeric|between:0,100',
-            'dominio' => 'required|numeric|between:0,100',
-        ], [
-            'required' => 'O campo :attribute é obrigatório.',
-            'between' => 'O campo :attribute deve estar entre 0 e 100.',
-            'max' => 'O campo :attribute não pode ter mais que :max caracteres.'
+        // Validação dos dados do formulário
+        $data = $request->validate([
+            'nome'        => 'required|string|max:255',
+            'matricula'   => 'required|string|max:50',
+            'arremesso'   => 'required|integer|between:0,100',
+            'passe'       => 'required|integer|between:0,100',
+            'marcacao'    => 'required|integer|between:0,100',
+            'finalizacao' => 'required|integer|between:0,100',
+            'jogada'      => 'required|integer|between:0,100',
+            'dominio'     => 'required|integer|between:0,100',
         ]);
 
-        try {
-            // Chama o serviço para inserir o aluno e criar a análise
-            $aluno = $this->alunoService->storeAlunoComAnalise($validated);
+        // recupera direto do guard
+        $userId        = Auth::id();
+        $instituicaoId = Auth::user()->instituicao_id;
 
-            if ($aluno) {
-                // Redirecionamento com sucesso
-                return redirect()->route('aluno.create')
-                    ->with('success', "Aluno {$aluno->nome} cadastrado com sucesso!");
-            } else {
-                // Tratamento de erro para caso $aluno seja null
-                return redirect()->route('aluno.create')
-                    ->with('error', 'Erro ao cadastrar aluno: O retorno foi inválido.')
-                    ->withInput();
-            }
-        } catch (\Exception $e) {
-            // Tratamento de erro
-            return redirect()->route('aluno.create')
-                ->with('error', 'Erro ao cadastrar aluno: ' . $e->getMessage())
-                ->withInput();
-        }
+        // Cria ou recupera o aluno pela matrícula
+        $aluno = Aluno::firstOrCreate(
+            ['matricula'     => $data['matricula']],
+            [
+                'nome'           => $data['nome'],
+                'user_id'        => $userId,
+                'instituicao_id' => $instituicaoId,
+            ]
+        );
+
+        // Cria análise via relacionamento
+        $aluno->analises()->create([
+            'arremesso'   => $data['arremesso'],
+            'passe'       => $data['passe'],
+            'marcacao'    => $data['marcacao'],
+            'finalizacao' => $data['finalizacao'],
+            'jogada'      => $data['jogada'],
+            'dominio'     => $data['dominio'],
+        ]);
+
+        return redirect()
+            ->route('aluno.create')
+            ->with('success', "Análise registrada para {$aluno->nome}.");
     }
 
-    // Adicionar outros métodos úteis
+    /**
+     * Compara as duas últimas análises do aluno.
+     */
+    public function showComparativo(int $id)
+    {
+        $userId = session('user_id');
 
-    // public function update(Request $request, $id)
-    // {
-    //     // Similar validation as store method
-    //     $validated = $request->validate([
-    //         'nome' => 'required|string|max:255',
-    //         'arremesso' => 'required|numeric|between:0,100',
-    //         'passe' => 'required|numeric|between:0,100',
-    //         'marcacao' => 'required|numeric|between:0,100',
-    //         'finalizacao' => 'required|numeric|between:0,100',
-    //         'jogada' => 'required|numeric|between:0,100',
-    //         'dominio' => 'required|numeric|between:0,100',
-    //     ]);
+        $aluno = Aluno::where('id', $id)
+                      ->where('user_id', $userId)
+                      ->firstOrFail();
 
-    //     try {
-    //         $aluno = $this->alunoService->updateAluno($id, $validated);
-    //         return redirect()->route('alunos.show', $id)
-    //             ->with('success', "Aluno {$aluno->nome} atualizado com sucesso!");
-    //     } catch (\Exception $e) {
-    //         return redirect()->route('alunos.edit', $id)
-    //             ->with('error', 'Erro ao atualizar aluno: ' . $e->getMessage())
-    //             ->withInput();
-    //     }
-    // }
+        $analises = $aluno->analises()
+                          ->latest()
+                          ->take(2)
+                          ->get();
 
-    // public function destroy($id)
-    // {
-    //     try {
-    //         $this->alunoService->deleteAluno($id);
-    //         return redirect()->route('alunos.index')
-    //             ->with('success', 'Aluno excluído com sucesso!');
-    //     } catch (\Exception $e) {
-    //         return redirect()->route('alunos.index')
-    //             ->with('error', 'Erro ao excluir aluno: ' . $e->getMessage());
-    //     }
-    // }
+        if ($analises->count() < 2) {
+            return back()
+                ->with('warning', 'Este aluno ainda não possui duas análises para comparação.');
+        }
+
+        return view('aluno.comparativo', [
+            'aluno'    => $aluno,
+            'atual'    => $analises[0],
+            'anterior' => $analises[1],
+        ]);
+    }
 }
