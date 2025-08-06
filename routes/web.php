@@ -40,6 +40,12 @@ Route::middleware(CheckSession::class)->group(function () {
 
     Route::post('/aluno',[AlunoController::class, 'store'])->name('aluno.store');
 
+    Route::get('/aluno/{aluno}/edit', [AlunoController::class, 'edit'])->name('aluno.edit');
+
+    Route::put('/aluno/{aluno}', [AlunoController::class, 'update'])->name('aluno.update');
+
+    Route::delete('/aluno/{aluno}', [AlunoController::class, 'destroy'])->name('aluno.destroy');
+
     Route::get('/aluno/comparativo/{aluno}',[AlunoController::class, 'showComparativo'])->name('aluno.comparativo');
 });
 

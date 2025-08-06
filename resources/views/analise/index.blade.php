@@ -10,7 +10,6 @@
 
   <div class="d-flex justify-content-between mb-4">
     <h2>Consulta Pública de Estatísticas</h2>
-    <a href="{{ route('login') }}" class="btn btn-outline-primary">🔐 Login</a>
   </div>
 
   <!-- Instituições -->
@@ -53,8 +52,6 @@
     const statsContainer  = document.getElementById('estatisticas-container');
     const contentStats    = document.getElementById('estatisticas-content');
 
-    console.log('🛠️ Script carregado: listeners de instituição e aluno registrados');
-
     // Templates de rota com placeholders
     const urlAlunosTpl   = "{{ route('analise.alunos', ['instituicao' => 'INSTITUICAO_ID']) }}";
     const urlMostrarTpl  = "{{ route('analise.mostrar', ['matricula'   => 'MATRICULA_ID']) }}";
@@ -64,15 +61,12 @@
       const instId = selectInst.value;
       const url    = urlAlunosTpl.replace('INSTITUICAO_ID', instId);
 
-      console.log('🔍 Buscando alunos da instituição', instId, '→', url);
-
       fetch(url)
         .then(res => {
-          console.log('📶 Resposta alunos:', res.status);
+
           return res.json();
         })
         .then(json => {
-          console.log('📦 Dados alunos recebidos:', json);
 
           // Limpa e preenche o select de aluno
           selectAluno.innerHTML = '<option selected disabled>Selecione um aluno</option>';
@@ -85,7 +79,6 @@
           alunoContainer.style.display = 'block';
           statsContainer.style.display = 'none';
         })
-        .catch(err => console.error('❌ Erro ao carregar alunos:', err));
     });
 
     // Ao selecionar um aluno
@@ -93,12 +86,9 @@
       const matricula = selectAluno.value;
       const url       = urlMostrarTpl.replace('MATRICULA_ID', matricula);
 
-      console.log('📊 Buscando estatísticas do aluno', matricula, '→', url);
-
       fetch(url)
         .then(res => res.text())
         .then(html => {
-          console.log('✅ Estatísticas recebidas, renderizando...');
           contentStats.innerHTML   = html;
           statsContainer.style.display = 'block';
         })

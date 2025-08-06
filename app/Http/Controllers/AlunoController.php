@@ -86,6 +86,42 @@ class AlunoController extends Controller
             ->with('success', "Análise registrada para {$aluno->nome} (Matrícula: {$aluno->matricula}).");
     }
 
+    /** Exibe o formulário para editar apenas o nome do aluno */
+    public function edit(Aluno $aluno)
+    {
+        $this->authorize('update', $aluno);
+        return view('aluno.edit', compact('aluno'));
+    }
+
+    /** Atualiza somente o nome do aluno */
+    public function update(Request $request, Aluno $aluno)
+    {
+        $this->authorize('update', $aluno);
+
+        $data = $request->validate([
+            'nome' => 'required|string|max:255',
+        ]);
+
+        $aluno->update(['nome' => $data['nome']]);
+
+        return redirect()
+            ->route('aluno.create')
+            ->with('success', "Nome do aluno atualizado para “{$aluno->nome}”.");
+    }
+
+    /** Remove o aluno definitivamente */
+    public function destroy(Aluno $aluno)
+    {
+        $this->authorize('delete', $aluno);
+
+        $aluno->delete();
+
+        return redirect()
+            ->route('aluno.create')
+            ->with('success', "Aluno “{$aluno->nome}” excluído com sucesso.");
+    }
+
+
     /**
      * Compara as duas últimas análises do aluno.
      */
