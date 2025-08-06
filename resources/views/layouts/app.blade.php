@@ -18,46 +18,49 @@
     }
   </style>
 </head>
-<body>
-  <header class="bg-dark text-white py-3 mb-4">
-    <div class="container d-flex justify-content-between align-items-center">
-      <h1 class="h4 m-0">Sistema de Análise de Alunos</h1>
+    <body>
+        <header class="bg-dark text-white py-3 mb-4">
+            <div class="container d-flex justify-content-between align-items-center">
+                <h1 class="h4 m-0">Sistema de Análise de Alunos</h1>
 
-      <div class="d-flex align-items-center gap-3">
-        {{-- exibido apenas para usuários autenticados --}}
-        @auth
-          <a href="{{ route('analise.index') }}" class="btn btn-sm btn-outline-light">
-            <i class="bi-bar-chart-fill"></i> Estatísticas
-          </a>
+                <div class="d-flex align-items-center gap-3">
+                {{-- exibido apenas para usuários autenticados --}}
+                @auth
+                    <a href="{{ route('analise.index') }}" class="btn btn-sm btn-outline-light">
+                    <i class="bi-bar-chart-fill"></i> Estatísticas
+                    </a>
 
-          <a href="{{ route('aluno.create') }}" class="btn btn-sm btn-outline-light">
-            <i class="bi-person-plus-fill"></i> Novo Aluno
-          </a>
+                    <a href="{{ route('aluno.create') }}" class="btn btn-sm btn-outline-light">
+                    <i class="bi-person-plus-fill"></i> Novo Aluno
+                    </a>
 
-          <span class="ms-2">Olá, {{ Auth::user()->name }}</span>
+                    <span class="ms-2">Olá, {{ Auth::user()->name }}</span>
 
-          <form action="{{ route('logout') }}" method="POST" class="m-0">
-            @csrf
-            <button type="submit" class="btn btn-sm btn-light">Sair</button>
-          </form>
-        @endauth
+                    <form action="{{ route('logout') }}" method="POST" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-light">Sair</button>
+                    </form>
+                @endauth
 
-        {{-- exibido apenas para visitantes (não autenticados) --}}
-        @guest
-          <a href="{{ route('login') }}" class="btn btn-sm btn-light">
-            Login
-          </a>
-        @endguest
-      </div>
-    </div>
-  </header>
+                {{-- exibido apenas para visitantes (não autenticados) --}}
+                @guest
+                    <a href="{{ route('login') }}" class="btn btn-sm btn-light">
+                    Login
+                    </a>
+                @endguest
+                </div>
+            </div>
+        </header>
 
-  <main class="container py-4">
-    @yield('content')
-  </main>
+        <main class="container py-4">
+            @yield('content')
+        </main>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  @stack('scripts')
-</body>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+
+        @stack('scripts')
+    </body>
 </html>

@@ -1,18 +1,15 @@
-{{-- resources/views/analise/index.blade.php --}}
-
 @extends('layouts.app')
 
 @section('title', 'Consulta Pública de Estatísticas')
 
 @section('content')
-
 <div class="container mt-4">
 
   <div class="d-flex justify-content-between mb-4">
     <h2>Consulta Pública de Estatísticas</h2>
   </div>
 
-  <!-- Instituições -->
+  <!-- Seleção de Instituição -->
   <div class="mb-3">
     <label for="instituicao">Instituição:</label>
     <select id="instituicao" class="form-select">
@@ -23,7 +20,7 @@
     </select>
   </div>
 
-  <!-- Alunos -->
+  <!-- Seleção de Aluno (inicialmente oculta) -->
   <div id="aluno-container" class="mb-3" style="display: none;">
     <label for="aluno">Aluno:</label>
     <select id="aluno" class="form-select">
@@ -31,69 +28,87 @@
     </select>
   </div>
 
-  <!-- Estatísticas -->
+  <!-- Gráfico de Estatísticas (inicialmente oculto) -->
   <div id="estatisticas-container" class="mt-4" style="display: none;">
     <h4>Estatísticas do Aluno</h4>
-    <div id="estatisticas-content" class="p-3 border rounded bg-light">
-      <!-- HTML será injetado aqui -->
-    </div>
+    <canvas id="estatisticas-chart" height="200"></canvas>
   </div>
 
 </div>
-
 @endsection
 
 @push('scripts')
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const selectInst      = document.getElementById('instituicao');
-    const alunoContainer  = document.getElementById('aluno-container');
-    const selectAluno     = document.getElementById('aluno');
-    const statsContainer  = document.getElementById('estatisticas-container');
-    const contentStats    = document.getElementById('estatisticas-content');
+document.addEventListener('DOMContentLoaded', () => {
+  const selectInst     = document.getElementById('instituicao');
+  const alunoContainer = document.getElementById('aluno-container');
+  const selectAluno    = document.getElementById('aluno');
+  const statsContainer = document.getElementById('estatisticas-container');
+  const canvas         = document.getElementById('estatisticas-chart');
+  let   chartInstance  = null;
 
-    // Templates de rota com placeholders
-    const urlAlunosTpl   = "{{ route('analise.alunos', ['instituicao' => 'INSTITUICAO_ID']) }}";
-    const urlMostrarTpl  = "{{ route('analise.mostrar', ['matricula'   => 'MATRICULA_ID']) }}";
+  const tplAlunos = "{{ route('analise.alunos', ['instituicao' => 'INSTITUICAO_ID']) }}";
+  const tplShow   = "{{ route('analise.mostrar', ['matricula'   => 'MATRICULA_ID']) }}";
 
-    // Ao mudar a instituição
-    selectInst.addEventListener('change', () => {
-      const instId = selectInst.value;
-      const url    = urlAlunosTpl.replace('INSTITUICAO_ID', instId);
-
-      fetch(url)
-        .then(res => {
-
-          return res.json();
-        })
-        .then(json => {
-
-          // Limpa e preenche o select de aluno
-          selectAluno.innerHTML = '<option selected disabled>Selecione um aluno</option>';
-          (json.data || json).forEach(a => {
-            const option = new Option(a.nome, a.matricula);
-            selectAluno.appendChild(option);
-          });
-
-          // Exibe o container de alunos e esconde estatísticas
-          alunoContainer.style.display = 'block';
-          statsContainer.style.display = 'none';
-        })
-    });
-
-    // Ao selecionar um aluno
-    selectAluno.addEventListener('change', () => {
-      const matricula = selectAluno.value;
-      const url       = urlMostrarTpl.replace('MATRICULA_ID', matricula);
-
-      fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          contentStats.innerHTML   = html;
-          statsContainer.style.display = 'block';
-        })
-        .catch(err => console.error('❌ Erro ao carregar estatísticas:', err));
-    });
+  // Mudança de instituição carrega alunos
+  selectInst.addEventListener('change', () => {
+    fetch(tplAlunos.replace('INSTITUICAO_ID', selectInst.value))
+      .then(res => res.json())
+      .then(alunos => {
+        selectAluno.innerHTML = '<option selected disabled>Selecione um aluno</option>';
+        alunos.forEach(a => {
+          selectAluno.append(new Option(a.nome, a.matricula));
+        });
+        alunoContainer.style.display = 'block';
+        statsContainer.style.display = 'none';
+      })
+      .catch(console.error);
   });
+
+  // Ao escolher aluno, busca as análises e desenha o gráfico
+  selectAluno.addEventListener('change', () => {
+    fetch(tplShow.replace('MATRICULA_ID', selectAluno.value))
+      .then(res => res.json())
+      .then(data => {
+        const ctx = canvas.getContext('2d');
+
+        // destrói gráfico anterior
+        if (chartInstance) {
+          chartInstance.destroy();
+        }
+
+        // cria novo gráfico de barras
+        chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.labels,
+            datasets: [
+              {
+                label: 'Anterior',
+                data: data.anterior,
+                backgroundColor: 'rgba(255, 159, 64, 0.7)',
+              },
+              {
+                label: 'Atual',
+                data: data.atual,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+              }
+            ]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+
+        statsContainer.style.display = 'block';
+      })
+      .catch(console.error);
+  });
+});
 </script>
 @endpush
