@@ -17,17 +17,25 @@ class AlunoController extends Controller
     }
 
     /**
-     * Exibe formulário para inserir aluno + análise.
-     */
+     * Exibe formulário para inserir aluno + análise e lista os alunos já cadastrados.
+    */
     public function create()
     {
-        return view('aluno.create');
+        $user            = Auth::user();
+        $instituicaoId   = $user->instituicao_id;
+
+        // Puxa todos os alunos da mesma instituição
+        $alunos = Aluno::where('instituicao_id', $instituicaoId)
+                       ->orderBy('nome')
+                       ->get();
+
+        return view('aluno.create', compact('alunos'));
     }
 
-        /**
+    /**
      * Cria ou recupera o Aluno (gerando matrícula só se for novo)
      * e registra uma nova Análise.
-     */
+    */
     public function store(Request $request)
     {
         // 1. validação (sem 'matricula')

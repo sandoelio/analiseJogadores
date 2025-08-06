@@ -7,11 +7,11 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-8 col-lg-6">
 
-    <div class="card shadow-sm">
+    {{-- Cartão de Formulário --}}
+    <div class="card shadow-sm mb-4">
       <div class="card-header bg-success text-white text-center">
         <h5 class="mb-0">Novo Aluno / Análise</h5>
       </div>
-
       <div class="card-body">
 
         @if(session('success'))
@@ -38,120 +38,65 @@
             @enderror
           </div>
           
-          <div class="mb-3">
-            <label for="arremesso" class="form-label">Arremesso</label>
-            <input
-              type="number"
-              id="arremesso"
-              name="arremesso"
-              class="form-control @error('arremesso') is-invalid @enderror"
-              value="{{ old('arremesso') }}"
-              min="0"
-              max="100"
-              required
-            >
-            @error('arremesso')
-              <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <div class="mb-3">
-            <label for="passe" class="form-label">Passe</label>
-            <input
-              type="number"
-              id="passe"
-              name="passe"
-              class="form-control @error('passe') is-invalid @enderror"
-              value="{{ old('passe') }}"
-              min="0"
-              max="100"
-              required
-            >
-            @error('passe')
-              <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <div class="mb-3">
-            <label for="marcacao" class="form-label">Marcação</label>
-            <input
-              type="number"
-              id="marcacao"
-              name="marcacao"
-              class="form-control @error('marcacao') is-invalid @enderror"
-              value="{{ old('marcacao') }}"
-              min="0"
-              max="100"
-              required
-            >
-            @error('marcacao')
-              <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <div class="mb-3">
-            <label for="finalizacao" class="form-label">Finalização</label>
-            <input
-              type="number"
-              id="finalizacao"
-              name="finalizacao"
-              class="form-control @error('finalizacao') is-invalid @enderror"
-              value="{{ old('finalizacao') }}"
-              min="0"
-              max="100"
-              required
-            >
-            @error('finalizacao')
-              <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <div class="mb-3">
-            <label for="jogada" class="form-label">Jogada</label>
-            <input
-              type="number"
-              id="jogada"
-              name="jogada"
-              class="form-control @error('jogada') is-invalid @enderror"
-              value="{{ old('jogada') }}"
-              min="0"
-              max="100"
-              required
-            >
-            @error('jogada')
-              <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-          </div>
-
-          <div class="mb-4">
-            <label for="dominio" class="form-label">Domínio de Bola</label>
-            <input
-              type="number"
-              id="dominio"
-              name="dominio"
-              class="form-control @error('dominio') is-invalid @enderror"
-              value="{{ old('dominio') }}"
-              min="0"
-              max="100"
-              required
-            >
-            @error('dominio')
-              <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-          </div>
+          {{-- Demais campos de análise --}}
+          @foreach(['arremesso','passe','marcacao','finalizacao','jogada','dominio'] as $campo)
+            <div class="mb-3">
+              <label for="{{ $campo }}" class="form-label">
+                {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
+              </label>
+              <input
+                type="number"
+                id="{{ $campo }}"
+                name="{{ $campo }}"
+                class="form-control @error($campo) is-invalid @enderror"
+                value="{{ old($campo) }}"
+                min="0"
+                max="100"
+                required
+              >
+              @error($campo)
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+          @endforeach
 
           <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-success">
-              Salvar
-            </button>
-            <a href="{{ route('aluno.create') }}" class="btn btn-secondary">
-              Cancelar
-            </a>
+            <button type="submit" class="btn btn-success">Salvar</button>
+            <a href="{{ route('aluno.create') }}" class="btn btn-secondary">Cancelar</a>
           </div>
         </form>
 
       </div>
     </div>
+
+    {{-- Cartão de Listagem de Alunos --}}
+    @if(!empty($alunos) && $alunos->count())
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Alunos Cadastrados ({{ $alunos->count() }})</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Nome</th>
+                  <th>Matrícula</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($alunos as $aluno)
+                  <tr>
+                    <td>{{ $aluno->nome }}</td>
+                    <td>{{ $aluno->matricula }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    @endif
 
   </div>
 </div>
