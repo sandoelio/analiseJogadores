@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aluno;
-use Termwind\Components\Dd;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
 
 class AlunoController extends Controller
 {
@@ -24,15 +24,15 @@ class AlunoController extends Controller
         return view('aluno.create');
     }
 
-    /**
-     * Cria ou recupera o Aluno e registra uma nova Análise.
+        /**
+     * Cria ou recupera o Aluno (gerando matrícula só se for novo)
+     * e registra uma nova Análise.
      */
     public function store(Request $request)
     {
-        // Validação dos dados do formulário
+        // 1. validação (sem 'matricula')
         $data = $request->validate([
             'nome'        => 'required|string|max:255',
-            'matricula'   => 'required|string|max:50',
             'arremesso'   => 'required|integer|between:0,100',
             'passe'       => 'required|integer|between:0,100',
             'marcacao'    => 'required|integer|between:0,100',
@@ -41,21 +41,29 @@ class AlunoController extends Controller
             'dominio'     => 'required|integer|between:0,100',
         ]);
 
-        // recupera direto do guard
-        $userId        = Auth::id();
-        $instituicaoId = Auth::user()->instituicao_id;
+        // 2. dados do usuário e instituição
+        $user          = Auth::user();
+        $userId        = $user->id;
+        $instituicaoId = $user->instituicao_id;
 
-        // Cria ou recupera o aluno pela matrícula
+        // 3. gera matrícula só para novos alunos
+        $sigla     = strtoupper(substr($user->instituicao->nome, 0, 3));
+        $uid       = Str::random(7);
+        $matricula = "{$sigla}-{$uid}";
+
+        // 4. firstOrCreate: busca pelo aluno já existente
         $aluno = Aluno::firstOrCreate(
-            ['matricula'     => $data['matricula']],
             [
                 'nome'           => $data['nome'],
                 'user_id'        => $userId,
                 'instituicao_id' => $instituicaoId,
+            ],
+            [
+                'matricula'      => $matricula,
             ]
         );
 
-        // Cria análise via relacionamento
+        // 5. registra a nova análise
         $aluno->analises()->create([
             'arremesso'   => $data['arremesso'],
             'passe'       => $data['passe'],
@@ -67,7 +75,7 @@ class AlunoController extends Controller
 
         return redirect()
             ->route('aluno.create')
-            ->with('success', "Análise registrada para {$aluno->nome}.");
+            ->with('success', "Análise registrada para {$aluno->nome} (Matrícula: {$aluno->matricula}).");
     }
 
     /**

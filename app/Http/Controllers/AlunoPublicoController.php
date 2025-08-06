@@ -6,7 +6,6 @@ use App\Models\Aluno;
 use App\Models\Instituicao;
 use App\Http\Controllers\Controller;
 
-
 class AlunoPublicoController extends Controller
 {
     public function index()
@@ -33,17 +32,7 @@ class AlunoPublicoController extends Controller
                           ->take(2)
                           ->get();
 
-        if ($analises->count() < 2) {
-            return view('aluno.publico', [
-                'aluno'    => $aluno,
-                'mensagem' => 'Este aluno ainda não possui comparações.'
-            ]);
-        }
-
-        return view('aluno.publico', [
-            'aluno'    => $aluno,
-            'atual'    => $analises[0],
-            'anterior' => $analises[1],
-        ]);
+        // Envia sempre 'analises' em vez de 'atual' / 'anterior' separados
+        return view('aluno.publico', compact('aluno', 'analises'));
     }
 }

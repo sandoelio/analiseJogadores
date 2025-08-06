@@ -20,12 +20,21 @@ return new class extends Migration
                   ->cascadeOnDelete();
 
             $table->string('nome', 100);
-            $table->string('matricula', 50)->unique();
+            
+            // matrícula gerada: sem unique isolado
+            $table->string('matricula');
 
             $table->timestampsTz();
             $table->softDeletesTz();
 
+            // índices para performance
             $table->index(['instituicao_id', 'user_id']);
+
+            // índice único composto para evitar colisão entre instituições
+            $table->unique(['instituicao_id', 'matricula']);
+
+            // índice único para nome + instituição
+            $table->unique(['nome', 'instituicao_id']);
         });
     }
 

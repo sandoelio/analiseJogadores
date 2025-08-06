@@ -37,22 +37,7 @@
               <div class="invalid-feedback">{{ $message }}</div>
             @enderror
           </div>
-
-          <div class="mb-3">
-            <label for="matricula" class="form-label">Matrícula</label>
-            <input
-              type="text"
-              id="matricula"
-              name="matricula"
-              class="form-control @error('matricula') is-invalid @enderror"
-              value="{{ old('matricula') }}"
-              required
-            >
-            @error('matricula')
-              <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-          </div>
-
+          
           <div class="mb-3">
             <label for="arremesso" class="form-label">Arremesso</label>
             <input
