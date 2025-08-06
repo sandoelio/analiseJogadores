@@ -1,24 +1,23 @@
-{{-- resources/views/usuarios/create.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Cadastrar Usuário')
+@section('title', 'Editar Usuário')
 
 @section('content')
 <div class="row justify-content-center">
   <div class="col-12 col-md-6 col-lg-5">
-    <h2 class="mb-4">+ Novo Usuário</h2>
-    <a href="{{ route('usuarios.index') }}" class="btn btn-outline-secondary mb-4">
-  ← Voltar à Lista
-</a>
+
+    <h2 class="mb-4">Editar Usuário</h2>
+    <a href="{{ route('usuarios.index') }}" class="btn btn-outline-secondary mb-3">
+      ← Voltar à Lista
+    </a>
 
     @if(session('success'))
-      <div class="alert alert-success">
-        {{ session('success') }}
-      </div>
+      <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <form method="POST" action="{{ route('usuarios.store') }}">
+    <form method="POST" action="{{ route('usuarios.update', $usuario) }}">
       @csrf
+      @method('PUT')
 
       {{-- Nome --}}
       <div class="mb-3">
@@ -28,7 +27,7 @@
           id="name"
           name="name"
           class="form-control @error('name') is-invalid @enderror"
-          value="{{ old('name') }}"
+          value="{{ old('name', $usuario->name) }}"
           required
         >
         @error('name')
@@ -44,7 +43,7 @@
           id="email"
           name="email"
           class="form-control @error('email') is-invalid @enderror"
-          value="{{ old('email') }}"
+          value="{{ old('email', $usuario->email) }}"
           required
         >
         @error('email')
@@ -54,13 +53,12 @@
 
       {{-- Senha --}}
       <div class="mb-3">
-        <label for="password" class="form-label">Senha</label>
+        <label for="password" class="form-label">Nova Senha (opcional)</label>
         <input
           type="password"
           id="password"
           name="password"
           class="form-control @error('password') is-invalid @enderror"
-          required
         >
         @error('password')
           <div class="invalid-feedback">{{ $message }}</div>
@@ -75,29 +73,11 @@
           id="password_confirmation"
           name="password_confirmation"
           class="form-control"
-          required
         >
       </div>
 
-      {{-- Campo para nova instituição --}}
-      <div class="mb-3">
-        <label for="instituicao_nome" class="form-label">Instituição</label>
-        <input
-          type="text"
-          id="instituicao_nome"
-          name="instituicao_nome"
-          class="form-control @error('instituicao_nome') is-invalid @enderror"
-          value="{{ old('instituicao_nome') }}"
-          required
-        >
-        @error('instituicao_nome')
-          <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-      </div>
-
-      {{-- Botão de envio --}}
       <button type="submit" class="btn btn-primary w-100">
-        Cadastrar
+        Atualizar
       </button>
     </form>
   </div>

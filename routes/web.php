@@ -22,17 +22,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 | Página Pública (Seleção de Instituição / Estatísticas)
 |--------------------------------------------------------------------------
 */
-Route::get('/', 
-    [AlunoPublicoController::class, 'index']
-)->name('analise.index');
+Route::get('/',[AlunoPublicoController::class, 'index'])->name('analise.index');
 
-Route::get('/analise/instituicao/{instituicao}/alunos', 
-    [AlunoPublicoController::class, 'listarPorInstituicao']
+Route::get('/analise/instituicao/{instituicao}/alunos',[AlunoPublicoController::class,'listarPorInstituicao']
 )->name('analise.alunos');
 
-Route::get('/analise/aluno/{matricula}', 
-    [AlunoPublicoController::class, 'mostrar']
-)->name('analise.mostrar');
+Route::get('/analise/aluno/{matricula}',[AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar');
 
 /*
 |--------------------------------------------------------------------------
@@ -40,17 +35,12 @@ Route::get('/analise/aluno/{matricula}',
 |--------------------------------------------------------------------------
 */
 Route::middleware(CheckSession::class)->group(function () {
-    Route::get('/aluno/create', 
-        [AlunoController::class, 'create']
-    )->name('aluno.create');
 
-    Route::post('/aluno', 
-        [AlunoController::class, 'store']
-    )->name('aluno.store');
+    Route::get('/aluno/create',[AlunoController::class, 'create'])->name('aluno.create');
 
-    Route::get('/aluno/comparativo/{aluno}', 
-        [AlunoController::class, 'showComparativo']
-    )->name('aluno.comparativo');
+    Route::post('/aluno',[AlunoController::class, 'store'])->name('aluno.store');
+
+    Route::get('/aluno/comparativo/{aluno}',[AlunoController::class, 'showComparativo'])->name('aluno.comparativo');
 });
 
 /*
@@ -59,15 +49,16 @@ Route::middleware(CheckSession::class)->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware([CheckSession::class, CheckAdmin::class])->group(function () {
-    Route::get('/usuarios', 
-        [UsuarioController::class, 'index']
-    )->name('usuarios.index');
 
-    Route::get('/usuarios/create', 
-        [UsuarioController::class, 'create']
-    )->name('usuarios.create');
+    Route::get('/usuarios',[UsuarioController::class, 'index'])->name('usuarios.index');
 
-    Route::post('/usuarios', 
-        [UsuarioController::class, 'store']
-    )->name('usuarios.store');
+    Route::get('/usuarios/create',[UsuarioController::class, 'create'])->name('usuarios.create');
+
+    Route::post('/usuarios',[UsuarioController::class, 'store'])->name('usuarios.store');
+
+    Route::get('/usuarios/{usuario}/edit', [UsuarioController::class,'edit'])->name('usuarios.edit');
+
+    Route::put('/usuarios/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
+
+    Route::delete('/usuarios/{usuario}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
 });

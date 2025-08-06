@@ -59,4 +59,43 @@ class UsuarioController extends Controller
             ->route('usuarios.create')
             ->with('success', 'Usuário cadastrado com sucesso!');
     }
+
+    // Formulário de edição
+    public function edit(User $usuario)
+    {
+        $instituicoes = Instituicao::orderBy('nome')->get();
+        return view('usuarios.edit', compact('usuario'));
+    }
+
+    // Atualizar dados
+    public function update(Request $request, User $usuario)
+    {
+        $data = $request->validate([
+            'name'             => 'required|string|max:255',
+            'email'            => 'required|email|unique:users,email,'.$usuario->id,
+            'password'         => 'nullable|string|min:6|confirmed',
+        ]);
+
+        $usuario->name           = $data['name'];
+        $usuario->email          = $data['email'];
+
+        if (!empty($data['password'])) {
+            $usuario->password = Hash::make($data['password']);
+        }
+
+        $usuario->save();
+
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuário atualizado com sucesso!');
+    }
+
+    // Excluir usuário
+    public function destroy(User $usuario)
+    {
+        $usuario->delete();
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuário excluído com sucesso!');
+    }
 }
