@@ -37,7 +37,7 @@
     .content-box {
       width: 100%;
       max-width: 1140px;        /* largura máxima de página */
-      background: rgba(255,216,168,0.4);
+      background: rgba(255, 159, 64, 0.8);
       padding: 2rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.05);
       border-radius: 4px;

@@ -1,16 +1,14 @@
-{{-- resources/views/analise/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Análises de Atletas')
 
 @push('styles')
 <style>
-  /* canvas ocupa 100% da largura e altura mínima */
   #estatisticas-chart {
     width: 100% !important;
     height: auto !important;
     max-width: 600px;
-    min-height: 300px; /* aumenta a área vertical */
+    min-height: 300px;
   }
 </style>
 @endpush
@@ -29,8 +27,8 @@
     </div>
 
     {{-- Seleção de Instituição e Aluno --}}
-    <div class="row gx-3 gy-3 mb-4">
-      <div class="col-12 col-md-6">
+    <div id="selecao-container" class="row gx-3 gy-3 mb-4 justify-content-center">
+      <div id="instituicao-wrapper" class="col-12 col-md-6 text-center">
         <label for="instituicao" class="form-label">
           <i class="bi bi-building me-1"></i>Instituição
         </label>
@@ -42,7 +40,7 @@
         </select>
       </div>
 
-      <div id="aluno-container" class="col-12 col-md-6 d-none">
+      <div id="aluno-wrapper" class="col-12 col-md-6 d-none">
         <label for="aluno" class="form-label">
           <i class="bi bi-person-badge me-1"></i>Aluno
         </label>
@@ -72,7 +70,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const selectInst     = document.getElementById('instituicao');
-  const alunoContainer = document.getElementById('aluno-container');
   const selectAluno    = document.getElementById('aluno');
   const statsContainer = document.getElementById('estatisticas-container');
   const canvas         = document.getElementById('estatisticas-chart');
@@ -87,7 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(alunos => {
         selectAluno.innerHTML = '<option selected disabled>Selecione um aluno</option>';
         alunos.forEach(a => selectAluno.append(new Option(a.nome, a.matricula)));
-        alunoContainer.classList.remove('d-none');
+
+        // Reposiciona inputs lado a lado
+        const instituicaoWrapper = document.getElementById('instituicao-wrapper');
+        instituicaoWrapper.classList.remove('text-center');
+
+        const alunoWrapper = document.getElementById('aluno-wrapper');
+        alunoWrapper.classList.remove('d-none');
+
         statsContainer.classList.add('d-none');
       })
       .catch(console.error);
@@ -109,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 data: data.anterior,
                 backgroundColor: 'rgba(255, 159, 64, 0.8)',
                 borderRadius: 4,
-                maxBarThickness: 50 // largura máxima, evita barras gigantes
+                maxBarThickness: 50
               },
               {
                 label: 'Atual',
@@ -122,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           options: {
             responsive: true,
-            maintainAspectRatio: false, 
+            maintainAspectRatio: false,
             scales: {
               x: {
                 ticks: {
