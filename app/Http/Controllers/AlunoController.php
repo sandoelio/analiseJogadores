@@ -37,7 +37,11 @@ class AlunoController extends Controller
         $alunos = Aluno::where('instituicao_id', $instituicaoId)
             ->orderBy('nome')
             ->paginate(10);
-        return view('aluno.index', compact('alunos'));
+
+        // Total absoluto (query separada)
+        $totalAlunos = Aluno::count();
+
+        return view('aluno.index', compact('alunos', 'totalAlunos')); 
     }
 
     /**

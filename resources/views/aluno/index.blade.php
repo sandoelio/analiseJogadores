@@ -46,7 +46,7 @@
 
                         <div class="card-header text-white">
                             <h5 class="mb-0">
-                                Alunos Cadastrados ({{ $alunos->total() }})
+                                Alunos Cadastrados ({{ $totalAlunos }})
                             </h5>
                         </div>
 
@@ -94,11 +94,11 @@
                         @if ($alunos->hasPages())
                             <div class="card-footer bg-white border-0">
                                 <div class="d-flex justify-content-center">
-                                    {{ $alunos->links('vendor.pagination.bootstrap-5') }}
+                                    {{-- simples – só Anterior/Próximo --}}
+                                    {{ $alunos->links('pagination::bootstrap-5') }}
                                 </div>
                             </div>
                         @endif
-
                     </div>
                 </div>
             </div>
