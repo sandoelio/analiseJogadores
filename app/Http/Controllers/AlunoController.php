@@ -17,6 +17,15 @@ class AlunoController extends Controller
     }
 
     /**
+     * Exibe o dashboard do aluno.
+     */
+    // Apenas para usuários autenticados
+    public function dashboard()
+    {
+        return view('aluno.dashboard');
+    }
+
+    /**
      * Exibe formulário para inserir aluno + análise e lista os alunos já cadastrados.
     */
     public function create()

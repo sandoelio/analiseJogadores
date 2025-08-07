@@ -49,7 +49,7 @@ class AuthController extends Controller
         // Redireciona admin ou usuário
         return $user->is_admin
             ? redirect()->route('usuarios.index')
-            : redirect()->route('aluno.create');
+            : redirect()->route('aluno.dashboard');
     }
 
     /**

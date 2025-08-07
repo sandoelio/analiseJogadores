@@ -101,11 +101,11 @@
       <h1 class="h4 m-0">Análises de Atletas</h1>
       <div class="d-flex align-items-center gap-3">
         @auth
-          <a href="{{ route('analise.index') }}" class="btn btn-sm btn-outline-light">
+          {{-- <a href="{{ route('analise.index') }}" class="btn btn-sm btn-outline-light">
             <i class="bi-bar-chart-fill"></i> Estatísticas
-          </a>
-          <a href="{{ route('aluno.create') }}" class="btn btn-sm btn-outline-light">
-            <i class="bi-person-plus-fill"></i> Novo Aluno
+          </a> --}}
+          <a href="{{ route('aluno.dashboard') }}" class="btn btn-sm btn-outline-light">
+            <i class="bi-person-plus-fill"></i> Dashboard
           </a>
           <span>Olá, {{ Auth::user()->name }}</span>
           <form action="{{ route('logout') }}" method="POST" class="m-0">
