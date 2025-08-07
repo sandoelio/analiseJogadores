@@ -26,25 +26,32 @@ class AlunoController extends Controller
     }
 
     /**
-     * Exibe formulário para inserir aluno + análise e lista os alunos já cadastrados.
-    */
-    public function create()
+     * Lista todos os alunos do usuário autenticado.
+     */
+    public function index()
     {
         $user            = Auth::user();
         $instituicaoId   = $user->instituicao_id;
 
         // Puxa todos os alunos da mesma instituição
         $alunos = Aluno::where('instituicao_id', $instituicaoId)
-                       ->orderBy('nome')
-                       ->get();
+            ->orderBy('nome')
+            ->paginate(10);
+        return view('aluno.index', compact('alunos'));
+    }
 
-        return view('aluno.create', compact('alunos'));
+    /**
+     * Exibe formulário para inserir aluno + análise.
+     */
+    public function create()
+    {
+       return view('aluno.create');
     }
 
     /**
      * Cria ou recupera o Aluno (gerando matrícula só se for novo)
      * e registra uma nova Análise.
-    */
+     */
     public function store(Request $request)
     {
         // 1. validação (sem 'matricula')
@@ -139,13 +146,13 @@ class AlunoController extends Controller
         $userId = session('user_id');
 
         $aluno = Aluno::where('id', $id)
-                      ->where('user_id', $userId)
-                      ->firstOrFail();
+            ->where('user_id', $userId)
+            ->firstOrFail();
 
         $analises = $aluno->analises()
-                          ->latest()
-                          ->take(2)
-                          ->get();
+            ->latest()
+            ->take(2)
+            ->get();
 
         if ($analises->count() < 2) {
             return back()

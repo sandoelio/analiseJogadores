@@ -76,7 +76,7 @@
                 Atualizar Aluno
             </a>
 
-            <a href="" class="dashboard-btn">
+            <a href="{{route("aluno.index")}} " class="dashboard-btn">
                 <i class="bi bi-people-fill"></i>
                 Alunos Cadastrados
             </a>

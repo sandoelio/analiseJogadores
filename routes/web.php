@@ -36,6 +36,8 @@ Route::get('/analise/aluno/{matricula}',[AlunoPublicoController::class, 'mostrar
 */
 Route::middleware(CheckSession::class)->group(function () {
 
+    Route::get('/alunos/cadastrados', [AlunoController::class, 'index'])->name('aluno.index');
+    
     Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])->name('aluno.dashboard');
 
     Route::get('/aluno/create',[AlunoController::class, 'create'])->name('aluno.create');
