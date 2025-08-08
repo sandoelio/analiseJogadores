@@ -45,23 +45,34 @@
         main.site-main {
             flex: 1;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
+            flex-direction: column;
+            /* justify-content: center; */
+            align-items: stretch;
+            /* estica o content-box */
+            padding: 0;
+            margin: 0;
         }
 
         /* Estilo padrão para desktop */
         .content-box {
-            width: 100%;
-            max-width: 1140px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: 100%;
+            padding: 1.5rem;
+            /* pode ajustar conforme o visual desejado */
             background: rgba(255, 159, 64, 0.8);
-            padding: 2rem;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-            border-radius: 4px;
-            overflow: hidden;
-            max-height: calc(100vh - 160px);
-            /* ajusta para caber entre header e footer */
+            box-shadow: none;
+            /* opcional: remove sombra se quiser colar mesmo */
+            border-radius: 0;
+            /* sem bordas arredondadas para colar nos cantos */
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+            width: 100%;
         }
+
+
 
         /* Estilo específico para mobile */
         @media (max-width: 576px) {
