@@ -63,26 +63,30 @@
             /* ajusta para caber entre header e footer */
         }
 
-
         /* Estilo específico para mobile */
         @media (max-width: 576px) {
             .content-box {
                 overflow-y: auto;
+                /* rolagem interna */
                 padding: 1rem;
                 max-height: calc(100vh - 160px);
-                /* mesma altura, mas agora com rolagem interna */
+                /* altura entre header e footer */
                 -webkit-overflow-scrolling: touch;
                 /* rolagem suave no iOS */
+                box-sizing: border-box;
             }
 
             footer.site-footer {
                 padding: 1.5rem 1rem;
                 font-size: 0.85rem;
+                text-align: center;
             }
 
             main.site-main {
-                padding-bottom: 2rem;
-                /* espaço extra para não colar no rodapé */
+                padding: 0;
+                /* remove padding externo */
+                align-items: stretch;
+                /* garante altura total */
             }
 
             .form-control {
@@ -99,6 +103,7 @@
                 margin-right: -1rem;
             }
         }
+
 
         /* Logo do banner */
         .logo-banner {
