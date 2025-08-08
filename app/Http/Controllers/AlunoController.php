@@ -53,6 +53,82 @@ class AlunoController extends Controller
     }
 
     /**
+     * Atualiza as habilidades do aluno.
+     * Registra uma nova análise com os dados fornecidos.
+     */
+
+    public function updateHabilidade(Request $request)
+    {
+        $data = $request->validate([
+            'aluno_id'     => 'required|exists:alunos,id',
+            'arremesso'    => 'required|integer|between:0,100',
+            'passe'        => 'required|integer|between:0,100',
+            'marcacao'     => 'required|integer|between:0,100',
+            'finalizacao'  => 'required|integer|between:0,100',
+            'jogada'       => 'required|integer|between:0,100',
+            'dominio'      => 'required|integer|between:0,100',
+        ]);
+
+        $aluno = Aluno::findOrFail($data['aluno_id']);
+
+        $aluno->analises()->create([
+            'arremesso'   => $data['arremesso'],
+            'passe'       => $data['passe'],
+            'marcacao'    => $data['marcacao'],
+            'finalizacao' => $data['finalizacao'],
+            'jogada'      => $data['jogada'],
+            'dominio'     => $data['dominio'],
+        ]);
+
+        return redirect()
+            ->route('aluno.updateForm')
+            ->with('success', "Nova análise registrada para {$aluno->nome}.");
+    }
+
+    /**
+     * Exibe o formulário para criar uma nova habilidade.
+     */
+    public function habilidade(Request $request)
+    {
+        $user = Auth::user();
+        $instId = $user->instituicao_id;
+
+        // Sempre passo para a view a lista de alunos da instituição
+        $alunos = Aluno::where('instituicao_id', $instId)
+            ->orderBy('nome')
+            ->get();
+        return view('aluno.habilidade', compact('alunos'));
+    }
+
+    /**
+     * Retorna em JSON a última análise do aluno.
+     */
+    public function fetchLastAnalysis(Aluno $aluno)
+    {
+        $analise = $aluno
+            ->analises()
+            ->latest('created_at')
+            ->first();
+
+        if (! $analise) {
+            return response()->json([
+                'error' => 'Nenhuma análise encontrada.'
+            ], 404);
+        }
+
+        // devolvêmos o nome do aluno e cada atributo
+        return response()->json([
+            'nome'        => $aluno->nome,
+            'arremesso'   => $analise->arremesso,
+            'passe'       => $analise->passe,
+            'marcacao'    => $analise->marcacao,
+            'finalizacao' => $analise->finalizacao,
+            'jogada'      => $analise->jogada,
+            'dominio'     => $analise->dominio,
+        ]);
+    }
+
+    /**
      * Cria ou recupera o Aluno (gerando matrícula só se for novo)
      * e registra uma nova Análise.
      */

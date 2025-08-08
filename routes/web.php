@@ -40,6 +40,13 @@ Route::middleware(CheckSession::class)->group(function () {
     
     Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])->name('aluno.dashboard');
 
+    Route::post('/aluno/habilidade/update', [AlunoController::class, 'updateHabilidade'])->name('aluno.habilidade.update');
+    
+    Route::get('/aluno/atualizar', [AlunoController::class, 'habilidade'])->name('aluno.updateForm');
+
+    // Rota AJAX para buscar a última análise de um aluno
+    Route::get('/aluno/{aluno}/ultima-analise', [AlunoController::class, 'fetchLastAnalysis'])->name('aluno.lastAnalysis');
+
     Route::get('/aluno/create',[AlunoController::class, 'create'])->name('aluno.create');
 
     Route::post('/aluno',[AlunoController::class, 'store'])->name('aluno.store');

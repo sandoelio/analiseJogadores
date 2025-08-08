@@ -68,17 +68,17 @@
         <div class="dashboard-buttons">
             <a href="{{ route('aluno.create') }}" class="dashboard-btn">
                 <i class="bi bi-person-plus-fill"></i>
-                Novo Aluno
+                Novo Atleta
             </a>
 
-            <a href="{{ route('aluno.create') }}" class="dashboard-btn">
+            <a href="{{ route('aluno.updateForm') }}" class="dashboard-btn">
                 <i class="bi bi-pencil-square"></i>
-                Atualizar Aluno
+                Atualizar Atleta
             </a>
 
             <a href="{{route("aluno.index")}} " class="dashboard-btn">
                 <i class="bi bi-people-fill"></i>
-                Alunos Cadastrados
+                Atletas Cadastrados
             </a>
 
             <a href="{{ route('analise.index') }}" class="dashboard-btn">
