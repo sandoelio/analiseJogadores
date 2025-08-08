@@ -12,7 +12,7 @@
             cursor: not-allowed;
         }
 
-
+        
         /* Cor do navbar */
         .bg-navbar-blue {
             background-color: #1B265E !important;
