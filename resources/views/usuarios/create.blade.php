@@ -8,7 +8,7 @@
   <div class="col-12 col-md-6 col-lg-5">
     <h2 class="mb-4">+ Novo Usuário</h2>
     <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary mb-4">
-  ← Voltar à Lista
+  ← Voltar
 </a>
 
     @if(session('success'))
