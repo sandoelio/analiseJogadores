@@ -67,6 +67,10 @@ Route::middleware(CheckSession::class)->group(function () {
 */
 Route::middleware([CheckSession::class, CheckAdmin::class])->group(function () {
 
+    Route::get('/admin/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+
     Route::get('/usuarios',[UsuarioController::class, 'index'])->name('usuarios.index');
 
     Route::get('/usuarios/create',[UsuarioController::class, 'create'])->name('usuarios.create');

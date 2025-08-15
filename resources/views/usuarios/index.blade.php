@@ -7,9 +7,9 @@
   <div class="col-12 col-md-10 col-lg-8">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="m-0">Usuários Cadastrados</h2>
-      <a href="{{ route('usuarios.create') }}" class="btn btn-primary">
-        + Novo Usuário
+      <h2 class="m-0">Usuários</h2>
+      <a href="{{ route('admin.dashboard') }}" class="btn btn-primary">
+        Voltar ao Dashboard
       </a>
     </div>
 
