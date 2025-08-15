@@ -145,15 +145,22 @@
             <h1 class="h4 m-0">Análises de Atletas</h1>
             <div class="d-flex align-items-center gap-3">
                 @auth
-                    <a href="{{ route('aluno.dashboard') }}" class="btn btn-sm btn-outline-light">
-                        <i class="bi-person-plus-fill"></i> Dashboard
+                    @php
+                        $dashboardRoute = Auth::user()->is_admin ? 'admin.dashboard' : 'aluno.dashboard';
+                    @endphp
+
+                    <a href="{{ route($dashboardRoute) }}" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
+
                     <span>Olá, {{ Auth::user()->name }}</span>
+
                     <form action="{{ route('logout') }}" method="POST" class="m-0">
                         @csrf
                         <button type="submit" class="btn btn-sm btn-light">Sair</button>
                     </form>
                 @endauth
+
                 @guest
                     <a href="{{ route('login') }}" class="btn btn-sm btn-light">Login</a>
                 @endguest
