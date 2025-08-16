@@ -134,7 +134,12 @@ class AlunoController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. validação (sem 'matricula')
+        //dados do usuário e instituição
+        $user          = Auth::user();
+        $userId        = $user->id;
+        $instituicaoId = $user->instituicao_id;
+
+        // validação (sem 'matricula')
         $data = $request->validate([
             'nome'        => 'required|string|max:255',
             'arremesso'   => 'required|integer|between:0,100',
@@ -144,13 +149,20 @@ class AlunoController extends Controller
             'jogada'      => 'required|integer|between:0,100',
             'dominio'     => 'required|integer|between:0,100',
         ]);
+        
+        // Checa existência
+        $jaCadastrado = Aluno::where('nome', $data['nome'])
+            ->where('user_id', $user->id)
+            ->where('instituicao_id', $instituicaoId)
+            ->exists();
 
-        // 2. dados do usuário e instituição
-        $user          = Auth::user();
-        $userId        = $user->id;
-        $instituicaoId = $user->instituicao_id;
+        if ($jaCadastrado) {
+            return back()
+                ->withErrors(['nome' => 'Este atleta já está cadastrado.'])
+                ->withInput();
+        }
 
-        // 3. gera matrícula só para novos alunos
+        // gera matrícula só para novos alunos
         $sigla     = strtoupper(substr($user->instituicao->nome, 0, 3));
         $uid       = Str::random(7);
         $matricula = "{$sigla}-{$uid}";

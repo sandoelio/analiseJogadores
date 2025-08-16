@@ -56,7 +56,7 @@
                         {{-- Apenas o nome fica editável --}}
                         <div class="mb-3">
                             <label for="nome" class="form-label">Nome do Atleta</label>
-                            <input type="text" id="nome" name="nome"
+                            <input type="text" id="nome" name="nome" placeholder="Nome e sobrenome ou apelideo"
                                 class="form-control @error('nome') is-invalid @enderror" value="{{ old('nome') }}"
                                 required>
                             @error('nome')
