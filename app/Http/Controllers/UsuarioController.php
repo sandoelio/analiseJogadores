@@ -19,7 +19,7 @@ class UsuarioController extends Controller
     {
         $usuarios = User::where('is_admin', false)
                         ->with('instituicao')
-                        ->get();
+                        ->paginate(10);
 
         return view('usuarios.index', compact('usuarios'));
     }

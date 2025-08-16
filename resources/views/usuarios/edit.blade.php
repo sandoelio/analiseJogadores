@@ -5,11 +5,13 @@
 @section('content')
 <div class="row justify-content-center">
   <div class="col-12 col-md-6 col-lg-5">
-
-    <h2 class="mb-4">Editar Usuário</h2>
-    <a href="{{ route('usuarios.index') }}" class="btn btn-outline-secondary mb-3">
-      ← Voltar à Lista
-    </a>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      {{-- Título --}}
+      <h2 class="mb-4">Editar Usuário</h2>
+      <a href="{{ route('usuarios.index') }}" class="btn btn-outline-secondary mb-3">
+        ← Voltar à Lista     
+      </a>     
+    </div>
 
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>
@@ -76,7 +78,7 @@
         >
       </div>
 
-      <button type="submit" class="btn btn-primary w-100">
+      <button type="submit" class="btn btn-primary w-100" style="background: #1B265E;">
         Atualizar
       </button>
     </form>

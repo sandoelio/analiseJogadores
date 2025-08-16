@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Aluno')
+@section('title', 'Editar Atleta')
 
 @section('content')
 <div class="row justify-content-center">
   <div class="col-12 col-md-6 col-lg-5">
 
-    <h2 class="mb-4">Editar Aluno</h2>
+    <h2 class="mb-4">Editar Atleta</h2>
     <a href="{{ route('aluno.create') }}" class="btn btn-outline-secondary mb-3">
       ← Voltar
     </a>
@@ -20,7 +20,7 @@
       @method('PUT')
 
       <div class="mb-3">
-        <label for="nome" class="form-label">Nome do Aluno</label>
+        <label for="nome" class="form-label">Nome do Atleta</label>
         <input
           type="text"
           id="nome"
@@ -34,8 +34,8 @@
         @enderror
       </div>
 
-      <button type="submit" class="btn btn-primary w-100">
-        Atualizar Nome
+      <button type="submit" class="btn btn-primary w-100" style="background: #1B265E;">
+        Atualizar
       </button>
     </form>
   </div>
