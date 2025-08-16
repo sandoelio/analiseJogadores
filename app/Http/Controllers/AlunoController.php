@@ -2,100 +2,259 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\AlunoService;
+use App\Models\Aluno;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
 
 class AlunoController extends Controller
 {
-
-    protected $alunoService;
-
-    public function __construct(AlunoService $alunoService)
+    public function __construct()
     {
-        $this->alunoService = $alunoService;
+        // Aplica checagem de sessão em todas as routes deste controller
+        $this->middleware(\App\Http\Middleware\CheckSession::class);
     }
 
-    // Método para exibir o formulário de inserção
+    /**
+     * Exibe o dashboard do aluno.
+     */
+    // Apenas para usuários autenticados
+    public function dashboard()
+    {
+        return view('aluno.dashboard');
+    }
+
+    /**
+     * Lista todos os alunos do usuário autenticado.
+     */
+    public function index()
+    {
+        $user            = Auth::user();
+        $instituicaoId   = $user->instituicao_id;
+
+        // Puxa todos os alunos da mesma instituição
+        $alunos = Aluno::where('instituicao_id', $instituicaoId)
+            ->orderBy('nome')
+            ->paginate(10);
+
+        // Total absoluto (query separada)
+        $totalAlunos = Aluno::count();
+
+        return view('aluno.index', compact('alunos', 'totalAlunos')); 
+    }
+
+    /**
+     * Exibe formulário para inserir aluno + análise.
+     */
     public function create()
     {
-        return view('inserirAluno');
+       return view('aluno.create');
     }
 
-    // Método para armazenar aluno e habilidades
-    public function store(Request $request)
+    /**
+     * Atualiza as habilidades do aluno.
+     * Registra uma nova análise com os dados fornecidos.
+     */
+
+    public function updateHabilidade(Request $request)
     {
-        // Adicionar validação personalizada ou mais descritiva
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'arremesso' => 'required|numeric|between:0,100',
-            'passe' => 'required|numeric|between:0,100',
-            'marcacao' => 'required|numeric|between:0,100',
-            'finalizacao' => 'required|numeric|between:0,100',
-            'jogada' => 'required|numeric|between:0,100',
-            'dominio' => 'required|numeric|between:0,100',
-        ], [
-            'required' => 'O campo :attribute é obrigatório.',
-            'between' => 'O campo :attribute deve estar entre 0 e 100.',
-            'max' => 'O campo :attribute não pode ter mais que :max caracteres.'
+        $data = $request->validate([
+            'aluno_id'     => 'required|exists:alunos,id',
+            'arremesso'    => 'required|integer|between:0,100',
+            'passe'        => 'required|integer|between:0,100',
+            'marcacao'     => 'required|integer|between:0,100',
+            'finalizacao'  => 'required|integer|between:0,100',
+            'jogada'       => 'required|integer|between:0,100',
+            'dominio'      => 'required|integer|between:0,100',
         ]);
 
-        try {
-            // Chama o serviço para inserir o aluno e criar a análise
-            $aluno = $this->alunoService->storeAlunoComAnalise($validated);
+        $aluno = Aluno::findOrFail($data['aluno_id']);
 
-            if ($aluno) {
-                // Redirecionamento com sucesso
-                return redirect()->route('aluno.create')
-                    ->with('success', "Aluno {$aluno->nome} cadastrado com sucesso!");
-            } else {
-                // Tratamento de erro para caso $aluno seja null
-                return redirect()->route('aluno.create')
-                    ->with('error', 'Erro ao cadastrar aluno: O retorno foi inválido.')
-                    ->withInput();
-            }
-        } catch (\Exception $e) {
-            // Tratamento de erro
-            return redirect()->route('aluno.create')
-                ->with('error', 'Erro ao cadastrar aluno: ' . $e->getMessage())
-                ->withInput();
-        }
+        $aluno->analises()->create([
+            'arremesso'   => $data['arremesso'],
+            'passe'       => $data['passe'],
+            'marcacao'    => $data['marcacao'],
+            'finalizacao' => $data['finalizacao'],
+            'jogada'      => $data['jogada'],
+            'dominio'     => $data['dominio'],
+        ]);
+
+        return redirect()
+            ->route('aluno.updateForm')
+            ->with('success', "Nova análise registrada para {$aluno->nome}.");
     }
 
-    // Adicionar outros métodos úteis
+    /**
+     * Exibe o formulário para criar uma nova habilidade.
+     */
+    public function habilidade(Request $request)
+    {
+        $user = Auth::user();
+        $instId = $user->instituicao_id;
 
-    // public function update(Request $request, $id)
-    // {
-    //     // Similar validation as store method
-    //     $validated = $request->validate([
-    //         'nome' => 'required|string|max:255',
-    //         'arremesso' => 'required|numeric|between:0,100',
-    //         'passe' => 'required|numeric|between:0,100',
-    //         'marcacao' => 'required|numeric|between:0,100',
-    //         'finalizacao' => 'required|numeric|between:0,100',
-    //         'jogada' => 'required|numeric|between:0,100',
-    //         'dominio' => 'required|numeric|between:0,100',
-    //     ]);
+        // Sempre passo para a view a lista de alunos da instituição
+        $alunos = Aluno::where('instituicao_id', $instId)
+            ->orderBy('nome')
+            ->get();
+        return view('aluno.habilidade', compact('alunos'));
+    }
 
-    //     try {
-    //         $aluno = $this->alunoService->updateAluno($id, $validated);
-    //         return redirect()->route('alunos.show', $id)
-    //             ->with('success', "Aluno {$aluno->nome} atualizado com sucesso!");
-    //     } catch (\Exception $e) {
-    //         return redirect()->route('alunos.edit', $id)
-    //             ->with('error', 'Erro ao atualizar aluno: ' . $e->getMessage())
-    //             ->withInput();
-    //     }
-    // }
+    /**
+     * Retorna em JSON a última análise do aluno.
+     */
+    public function fetchLastAnalysis(Aluno $aluno)
+    {
+        $analise = $aluno
+            ->analises()
+            ->latest('created_at')
+            ->first();
 
-    // public function destroy($id)
-    // {
-    //     try {
-    //         $this->alunoService->deleteAluno($id);
-    //         return redirect()->route('alunos.index')
-    //             ->with('success', 'Aluno excluído com sucesso!');
-    //     } catch (\Exception $e) {
-    //         return redirect()->route('alunos.index')
-    //             ->with('error', 'Erro ao excluir aluno: ' . $e->getMessage());
-    //     }
-    // }
+        if (! $analise) {
+            return response()->json([
+                'error' => 'Nenhuma análise encontrada.'
+            ], 404);
+        }
+
+        // devolvêmos o nome do aluno e cada atributo
+        return response()->json([
+            'nome'        => $aluno->nome,
+            'arremesso'   => $analise->arremesso,
+            'passe'       => $analise->passe,
+            'marcacao'    => $analise->marcacao,
+            'finalizacao' => $analise->finalizacao,
+            'jogada'      => $analise->jogada,
+            'dominio'     => $analise->dominio,
+        ]);
+    }
+
+    /**
+     * Cria ou recupera o Aluno (gerando matrícula só se for novo)
+     * e registra uma nova Análise.
+     */
+    public function store(Request $request)
+    {
+        //dados do usuário e instituição
+        $user          = Auth::user();
+        $userId        = $user->id;
+        $instituicaoId = $user->instituicao_id;
+
+        // validação (sem 'matricula')
+        $data = $request->validate([
+            'nome'        => 'required|string|max:255',
+            'arremesso'   => 'required|integer|between:0,100',
+            'passe'       => 'required|integer|between:0,100',
+            'marcacao'    => 'required|integer|between:0,100',
+            'finalizacao' => 'required|integer|between:0,100',
+            'jogada'      => 'required|integer|between:0,100',
+            'dominio'     => 'required|integer|between:0,100',
+        ]);
+        
+        // Checa existência
+        $jaCadastrado = Aluno::where('nome', $data['nome'])
+            ->where('user_id', $user->id)
+            ->where('instituicao_id', $instituicaoId)
+            ->exists();
+
+        if ($jaCadastrado) {
+            return back()
+                ->withErrors(['nome' => 'Este atleta já está cadastrado.'])
+                ->withInput();
+        }
+
+        // gera matrícula só para novos alunos
+        $sigla     = strtoupper(substr($user->instituicao->nome, 0, 3));
+        $uid       = Str::random(7);
+        $matricula = "{$sigla}-{$uid}";
+
+        // 4. firstOrCreate: busca pelo aluno já existente
+        $aluno = Aluno::firstOrCreate(
+            [
+                'nome'           => $data['nome'],
+                'user_id'        => $userId,
+                'instituicao_id' => $instituicaoId,
+            ],
+            [
+                'matricula'      => $matricula,
+            ]
+        );
+
+        // 5. registra a nova análise
+        $aluno->analises()->create([
+            'arremesso'   => $data['arremesso'],
+            'passe'       => $data['passe'],
+            'marcacao'    => $data['marcacao'],
+            'finalizacao' => $data['finalizacao'],
+            'jogada'      => $data['jogada'],
+            'dominio'     => $data['dominio'],
+        ]);
+
+        return redirect()
+            ->route('aluno.create')
+            ->with('success', "Análise registrada para {$aluno->nome} (Matrícula: {$aluno->matricula}).");
+    }
+
+    /** Exibe o formulário para editar apenas o nome do aluno */
+    public function edit(Aluno $aluno)
+    {
+        $this->authorize('update', $aluno);
+        return view('aluno.edit', compact('aluno'));
+    }
+
+    /** Atualiza somente o nome do aluno */
+    public function update(Request $request, Aluno $aluno)
+    {
+        $this->authorize('update', $aluno);
+
+        $data = $request->validate([
+            'nome' => 'required|string|max:255',
+        ]);
+
+        $aluno->update(['nome' => $data['nome']]);
+
+        return redirect()
+            ->route('aluno.create')
+            ->with('success', "Nome do aluno atualizado para “{$aluno->nome}”.");
+    }
+
+    /** Remove o aluno definitivamente */
+    public function destroy(Aluno $aluno)
+    {
+        $this->authorize('delete', $aluno);
+
+        $aluno->delete();
+
+        return redirect()
+            ->route('aluno.create')
+            ->with('success', "Aluno “{$aluno->nome}” excluído com sucesso.");
+    }
+
+
+    /**
+     * Compara as duas últimas análises do aluno.
+     */
+    public function showComparativo(int $id)
+    {
+        $userId = session('user_id');
+
+        $aluno = Aluno::where('id', $id)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
+        $analises = $aluno->analises()
+            ->latest()
+            ->take(2)
+            ->get();
+
+        if ($analises->count() < 2) {
+            return back()
+                ->with('warning', 'Este aluno ainda não possui duas análises para comparação.');
+        }
+
+        return view('aluno.comparativo', [
+            'aluno'    => $aluno,
+            'atual'    => $analises[0],
+            'anterior' => $analises[1],
+        ]);
+    }
 }
