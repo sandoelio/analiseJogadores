@@ -1,7 +1,7 @@
 {{-- resources/views/aluno/dashboard.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Dashboard Alunos')
+@section('title', 'Dashboard Atletas')
 
 @push('styles')
     <style>
