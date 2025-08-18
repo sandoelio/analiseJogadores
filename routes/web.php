@@ -7,6 +7,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AlunoPublicoController;
 use App\Http\Middleware\CheckSession;
 use App\Http\Middleware\CheckAdmin;
+use App\Http\Controllers\ComparativoPublicoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,10 @@ Route::get('/analise/instituicao/{instituicao}/alunos',[AlunoPublicoController::
 )->name('analise.alunos');
 
 Route::get('/analise/aluno/{matricula}',[AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar');
+
+Route::get('/comparar', [ComparativoPublicoController::class, 'index'])->name('comparar.index');
+
+Route::post('/comparar', [ComparativoPublicoController::class, 'narrar'])->name('comparar.narrar');
 
 /*
 |--------------------------------------------------------------------------
