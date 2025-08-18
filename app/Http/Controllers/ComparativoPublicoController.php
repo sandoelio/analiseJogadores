@@ -27,7 +27,9 @@ class ComparativoPublicoController extends Controller
     {
         $data = $request->validate([
             'aluno1_id' => 'required|exists:alunos,id',
-            'aluno2_id' => 'required|exists:alunos,id',
+            'aluno2_id' => 'required|exists:alunos,id|different:aluno1_id',
+        ], [
+            'aluno2_id.different' => 'Você não pode selecionar o mesmo jogador nos dois campos.',
         ]);
 
         // Carrega atleta 1 e estatísticas

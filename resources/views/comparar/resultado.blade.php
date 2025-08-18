@@ -17,10 +17,10 @@
     </p>
   </div>
 
-  {{-- Timeline de eventos --}}
-  <div class="position-relative border-start border-3 border-secondary ps-4">
+  {{-- Timeline de eventos com margem inferior reduzida --}}
+  <div class="position-relative border-start border-3 border-secondary ps-4 mb-3">
     @foreach($eventos as $idx => $linhas)
-      <div class="mb-5 position-relative">
+      <div class="mb-4 position-relative">
         {{-- Numeração do card --}}
         <div class="position-absolute top-0 start-0 translate-middle bg-primary text-white rounded-circle d-flex 
                     align-items-center justify-content-center" 
@@ -37,11 +37,11 @@
       </div>
     @endforeach
 
-    {{-- Se quiser garantir um “décimo card” de encerramento mesmo usando slice < total --}}
-    @if(count($eventos) < ($loops = config('comparativo.eventos') + 2))
-      <div class="mb-5 position-relative">
+    {{-- Card de encerramento, se houver --}}
+    @if(count($eventos) < config('comparativo.eventos') + 2)
+      <div class="mb-4 position-relative">
         <div class="position-absolute top-0 start-0 translate-middle bg-dark text-white rounded-circle d-flex 
-                    align-items-center justify-content-center" 
+                    align-items-center justify-content-center"
              style="width:2rem; height:2rem; margin-left:-1rem;">
           {{ count($eventos) + 1 }}
         </div>
@@ -62,12 +62,17 @@
     @endif
   </div>
 
-  {{-- Botão para gerar novo duelo (corrigido) --}}
-  <div class="text-center mt-4">
+  {{-- Botões centralizados e com espaçamento menor --}}
+  <div class="d-flex justify-content-center gap-3 mb-2">
     <a href="{{ route('comparar.index') }}"
        class="btn btn-lg"
        style="background: #1B265E; color: white;">
       <i class="bi bi-arrow-repeat me-1"></i> Gerar Novo Duelo
+    </a>
+
+    <a href="{{ route('analise.index') }}"
+       class="btn btn-lg btn-secondary">
+      Voltar para Análise
     </a>
   </div>
 
