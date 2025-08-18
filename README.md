@@ -14,10 +14,11 @@ Este é um sistema web construído com **Laravel** para auxiliar treinadores e j
 - **HTML5 + CSS3 + JavaScript**
 - **Bootstrap** (ou outro framework CSS, se usado)
 - **Arquitetura MVC** com camadas de:
-  - **Service**
-  - **Repository**
+  - **Model** (Eloquent ORM)
+  - **View** (Blade Templates)
+  - **Controller** (Lógica de Negócio)
+- **Rotas RESTful**
 - **Manipulação de Imagens em Base64**
-- **Validação via CPF**
 
 ---
 
