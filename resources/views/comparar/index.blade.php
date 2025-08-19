@@ -4,7 +4,7 @@
 
 @section('content')
       <div class="container my-4">
-        <h2 class="mb-4">Simular Duelo 1x1 de Basquete</h2>
+        <h2 class="mb-4">Simulador 1x1 de Basquete</h2>
         <form action="{{ route('comparar.narrar') }}" method="POST">
             @csrf
 
@@ -37,7 +37,7 @@
             </div>
             <div class="row justify-content-center mt-4 g-3">
               <div class="col-auto">
-                <button type="submit"class="btn btn-primary btn-lg px-4">
+                <button type="submit"class="btn btn-primary btn-lg px-4" style="background: #1B265E; color: white;">
                   Gerar Narração
                 </button>
               </div>
