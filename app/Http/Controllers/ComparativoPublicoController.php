@@ -65,30 +65,31 @@ class ComparativoPublicoController extends Controller
         string $i2,
         array  $s2
     ): array {
-        // helper para envolver nomes em <strong>
         $wrapBold = fn(string $nome): string => "<strong>{$nome}</strong>";
-
         $randFloat = fn() => mt_rand() / mt_getrandmax();
-        $tpl       = config('comparativo.templates');
-        $maxE      = config('comparativo.eventos');
 
-        // placar temporário (só cestas da simulação)
+        // carrega todos os templates, inclusive 'converts'
+        $tpl  = config('comparativo.templates');
+        $maxE = config('comparativo.eventos');
+
+        // placar “real” durante o loop
         $placar   = [$n1 => 0, $n2 => 0];
         $narracao = ["🏀 Início: {$wrapBold($n1)} ({$i1}) vs {$wrapBold($n2)} ({$i2})"];
 
-        // helper de intensidade
+        // helper para escolher frase por intensidade do evento
         $pick = function (array $arr, int $e) use ($maxE) {
             $terco = intdiv($maxE, 3);
             if ($e < $terco) {
-                return $arr[array_rand(array_slice($arr, 0, 2))];
+                $slice = array_slice($arr, 0, 2);
             } elseif ($e < 2 * $terco) {
-                return $arr[array_rand(array_slice($arr, 2, 2))];
+                $slice = array_slice($arr, 2, 2);
             } else {
-                return $arr[array_rand(array_slice($arr, 4))];
+                $slice = array_slice($arr, 4);
             }
+            return $slice[array_rand($slice)];
         };
 
-        // loop de eventos reais
+        // 1) Loop de eventos
         for ($e = 0; $e < $maxE; $e++) {
             if ($e === 0) {
                 $narracao[] = "🎤 Torcida se acomoda...";
@@ -98,18 +99,19 @@ class ComparativoPublicoController extends Controller
                 $narracao[] = "🔥 Clima de decisão!";
             }
 
-            // atacante e defensor
+            // atacante/defensor
             if ($e % 2 === 0) {
                 [$at, $ast, $df, $dfst] = [$n1, $s1, $n2, $s2];
             } else {
                 [$at, $ast, $df, $dfst] = [$n2, $s2, $n1, $s1];
             }
 
-            // chance de manter a bola
+            // chance de manter posse
             $pKeep = ($ast['dominio'] + $ast['jogada'])
                 / max(1, $ast['dominio'] + $ast['jogada'] + $dfst['marcacao']);
 
             if ($randFloat() > $pKeep) {
+                // drible falhou
                 $narracao[] = str_replace(
                     ['{at}', '{df}'],
                     [$wrapBold($at), $wrapBold($df)],
@@ -128,79 +130,84 @@ class ComparativoPublicoController extends Controller
                 continue;
             }
 
+            // drible bem-sucedido
             $narracao[] = str_replace(
                 ['{at}', '{df}'],
                 [$wrapBold($at), $wrapBold($df)],
                 $pick($tpl['dribles'], $e)
             ) . " e vai ao ataque.";
 
-            $finishTpl = $pick($tpl['finishes'], $e);
-            // escala finalização 0–10 → 0%–100%
+            // 2) arremesso → ou converte com 'converts', ou erra com 'misses'
             if ($randFloat() <= $ast['finalizacao'] / 10) {
+                // acerto: pega frase de converts
                 $placar[$at] += 2;
+                $convertTpl = $pick($tpl['converts'], $e);
                 $narracao[] = str_replace(
-                    '{at}',
-                    $wrapBold($at),
-                    $finishTpl
-                ) . " — *cesta!* +2 pontos.";
+                    ['{at}', '{df}'],
+                    [$wrapBold($at), $wrapBold($df)],
+                    $convertTpl
+                ) . " — +2 pontos.";
             } else {
-                $narracao[] = $pick($tpl['misses'], $e) . ".";
+                // erro
+                $narracao[] = str_replace(
+                    ['{at}', '{df}'],
+                    [$wrapBold($at), $wrapBold($df)],
+                    $pick($tpl['misses'], $e)
+                ) . ".";
             }
         }
 
-        // soma dos 4 atributos
+        // 3) decisão técnica
         $sum1 = $s1['arremesso']   + $s1['marcacao']
             + $s1['finalizacao'] + $s1['dominio'];
         $sum2 = $s2['arremesso']   + $s2['marcacao']
             + $s2['finalizacao'] + $s2['dominio'];
         $diff = $sum1 - $sum2;
 
-        // vencedor técnico e número de cestas
         if ($diff > 0) {
             $winner = $n1;
-            $loser  = $n2;
-            $cW     = $s1['arremesso'] + 1;              // cestas vencedor
-            $cL     = (int)ceil($s2['arremesso'] / 2);   // cestas perdedor
+            $loser = $n2;
+            $cW     = $s1['arremesso'] + 1;
+            $cL     = (int)ceil($s2['arremesso'] / 2);
             $narracao[] = "📊 {$wrapBold($winner)} vence tecnicamente pelos atributos.";
             $narracao[] = "🏆 Vitória técnica de {$wrapBold($winner)}!";
-
-            // resumo de cestas
             $narracao[] = "🏀 {$wrapBold($winner)} converteu {$cW} "
-                . ($cW === 1 ? "cesta" : "cestas")
-                . " no total!";
-            if ($cL > 0) {
+                . ($cW === 1 ? 'cesta' : 'cestas') . " no total!";
+            if ($cL) {
                 $narracao[] = "🏀 {$wrapBold($loser)} converteu {$cL} "
-                    . ($cL === 1 ? "cesta de honra" : "cestas de honra")
-                    . "!";
+                    . ($cL === 1 ? 'cesta de honra' : 'cestas de honra') . "!";
             }
-
             $placar[$winner] = 2 * $cW;
             $placar[$loser]  = 2 * $cL;
         } elseif ($diff < 0) {
             $winner = $n2;
-            $loser  = $n1;
+            $loser = $n1;
             $cW     = $s2['arremesso'] + 1;
             $cL     = (int)ceil($s1['arremesso'] / 2);
             $narracao[] = "📊 {$wrapBold($winner)} vence tecnicamente pelos atributos.";
             $narracao[] = "🏆 Vitória técnica de {$wrapBold($winner)}!";
-
             $narracao[] = "🏀 {$wrapBold($winner)} converteu {$cW} "
-                . ($cW === 1 ? "cesta" : "cestas")
-                . " no total!";
-            if ($cL > 0) {
+                . ($cW === 1 ? 'cesta' : 'cestas') . " no total!";
+            if ($cL) {
                 $narracao[] = "🏀 {$wrapBold($loser)} converteu {$cL} "
-                    . ($cL === 1 ? "cesta de honra" : "cestas de honra")
-                    . "!";
+                    . ($cL === 1 ? 'cesta de honra' : 'cestas de honra') . "!";
             }
-
             $placar[$winner] = 2 * $cW;
             $placar[$loser]  = 2 * $cL;
         } else {
-            $narracao[] = "📊 Empate técnico puro!";
-            $placar      = [$n1 => 0, $n2 => 0];
+            // empate técnico: ambos convertem (arremesso+1)
+            $c1 = $s1['arremesso'] + 1;
+            $c2 = $s2['arremesso'] + 1;
+            $narracao[] = "📊 Empate técnico! Ambos dominaram os atributos.";
+            $narracao[] = "🏀 {$wrapBold($n1)} converteu {$c1} "
+                . ($c1 === 1 ? 'cesta' : 'cestas') . " no total!";
+            $narracao[] = "🏀 {$wrapBold($n2)} converteu {$c2} "
+                . ($c2 === 1 ? 'cesta' : 'cestas') . " no total!";
+            $placar[$n1] = 2 * $c1;
+            $placar[$n2] = 2 * $c2;
         }
 
-        // placar final
+        // 4) linha final
         $narracao[] = "⏱️ Placar final: {$wrapBold($n1)} {$placar[$n1]} x {$placar[$n2]} {$wrapBold($n2)}";
 
         return [
