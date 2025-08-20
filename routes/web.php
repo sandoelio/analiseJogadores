@@ -8,6 +8,7 @@ use App\Http\Controllers\AlunoPublicoController;
 use App\Http\Middleware\CheckSession;
 use App\Http\Middleware\CheckAdmin;
 use App\Http\Controllers\ComparativoPublicoController;
+use App\Http\Controllers\ComparativoGraficoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,9 +31,14 @@ Route::get('/analise/instituicao/{instituicao}/alunos',[AlunoPublicoController::
 
 Route::get('/analise/aluno/{matricula}',[AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar');
 
+// Comparativo Público
 Route::get('/comparar', [ComparativoPublicoController::class, 'index'])->name('comparar.index');
 
 Route::post('/comparar', [ComparativoPublicoController::class, 'narrar'])->name('comparar.narrar');
+
+Route::get('comparar/grafico', [ComparativoGraficoController::class, 'index'])->name('comparar.grafico.index');
+
+Route::post('comparar/grafico/dados', [ComparativoGraficoController::class, 'comparar'])->name('comparar.grafico.dados');
 
 /*
 |--------------------------------------------------------------------------
