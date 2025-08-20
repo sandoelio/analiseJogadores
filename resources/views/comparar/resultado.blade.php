@@ -1,3 +1,4 @@
+{{-- resources/views/comparar/resultado.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Resultado do Duelo')
@@ -7,14 +8,7 @@
 
   {{-- Cabeçalho com placar --}}
   <div class="text-center mb-4">
-    <h2 class="fw-bold">Duelo Mano a Mano</h2>
-    <p class="fs-4">
-      {{ $aluno1->nome }}
-      <span class="badge bg-success">{{ $placar[$aluno1->nome] }}</span>
-      ×
-      <span class="badge bg-danger">{{ $placar[$aluno2->nome] }}</span>
-      {{ $aluno2->nome }}
-    </p>
+    <h2 class="fw-bold">Vai começar o desafio !!!</h2>  
   </div>
 
   {{-- Timeline de eventos com margem inferior reduzida --}}
@@ -30,14 +24,14 @@
         <div class="bg-light p-3 rounded shadow-sm">
           <ul class="mb-0 ps-3">
             @foreach($linhas as $linha)
-              <li>{!! nl2br(e($linha)) !!}</li>
+              <li>{!! nl2br($linha) !!}</li>
             @endforeach
           </ul>
         </div>
       </div>
     @endforeach
 
-    {{-- Card de encerramento, se houver --}}
+    {{-- Card de encerramento --}}
     @if(count($eventos) < config('comparativo.eventos') + 2)
       <div class="mb-4 position-relative">
         <div class="position-absolute top-0 start-0 translate-middle bg-dark text-white rounded-circle d-flex 
@@ -50,11 +44,11 @@
             <li><strong>⏱️ Fim de partida</strong></li>
             <li>
               Placar final:
-              {{ $aluno1->nome }}
+              <strong>{{ $aluno1->nome }}</strong>
               <span class="badge bg-success">{{ $placar[$aluno1->nome] }}</span>
               ×
               <span class="badge bg-danger">{{ $placar[$aluno2->nome] }}</span>
-              {{ $aluno2->nome }}
+              <strong>{{ $aluno2->nome }}</strong>
             </li>
           </ul>
         </div>
@@ -62,19 +56,17 @@
     @endif
   </div>
 
-  {{-- Botões centralizados e com espaçamento menor --}}
+  {{-- Botões --}}
   <div class="d-flex justify-content-center gap-3 mb-2">
     <a href="{{ route('comparar.index') }}"
        class="btn btn-lg"
        style="background: #1B265E; color: white;">
       <i class="bi bi-arrow-repeat me-1"></i> Gerar Novo Duelo
     </a>
-
     <a href="{{ route('analise.index') }}"
        class="btn btn-lg btn-secondary">
       Voltar para Análise
     </a>
   </div>
-
 </div>
 @endsection

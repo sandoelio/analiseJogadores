@@ -30,36 +30,73 @@ return [
     */
     'templates' => [
         'dribles' => [
-            "{at} faz um crossover veloz e deixa {df} comendo poeira",
-            "{at} leva a bola entre as pernas, confunde {df} e avança",
-            "{at} troca de mãos por trás das costas e parte pra cesta",
-            "{at} executa um spin move impecável e invade o garrafão",
+            // Início
+            "{at} protege a bola e avança com calma",
+            "{at} dribla no centro, observando {df}",
+
+            // Meio
+            "{at} puxa um crossover e acelera pra cima de {df}",
+            "{at} troca de mãos e deixa {df} na saudade",
+
+            // Fim
+            "{at} aplica um drible desconcertante e quebra os tornozelos de {df}",
+            "{at} gira no spin move e explode pra dentro do garrafão",
         ],
 
         'finishes' => [
-            "{at} sobe para a bandeja, mas desequilibra e arremessa torto",
-            "{at} tenta enterrada cravada mas encontra {df} pronto para o bloqueio",
-            "{at} emenda um jumper de média, bola na rede sem tocar aro",
-            "{at} dispara um arremesso de 3 que sai limpo do colo do aro",
+            // Início
+            "{at} tenta a bandeja simples",
+            "{at} arrisca um arremesso de média distância",
+
+            // Meio
+            "{at} infiltra com força e finaliza com estilo",
+            "{at} mata um jumper no rosto de {df}",
+
+            // Fim
+            "{at} voa para a enterrada monstruosa!",
+            "{at} acerta a bola no estouro do cronômetro!",
         ],
 
         'misses' => [
-            "A bola explode no aro e sobra viva",
-            "O ferro faz “timbre” e a redonda cai para quem estiver mais esperto",
-            "Arremesso no plástico e ressalto decidido",
+            // Início
+            "A bola beija o aro e sai",
+            "O chute sai torto e não cai",
+
+            // Meio
+            "O ferro canta e a bola voa longe",
+            "Bate no aro e a posse ainda está viva!",
+
+            // Fim
+            "A torcida prende a respiração... mas a bola não cai!",
+            "Explode no aro! Que oportunidade perdida!",
         ],
 
         'rebotes' => [
-            "{df} salta e garante o rebote ofensivo",
-            "{df} se antecipa, põe a mão na bola e inicia o contra-ataque",
-            "{df} mergulha por trás do aro e arranca com a posse",
+            // Início
+            "{df} pega o rebote com tranquilidade",
+            "{df} garante a posse de bola",
+
+            // Meio
+            "{df} sobe mais alto e domina o rebote",
+            "{df} arranca a bola no alto e já olha pra frente",
+
+            // Fim
+            "{df} arranca o rebote no meio da confusão!",
+            "{df} conquista o rebote no grito!",
         ],
 
         'transicoes' => [
-            "{df} avança em velocidade até a linha de 3 pontos",
-            "{df} espera o espaço, recua e prepara o arremesso de longa distância",
-            "{df} dribla de saída entre as pernas e testa a marcação de {at}",
+            // Início
+            "{df} avança com a bola devagar",
+            "{df} organiza a jogada no ataque",
+
+            // Meio
+            "{df} acelera pela lateral e busca espaço",
+            "{df} explode no contra-ataque e invade o garrafão",
+
+            // Fim
+            "{df} dispara na transição, quadra inteira vibrando!",
+            "{df} quebra a marcação e parte decidido pra vitória!",
         ],
     ],
-
 ];
