@@ -14,19 +14,20 @@
 
         /* Cabeçalho customizado */
         .login-header {
-            background-color: #162570 !important;
+            background-color: #28365F !important;
         }
 
         /* Botão customizado */
         .login-btn {
-            background-color: #162570;
-            border-color: #162570;
+            background-color: #28365F;
+            border-color: #28365F;
             color: #fff;
         }
 
         .login-btn:hover,
         .login-btn:focus {
-            background-color: #fa8a21;
+            background-color: #FF7209
+;
             border-color: #152147;
         }
     </style>

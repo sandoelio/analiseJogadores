@@ -7,7 +7,7 @@
     <style>
         /* Card Header com cor personalizada */
         .alunos-card .card-header {
-            background-color: #1B265E !important;
+            background-color: #28365F !important;
         }
 
         /* Linhas alternadas mais suaves */

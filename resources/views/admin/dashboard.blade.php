@@ -50,8 +50,8 @@
 
         .dashboard-btn:hover {
             background: #f8f9fa;
-            border-color: #1B265E;
-            color: #1B265E;
+            border-color: #28365F;
+            color: #28365F;
         }
 
         .dashboard-btn i {

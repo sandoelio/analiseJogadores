@@ -15,20 +15,20 @@
         
         /* Cor do navbar */
         .bg-navbar-blue {
-            background-color: #1B265E !important;
+            background-color: #28365F !important;
             color: #fff;
         }
 
         /* Botão Salvar com a mesma cor */
         .btn-navbar-blue {
-            background-color: #1B265E;
-            border-color: #1B265E;
+            background-color: #28365F;
+            border-color: #28365F;
             color: #fff;
         }
 
         .btn-navbar-blue:hover {
-            background-color: #16224a;
-            border-color: #16224a;
+            background-color: #28365F;
+            border-color: #28365F;
         }
     </style>
 @endpush

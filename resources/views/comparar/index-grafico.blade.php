@@ -51,7 +51,7 @@
   <div class="row justify-content-center mt-4">
     <div class="col-auto">
       <button id="btn-gerar-grafico"
-              class="btn btn-lg" style="background: #1B265E; color: white;"
+              class="btn btn-lg" style="background: #28365F; color: white;"
               disabled>
         Gerar Gráfico
       </button>

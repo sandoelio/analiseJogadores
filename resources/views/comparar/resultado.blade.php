@@ -60,7 +60,7 @@
   <div class="d-flex justify-content-center gap-3 mb-2">
     <a href="{{ route('comparar.index') }}"
        class="btn btn-lg"
-       style="background: #1B265E; color: white;">
+       style="background: #28365F; color: white;">
       <i class="bi bi-arrow-repeat me-1"></i> Gerar Novo Duelo
     </a>
     <a href="{{ route('analise.index') }}"

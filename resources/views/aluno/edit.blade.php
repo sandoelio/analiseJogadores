@@ -34,7 +34,7 @@
         @enderror
       </div>
 
-      <button type="submit" class="btn btn-primary w-100" style="background: #1B265E;">
+      <button type="submit" class="btn btn-primary w-100" style="background: #28365F;">
         Atualizar
       </button>
     </form>

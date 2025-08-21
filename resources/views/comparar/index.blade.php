@@ -37,7 +37,7 @@
             </div>
             <div class="row justify-content-center mt-4 g-3">
               <div class="col-auto">
-                <button type="submit"class="btn btn-primary btn-lg px-4" style="background: #1B265E; color: white;">
+                <button type="submit"class="btn btn-primary btn-lg px-4" style="background: #28365F; color: white;">
                   Gerar Narração
                 </button>
               </div>

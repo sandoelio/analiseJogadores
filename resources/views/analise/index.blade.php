@@ -19,9 +19,9 @@
     {{-- Logo --}}
     <div class="text-center mb-0">
       <img 
-        src="{{ asset('imagem/slogan.png') }}" 
-        alt="Logo Pirajá" 
-        style="max-width: 100px; width: 100%; height: auto;"
+        src="{{ asset('imagem/LOGO1.png') }}" 
+        alt="Cesta Baiana" 
+        style="max-width: 200px; width: 100%; height: auto;"
         loading="lazy"
       >
     </div>
