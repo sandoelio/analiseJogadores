@@ -106,13 +106,13 @@
       {{-- 2) 1×1 Narrativo --}}
       <a href="{{ route('comparar.index') }}" class="dashboard-btn">
         <i class="bi bi-chat-dots-fill"></i>
-        Duelo 1×1 (Narração)
+        1×1 (Narração)
       </a>
 
       {{-- 3) 1×1 Gráfico --}}
       <a href="{{ route('comparar.grafico.index') }}" class="dashboard-btn">
         <i class="bi bi-bar-chart-line-fill"></i>
-        Duelo 1×1 (Gráfico)
+        1×1 (Gráfico)
       </a>
 
     </div>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Comparar Atletas')
+@section('title', 'Comparar gráfico')
 
 @push('styles')
 <style>
@@ -10,12 +10,27 @@
     max-width: 600px;
     min-height: 300px;
   }
+
+  .back-logograph {
+    background: #28365F;
+    margin-bottom: 5px
+  }
+
 </style>
 @endpush
 
 @section('content')
 <div class="container my-4">
-  <h2 class="mb-4">Comparativo de Atributos</h2>
+ {{-- Logo --}}
+    <div class="text-center mb-0">
+      <img 
+        src="{{ asset('imagem/LOGO1.png') }}" 
+        alt="Cesta Baiana" 
+        style="max-width: 200px; width: 100%; height: auto;"
+        class="back-logograph"
+        loading="lazy"
+      >
+    </div>
 
   <div class="row g-3">
     <div class="col-md-6">
@@ -56,6 +71,12 @@
         Gerar Gráfico
       </button>
     </div>
+    <div class="col-auto">
+      <a href="{{ route('public.dashboard') }}" class="btn btn-secondary btn-lg px-4" 
+              style="background: #28365F; color: white;">
+        <i class="bi bi-house-door me-1" ></i>   
+        Voltar
+      </a>
   </div>
 
   <div id="chart-container" class="card shadow-sm mt-4 d-none">
