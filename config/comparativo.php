@@ -18,7 +18,7 @@ return [
         'arremesso',
         'passe',
         'marcacao',
-        'finalizacao',
+        'bandeja',
         'jogada',
         'dominio',
     ],

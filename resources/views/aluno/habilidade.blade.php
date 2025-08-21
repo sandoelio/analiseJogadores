@@ -54,13 +54,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        @foreach (['arremesso', 'passe', 'marcacao', 'finalizacao', 'jogada', 'dominio'] as $campo)
+                        @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'jogada', 'dominio'] as $campo)
                             <div class="mb-3">
                                 <label for="{{ $campo }}" class="form-label">
                                     {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
                                 </label>
                                 <input type="number" id="{{ $campo }}" name="{{ $campo }}"
-                                    class="form-control" value="1" min="0" max="100" readonly>
+                                    class="form-control" value="1" min="0" max="10" readonly>
                             </div>
                         @endforeach
 
@@ -86,7 +86,7 @@
                     .then(res => res.json())
                     .then(data => {
                         // Preenche os campos de estatística
-                        ['arremesso', 'passe', 'marcacao', 'finalizacao', 'jogada', 'dominio'].forEach(
+                        ['arremesso', 'passe', 'marcacao', 'bandeja', 'jogada', 'dominio'].forEach(
                             campo => {
                                 const inp = document.getElementById(campo);
                                 inp.value = data[campo];

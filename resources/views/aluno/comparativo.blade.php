@@ -33,7 +33,7 @@
           <li class="list-group-item">Arremesso: {{ $atual->arremesso }}</li>
           <li class="list-group-item">Passe: {{ $atual->passe }}</li>
           <li class="list-group-item">Marcação: {{ $atual->marcacao }}</li>
-          <li class="list-group-item">Finalização: {{ $atual->finalizacao }}</li>
+          <li class="list-group-item">Bandeja: {{ $atual->bandeja }}</li>
           <li class="list-group-item">Jogada: {{ $atual->jogada }}</li>
         </ul>
       </div>
@@ -52,7 +52,7 @@
           <li class="list-group-item">Arremesso: {{ $anterior->arremesso }}</li>
           <li class="list-group-item">Passe: {{ $anterior->passe }}</li>
           <li class="list-group-item">Marcação: {{ $anterior->marcacao }}</li>
-          <li class="list-group-item">Finalização: {{ $anterior->finalizacao }}</li>
+          <li class="list-group-item">Bandeja: {{ $anterior->bandeja }}</li>
           <li class="list-group-item">Jogada: {{ $anterior->jogada }}</li>
         </ul>
       </div>

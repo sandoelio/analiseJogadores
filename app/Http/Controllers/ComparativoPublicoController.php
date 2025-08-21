@@ -138,7 +138,7 @@ class ComparativoPublicoController extends Controller
             ) . " e vai ao ataque.";
 
             // 2) arremesso → ou converte com 'converts', ou erra com 'misses'
-            if ($randFloat() <= $ast['finalizacao'] / 10) {
+            if ($randFloat() <= $ast['bandeja'] / 10) {
                 // acerto: pega frase de converts
                 $placar[$at] += 2;
                 $convertTpl = $pick($tpl['converts'], $e);
@@ -159,9 +159,9 @@ class ComparativoPublicoController extends Controller
 
         // 3) decisão técnica
         $sum1 = $s1['arremesso']   + $s1['marcacao']
-            + $s1['finalizacao'] + $s1['dominio'];
+            + $s1['bandeja'] + $s1['dominio'];
         $sum2 = $s2['arremesso']   + $s2['marcacao']
-            + $s2['finalizacao'] + $s2['dominio'];
+            + $s2['bandeja'] + $s2['dominio'];
         $diff = $sum1 - $sum2;
 
         if ($diff > 0) {

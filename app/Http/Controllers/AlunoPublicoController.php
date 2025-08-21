@@ -35,7 +35,7 @@ class AlunoPublicoController extends Controller
                           ->get();
 
         // Campos fixos da análise
-        $campos = ['arremesso','passe','marcacao','finalizacao','jogada','dominio'];
+        $campos = ['arremesso','passe','marcacao', 'bandeja','jogada','dominio'];
 
         // Extrai valores
         $atual    = $analises->get(0)?->only($campos)    ?? array_fill_keys($campos, 0);
@@ -43,7 +43,7 @@ class AlunoPublicoController extends Controller
 
         return response()->json([
             'labels'   => [
-                'Arremesso','Passe','Marcação','Finalização','Jogada','Domínio de Bola'
+                'Arremesso','Passe','Marcação','Bandeja','Jogada','Domínio de Bola'
             ],
             'anterior' => array_values($anterior),
             'atual'    => array_values($atual),

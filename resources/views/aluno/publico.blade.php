@@ -17,7 +17,7 @@
           <li class="list-group-item">Arremesso: {{ $atual->arremesso }}</li>
           <li class="list-group-item">Passe: {{ $atual->passe }}</li>
           <li class="list-group-item">Marcação: {{ $atual->marcacao }}</li>
-          <li class="list-group-item">Finalização: {{ $atual->finalizacao }}</li>
+          <li class="list-group-item">Bandeja: {{ $atual->bandeja }}</li>
           <li class="list-group-item">Jogada: {{ $atual->jogada }}</li>
           <li class="list-group-item">Domínio: {{ $atual->dominio }}</li>
         </ul>
@@ -34,7 +34,7 @@
           <li class="list-group-item">Arremesso: {{ $anterior->arremesso }}</li>
           <li class="list-group-item">Passe: {{ $anterior->passe }}</li>
           <li class="list-group-item">Marcação: {{ $anterior->marcacao }}</li>
-          <li class="list-group-item">Finalização: {{ $anterior->finalizacao }}</li>
+          <li class="list-group-item">Bandeja: {{ $anterior->bandeja }}</li>
           <li class="list-group-item">Jogada: {{ $anterior->jogada }}</li>
           <li class="list-group-item">Domínio: {{ $anterior->dominio }}</li>
         </ul>
@@ -54,7 +54,7 @@
     new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['Arremesso', 'Passe', 'Marcação', 'Finalização', 'Jogada', 'Domínio'],
+        labels: ['Arremesso', 'Passe', 'Marcação', 'Bandeja', 'Jogada', 'Domínio'],
         datasets: [
           {
             label: 'Última Análise',
@@ -62,7 +62,7 @@
               {{ $atual->arremesso }},
               {{ $atual->passe }},
               {{ $atual->marcacao }},
-              {{ $atual->finalizacao }},
+              {{ $atual->bandeja }},
               {{ $atual->jogada }},
               {{ $atual->dominio }}
             ],
@@ -74,7 +74,7 @@
               {{ $anterior->arremesso }},
               {{ $anterior->passe }},
               {{ $anterior->marcacao }},
-              {{ $anterior->finalizacao }},
+              {{ $anterior->bandeja }},
               {{ $anterior->jogada }},
               {{ $anterior->dominio }}
             ],
@@ -112,7 +112,7 @@
       <li class="list-group-item">Arremesso: {{ $atual->arremesso }}</li>
       <li class="list-group-item">Passe: {{ $atual->passe }}</li>
       <li class="list-group-item">Marcação: {{ $atual->marcacao }}</li>
-      <li class="list-group-item">Finalização: {{ $atual->finalizacao }}</li>
+      <li class="list-group-item">Bandeja: {{ $atual->bandeja }}</li>
       <li class="list-group-item">Jogada: {{ $atual->jogada }}</li>
       <li class="list-group-item">Domínio: {{ $atual->dominio }}</li>
     </ul>
