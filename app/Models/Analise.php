@@ -16,8 +16,8 @@ class Analise extends Model
         'arremesso',
         'passe',
         'marcacao',
-        'finalizacao',
-        'jogada',
+        'bandeja',
+        'rebote',
         'dominio',
     ];
 
@@ -25,8 +25,8 @@ class Analise extends Model
         'arremesso'   => 'integer',
         'passe'       => 'integer',
         'marcacao'    => 'integer',
-        'finalizacao' => 'integer',
-        'jogada'      => 'integer',
+        'bandeja'     => 'integer',
+        'rebote'      => 'integer',
         'dominio'     => 'integer',
         'created_at'  => 'datetime',
         'updated_at'  => 'datetime',

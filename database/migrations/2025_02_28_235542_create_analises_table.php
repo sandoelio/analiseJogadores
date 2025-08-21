@@ -21,8 +21,8 @@ return new class extends Migration
             $table->unsignedTinyInteger('arremesso');
             $table->unsignedTinyInteger('passe');
             $table->unsignedTinyInteger('marcacao');
-            $table->unsignedTinyInteger('finalizacao');
-            $table->unsignedTinyInteger('jogada');
+            $table->unsignedTinyInteger('bandeja');
+            $table->unsignedTinyInteger('rebote');
             $table->unsignedTinyInteger('dominio');
 
             $table->timestampsTz();

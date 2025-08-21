@@ -14,19 +14,20 @@
 
         /* Cabeçalho customizado */
         .login-header {
-            background-color: #162570 !important;
+            background-color: #28365F !important;
         }
 
         /* Botão customizado */
         .login-btn {
-            background-color: #162570;
-            border-color: #162570;
+            background-color: #28365F;
+            border-color: #28365F;
             color: #fff;
         }
 
         .login-btn:hover,
         .login-btn:focus {
-            background-color: #fa8a21;
+            background-color: #FF7209
+;
             border-color: #152147;
         }
     </style>
@@ -73,7 +74,7 @@
                             <button type="submit" class="btn login-btn">Entrar</button>
                         </div>
                         <div class="d-grid">
-                            <a href="{{ route('analise.index') }}" class="btn btn-secondary">
+                            <a href="{{ route('public.dashboard') }}" class="btn btn-secondary">
                                 Voltar
                             </a>
                         </div>

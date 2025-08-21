@@ -50,15 +50,6 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-10 col-lg-8">
 
-    {{-- Cabeçalho com botão Voltar --}}
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      {{-- Título --}}
-      <h2 class="mb-4">Usuários</h2>
-      <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary mb-3">
-        ← Voltar     
-      </a>     
-    </div>
-
     {{-- Mensagem de sucesso --}}
     @if(session('success'))
       <div class="alert alert-success">{{ session('success') }}</div>

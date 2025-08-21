@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Análises de Atletas')
+@section('title', 'Análise individual')
 
 @push('styles')
 <style>
@@ -10,6 +10,11 @@
     max-width: 600px;
     min-height: 300px;
   }
+  .back-logo {
+    background: #28365F;
+    margin-bottom: 5px
+  }
+
 </style>
 @endpush
 
@@ -19,18 +24,29 @@
     {{-- Logo --}}
     <div class="text-center mb-0">
       <img 
-        src="{{ asset('imagem/slogan.png') }}" 
-        alt="Logo Pirajá" 
-        style="max-width: 100px; width: 100%; height: auto;"
+        src="{{ asset('imagem/LOGO1.png') }}" 
+        alt="Cesta Baiana" 
+        style="max-width: 200px; width: 100%; height: auto;"
+        class="back-logo"
         loading="lazy"
       >
+    </div>
+
+    {{-- Botão Voltar ao Dashboard Público --}}
+    <div class="text-center my-3">
+      <a href="{{ route('public.dashboard') }}"
+         class="btn btn-primary"
+         style="background: #28365F; color: #fff;">
+        <i class="bi bi-house-door me-1"></i>
+        Voltar
+      </a>
     </div>
 
     {{-- Seleção de Instituição e Aluno --}}
     <div id="selecao-container" class="row gx-3 gy-3 mb-4 justify-content-center">
       <div id="instituicao-wrapper" class="col-12 col-md-6 text-center">
         <label for="instituicao" class="form-label">
-          <i class="bi bi-building me-1"></i>Instituição
+          <b class="bi bi-building me-1">Instituição</b>
         </label>
         <select id="instituicao" class="form-select">
           <option selected disabled>Instituição do atleta.</option>
@@ -42,10 +58,10 @@
 
       <div id="aluno-wrapper" class="col-12 col-md-6 d-none">
         <label for="aluno" class="form-label">
-          <i class="bi bi-person-badge me-1"></i>Aluno
+          <i class="bi bi-person-badge me-1"></i>Atleta
         </label>
         <select id="aluno" class="form-select">
-          <option selected disabled>Selecione um aluno</option>
+          <option selected disabled>Selecione um atleta</option>
         </select>
       </div>
     </div>
@@ -54,7 +70,7 @@
     <div id="estatisticas-container" class="card shadow-sm d-none">
       <div class="card-header d-flex align-items-center">
         <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
-        <h5 class="mb-0">Estatísticas do Aluno</h5>
+        <h5 class="mb-0">Estatísticas do Atleta</h5>
       </div>
       <div class="card-body p-3 d-flex justify-content-center">
         <canvas id="estatisticas-chart"></canvas>

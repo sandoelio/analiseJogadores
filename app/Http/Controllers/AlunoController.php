@@ -61,12 +61,12 @@ class AlunoController extends Controller
     {
         $data = $request->validate([
             'aluno_id'     => 'required|exists:alunos,id',
-            'arremesso'    => 'required|integer|between:0,100',
-            'passe'        => 'required|integer|between:0,100',
-            'marcacao'     => 'required|integer|between:0,100',
-            'finalizacao'  => 'required|integer|between:0,100',
-            'jogada'       => 'required|integer|between:0,100',
-            'dominio'      => 'required|integer|between:0,100',
+            'arremesso'    => 'required|integer|between:0,10',
+            'passe'        => 'required|integer|between:0,10',
+            'marcacao'     => 'required|integer|between:0,10',
+            'bandeja'      => 'required|integer|between:0,10',
+            'rebote'       => 'required|integer|between:0,10',
+            'dominio'      => 'required|integer|between:0,10',
         ]);
 
         $aluno = Aluno::findOrFail($data['aluno_id']);
@@ -75,8 +75,8 @@ class AlunoController extends Controller
             'arremesso'   => $data['arremesso'],
             'passe'       => $data['passe'],
             'marcacao'    => $data['marcacao'],
-            'finalizacao' => $data['finalizacao'],
-            'jogada'      => $data['jogada'],
+            'bandeja'     => $data['bandeja'],
+            'rebote'      => $data['rebote'],
             'dominio'     => $data['dominio'],
         ]);
 
@@ -122,8 +122,8 @@ class AlunoController extends Controller
             'arremesso'   => $analise->arremesso,
             'passe'       => $analise->passe,
             'marcacao'    => $analise->marcacao,
-            'finalizacao' => $analise->finalizacao,
-            'jogada'      => $analise->jogada,
+            'bandeja'     => $analise->bandeja,
+            'rebote'      => $analise->rebote,
             'dominio'     => $analise->dominio,
         ]);
     }
@@ -142,12 +142,12 @@ class AlunoController extends Controller
         // validação (sem 'matricula')
         $data = $request->validate([
             'nome'        => 'required|string|max:255',
-            'arremesso'   => 'required|integer|between:0,100',
-            'passe'       => 'required|integer|between:0,100',
-            'marcacao'    => 'required|integer|between:0,100',
-            'finalizacao' => 'required|integer|between:0,100',
-            'jogada'      => 'required|integer|between:0,100',
-            'dominio'     => 'required|integer|between:0,100',
+            'arremesso'   => 'required|integer|between:0,10',
+            'passe'       => 'required|integer|between:0,10',
+            'marcacao'    => 'required|integer|between:0,10',
+            'bandeja'     => 'required|integer|between:0,10',
+            'rebote'      => 'required|integer|between:0,10',
+            'dominio'     => 'required|integer|between:0,10',
         ]);
         
         // Checa existência
@@ -184,8 +184,8 @@ class AlunoController extends Controller
             'arremesso'   => $data['arremesso'],
             'passe'       => $data['passe'],
             'marcacao'    => $data['marcacao'],
-            'finalizacao' => $data['finalizacao'],
-            'jogada'      => $data['jogada'],
+            'bandeja'     => $data['bandeja'],
+            'rebote'      => $data['rebote'],
             'dominio'     => $data['dominio'],
         ]);
 

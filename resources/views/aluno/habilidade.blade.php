@@ -12,19 +12,19 @@
         }
 
         .bg-navbar-blue {
-            background-color: #1B265E !important;
+            background-color: #28365F !important;
             color: #fff;
         }
 
         .btn-navbar-blue {
-            background-color: #1B265E;
-            border-color: #1B265E;
+            background-color: #28365F;
+            border-color: #28365F;
             color: #fff;
         }
 
         .btn-navbar-blue:hover {
-            background-color: #16224a;
-            border-color: #16224a;
+            background-color: #28365F;
+            border-color: #28365F;
         }
     </style>
 @endpush
@@ -54,13 +54,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        @foreach (['arremesso', 'passe', 'marcacao', 'finalizacao', 'jogada', 'dominio'] as $campo)
+                        @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'] as $campo)
                             <div class="mb-3">
                                 <label for="{{ $campo }}" class="form-label">
                                     {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
                                 </label>
                                 <input type="number" id="{{ $campo }}" name="{{ $campo }}"
-                                    class="form-control" value="1" min="0" max="100" readonly>
+                                    class="form-control" value="1" min="0" max="10" readonly>
                             </div>
                         @endforeach
 
@@ -86,7 +86,7 @@
                     .then(res => res.json())
                     .then(data => {
                         // Preenche os campos de estatística
-                        ['arremesso', 'passe', 'marcacao', 'finalizacao', 'jogada', 'dominio'].forEach(
+                        ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'].forEach(
                             campo => {
                                 const inp = document.getElementById(campo);
                                 inp.value = data[campo];

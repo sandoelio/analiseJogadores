@@ -7,6 +7,9 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AlunoPublicoController;
 use App\Http\Middleware\CheckSession;
 use App\Http\Middleware\CheckAdmin;
+use App\Http\Controllers\ComparativoPublicoController;
+use App\Http\Controllers\ComparativoGraficoController;
+use App\Http\Controllers\PublicDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,12 +25,24 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 | Página Pública (Seleção de Instituição / Estatísticas)
 |--------------------------------------------------------------------------
 */
-Route::get('/',[AlunoPublicoController::class, 'index'])->name('analise.index');
+
+Route::get('/', [PublicDashboardController::class, 'index'])->name('public.dashboard');
+
+Route::get('/analise',[AlunoPublicoController::class, 'index'])->name('analise.index');
 
 Route::get('/analise/instituicao/{instituicao}/alunos',[AlunoPublicoController::class,'listarPorInstituicao']
 )->name('analise.alunos');
 
 Route::get('/analise/aluno/{matricula}',[AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar');
+
+// Comparativo Público
+Route::get('/comparar', [ComparativoPublicoController::class, 'index'])->name('comparar.index');
+
+Route::post('/comparar', [ComparativoPublicoController::class, 'narrar'])->name('comparar.narrar');
+
+Route::get('comparar/grafico', [ComparativoGraficoController::class, 'index'])->name('comparar.grafico.index');
+
+Route::post('comparar/grafico/dados', [ComparativoGraficoController::class, 'comparar'])->name('comparar.grafico.dados');
 
 /*
 |--------------------------------------------------------------------------
