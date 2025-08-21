@@ -28,12 +28,6 @@
           <i class="bi bi-person-plus-fill me-2"></i> Novo Usuário
         </h2>
 
-        {{-- Botão Voltar --}}
-        <a href="{{ route('admin.dashboard') }}"
-           class="btn btn-outline-secondary btn-sm mb-4 d-inline-flex align-items-center">
-          <i class="bi bi-arrow-left-short me-1"></i> Voltar
-        </a>
-
         {{-- Mensagem de sucesso --}}
         @if(session('success'))
           <div class="alert alert-success">
