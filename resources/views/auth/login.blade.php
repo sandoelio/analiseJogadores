@@ -74,7 +74,7 @@
                             <button type="submit" class="btn login-btn">Entrar</button>
                         </div>
                         <div class="d-grid">
-                            <a href="{{ route('analise.index') }}" class="btn btn-secondary">
+                            <a href="{{ route('public.dashboard') }}" class="btn btn-secondary">
                                 Voltar
                             </a>
                         </div>
