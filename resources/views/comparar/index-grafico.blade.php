@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Comparar gráfico')
+@section('title', 'Comparar Gráfico')
 
 @push('styles')
 <style>
@@ -13,24 +13,24 @@
 
   .back-logograph {
     background: #28365F;
-    margin-bottom: 5px
+    margin-bottom: 5px;
   }
-
 </style>
 @endpush
 
 @section('content')
 <div class="container my-4">
- {{-- Logo --}}
-    <div class="text-center mb-0">
-      <img 
-        src="{{ asset('imagem/LOGO1.png') }}" 
-        alt="Cesta Baiana" 
-        style="max-width: 200px; width: 100%; height: auto;"
-        class="back-logograph"
-        loading="lazy"
-      >
-    </div>
+
+  {{-- Logo --}}
+  <div class="text-center mb-0">
+    <img 
+      src="{{ asset('imagem/LOGO1.png') }}" 
+      alt="Cesta Baiana" 
+      style="max-width: 200px; width: 100%; height: auto;"
+      class="back-logograph"
+      loading="lazy"
+    >
+  </div>
 
   <div class="row g-3">
     <div class="col-md-6">
@@ -62,26 +62,30 @@
     </div>
   </div>
 
-  {{-- Botão para gerar gráfico --}}
+  {{-- Botões --}}
   <div class="row justify-content-center mt-4">
     <div class="col-auto">
       <button id="btn-gerar-grafico"
-              class="btn btn-lg" style="background: #28365F; color: white;"
+              class="btn btn-lg"
+              style="background: #28365F; color: white;"
               disabled>
         Gerar Gráfico
       </button>
     </div>
     <div class="col-auto">
-      <a href="{{ route('public.dashboard') }}" class="btn btn-secondary btn-lg px-4" 
-              style="background: #28365F; color: white;">
-        <i class="bi bi-house-door me-1" ></i>   
-        Voltar
+      <a href="{{ route('public.dashboard') }}"
+         class="btn btn-lg"
+         style="background: #28365F; color: white;">
+        <i class="bi bi-house-door me-1"></i>Voltar
       </a>
+    </div>
   </div>
 
+  {{-- Gráfico de Comparativo --}}
   <div id="chart-container" class="card shadow-sm mt-4 d-none">
     <div class="card-header d-flex align-items-center">
       <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
+      <h5 class="mb-0">Gráfico</h5>
     </div>
     <div class="card-body d-flex justify-content-center p-3">
       <canvas id="comparativo-chart"></canvas>
@@ -91,18 +95,18 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const sel1   = document.getElementById('aluno1');
-  const sel2   = document.getElementById('aluno2');
-  const btn    = document.getElementById('btn-gerar-grafico');
-  const card   = document.getElementById('chart-container');
-  const ctx    = document.getElementById('comparativo-chart').getContext('2d');
-  let chart    = null;
+  const sel1 = document.getElementById('aluno1');
+  const sel2 = document.getElementById('aluno2');
+  const btn  = document.getElementById('btn-gerar-grafico');
+  const card = document.getElementById('chart-container');
+  const ctx  = document.getElementById('comparativo-chart').getContext('2d');
+  let chart   = null;
   const urlApi = "{{ route('comparar.grafico.dados') }}";
 
-  // 1) Habilita o segundo select e impede dupla seleção
   sel1.addEventListener('change', () => {
     sel2.disabled = !sel1.value;
     Array.from(sel2.options).forEach(opt => {
@@ -113,20 +117,17 @@ document.addEventListener('DOMContentLoaded', () => {
     card.classList.add('d-none');
   });
 
-  // 2) Quando escolher o segundo atleta, habilita o botão
   sel2.addEventListener('change', () => {
     btn.disabled = !sel2.value;
     card.classList.add('d-none');
   });
 
-  // 3) Ao clicar em “Gerar Gráfico”, faz POST e renderiza
   btn.addEventListener('click', () => {
     fetch(urlApi, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        'X-CSRF-TOKEN':  '{{ csrf_token() }}'
       },
       body: JSON.stringify({
         aluno1_id: sel1.value,
@@ -145,32 +146,62 @@ document.addEventListener('DOMContentLoaded', () => {
             {
               label: data.aluno1,
               data: data.values1,
-              backgroundColor: 'rgba(54, 162, 235, 0.3)',
-              borderColor:   'rgba(54, 162, 235, 1)',
-              borderWidth:  1
+              backgroundColor: 'rgba(54, 162, 235, 0.8)',
+              borderRadius: 4,
+              maxBarThickness: 50
             },
             {
               label: data.aluno2,
               data: data.values2,
-              backgroundColor: 'rgba(255, 99, 132, 0.3)',
-              borderColor:   'rgba(255, 99, 132, 1)',
-              borderWidth:  1
+              backgroundColor: 'rgba(255, 99, 132, 0.8)',
+              borderRadius: 4,
+              maxBarThickness: 50
             }
           ]
         },
         options: {
+          responsive: true,
+          maintainAspectRatio: false,
           scales: {
-            r: {
+            x: {
+              title: { display: true },
+              ticks: {
+                autoSkip: true,
+                maxRotation: 45,
+                minRotation: 0,
+                font: { size: 12 }
+              }
+            },
+            y: {
               beginAtZero: true,
               suggestedMax: 100,
-              ticks: { stepSize: 10, font: { size: 12 } }
+              title: { display: true, text: 'Valor' },
+              ticks: {
+                stepSize: 10,
+                font: { size: 12 }
+              }
             }
+          },
+          layout: {
+            padding: { top: 10, bottom: 10 }
           },
           plugins: {
             legend: { position: 'top' },
-            title:  { display: true, text: 'Perfil de Atributos' }
+            title: { display: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'end',
+              color: '#444',
+              offset: 4,
+              formatter: value => value,
+              font: ctx => {
+                const w = ctx.chart.width;
+                return { size: w < 400 ? 8 : (w < 600 ? 10 : 12), weight: 'bold' };
+              }
+            }
           }
-        }
+        },
+        plugins: [ChartDataLabels]
       });
 
       card.classList.remove('d-none');
@@ -180,4 +211,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endpush
-
