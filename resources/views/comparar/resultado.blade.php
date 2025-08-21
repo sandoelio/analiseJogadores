@@ -63,9 +63,9 @@
        style="background: #28365F; color: white;">
       <i class="bi bi-arrow-repeat me-1"></i> Gerar Novo Duelo
     </a>
-    <a href="{{ route('analise.index') }}"
+    <a href="{{ route('public.dashboard') }}"
        class="btn btn-lg btn-secondary">
-      Voltar para Análise
+      Voltar
     </a>
   </div>
 </div>
