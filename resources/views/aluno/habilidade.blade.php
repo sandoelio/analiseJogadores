@@ -54,7 +54,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'jogada', 'dominio'] as $campo)
+                        @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'] as $campo)
                             <div class="mb-3">
                                 <label for="{{ $campo }}" class="form-label">
                                     {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
@@ -86,7 +86,7 @@
                     .then(res => res.json())
                     .then(data => {
                         // Preenche os campos de estatística
-                        ['arremesso', 'passe', 'marcacao', 'bandeja', 'jogada', 'dominio'].forEach(
+                        ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'].forEach(
                             campo => {
                                 const inp = document.getElementById(campo);
                                 inp.value = data[campo];

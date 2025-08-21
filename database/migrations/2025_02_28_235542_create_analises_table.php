@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('passe');
             $table->unsignedTinyInteger('marcacao');
             $table->unsignedTinyInteger('bandeja');
-            $table->unsignedTinyInteger('jogada');
+            $table->unsignedTinyInteger('rebote');
             $table->unsignedTinyInteger('dominio');
 
             $table->timestampsTz();

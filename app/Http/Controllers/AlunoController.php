@@ -65,7 +65,7 @@ class AlunoController extends Controller
             'passe'        => 'required|integer|between:0,10',
             'marcacao'     => 'required|integer|between:0,10',
             'bandeja'      => 'required|integer|between:0,10',
-            'jogada'       => 'required|integer|between:0,10',
+            'rebote'       => 'required|integer|between:0,10',
             'dominio'      => 'required|integer|between:0,10',
         ]);
 
@@ -76,7 +76,7 @@ class AlunoController extends Controller
             'passe'       => $data['passe'],
             'marcacao'    => $data['marcacao'],
             'bandeja'     => $data['bandeja'],
-            'jogada'      => $data['jogada'],
+            'rebote'      => $data['rebote'],
             'dominio'     => $data['dominio'],
         ]);
 
@@ -123,7 +123,7 @@ class AlunoController extends Controller
             'passe'       => $analise->passe,
             'marcacao'    => $analise->marcacao,
             'bandeja'     => $analise->bandeja,
-            'jogada'      => $analise->jogada,
+            'rebote'      => $analise->rebote,
             'dominio'     => $analise->dominio,
         ]);
     }
@@ -146,7 +146,7 @@ class AlunoController extends Controller
             'passe'       => 'required|integer|between:0,10',
             'marcacao'    => 'required|integer|between:0,10',
             'bandeja'     => 'required|integer|between:0,10',
-            'jogada'      => 'required|integer|between:0,10',
+            'rebote'      => 'required|integer|between:0,10',
             'dominio'     => 'required|integer|between:0,10',
         ]);
         
@@ -185,7 +185,7 @@ class AlunoController extends Controller
             'passe'       => $data['passe'],
             'marcacao'    => $data['marcacao'],
             'bandeja'     => $data['bandeja'],
-            'jogada'      => $data['jogada'],
+            'rebote'      => $data['rebote'],
             'dominio'     => $data['dominio'],
         ]);
 

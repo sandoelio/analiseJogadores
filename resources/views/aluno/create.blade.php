@@ -65,7 +65,7 @@
                         </div>
 
                         {{-- Campos de estatística com valor padrão '1' e readonly --}}
-                        @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'jogada', 'dominio'] as $campo)
+                        @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'] as $campo)
                             <div class="mb-3">
                                 <label for="{{ $campo }}" class="form-label">
                                     {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}

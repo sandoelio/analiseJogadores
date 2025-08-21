@@ -18,7 +18,7 @@
           <li class="list-group-item">Passe: {{ $atual->passe }}</li>
           <li class="list-group-item">Marcação: {{ $atual->marcacao }}</li>
           <li class="list-group-item">Bandeja: {{ $atual->bandeja }}</li>
-          <li class="list-group-item">Jogada: {{ $atual->jogada }}</li>
+          <li class="list-group-item">Rebote: {{ $atual->rebote }}</li>
           <li class="list-group-item">Domínio: {{ $atual->dominio }}</li>
         </ul>
       </div>
@@ -35,7 +35,7 @@
           <li class="list-group-item">Passe: {{ $anterior->passe }}</li>
           <li class="list-group-item">Marcação: {{ $anterior->marcacao }}</li>
           <li class="list-group-item">Bandeja: {{ $anterior->bandeja }}</li>
-          <li class="list-group-item">Jogada: {{ $anterior->jogada }}</li>
+          <li class="list-group-item">Rebote: {{ $anterior->rebote }}</li>
           <li class="list-group-item">Domínio: {{ $anterior->dominio }}</li>
         </ul>
       </div>
@@ -54,7 +54,7 @@
     new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['Arremesso', 'Passe', 'Marcação', 'Bandeja', 'Jogada', 'Domínio'],
+        labels: ['Arremesso', 'Passe', 'Marcação', 'Bandeja', 'Rebote', 'Domínio'],
         datasets: [
           {
             label: 'Última Análise',
@@ -63,7 +63,7 @@
               {{ $atual->passe }},
               {{ $atual->marcacao }},
               {{ $atual->bandeja }},
-              {{ $atual->jogada }},
+              {{ $atual->rebote }},
               {{ $atual->dominio }}
             ],
             backgroundColor: 'rgba(54, 162, 235, 0.7)'
@@ -75,7 +75,7 @@
               {{ $anterior->passe }},
               {{ $anterior->marcacao }},
               {{ $anterior->bandeja }},
-              {{ $anterior->jogada }},
+              {{ $anterior->rebote }},
               {{ $anterior->dominio }}
             ],
             backgroundColor: 'rgba(255, 99, 132, 0.7)'
@@ -113,7 +113,7 @@
       <li class="list-group-item">Passe: {{ $atual->passe }}</li>
       <li class="list-group-item">Marcação: {{ $atual->marcacao }}</li>
       <li class="list-group-item">Bandeja: {{ $atual->bandeja }}</li>
-      <li class="list-group-item">Jogada: {{ $atual->jogada }}</li>
+      <li class="list-group-item">Rebote: {{ $atual->rebote }}</li>
       <li class="list-group-item">Domínio: {{ $atual->dominio }}</li>
     </ul>
   </div>

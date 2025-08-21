@@ -19,7 +19,7 @@ return [
         'passe',
         'marcacao',
         'bandeja',
-        'jogada',
+        'rebote',
         'dominio',
     ],
 

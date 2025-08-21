@@ -34,7 +34,7 @@
           <li class="list-group-item">Passe: {{ $atual->passe }}</li>
           <li class="list-group-item">Marcação: {{ $atual->marcacao }}</li>
           <li class="list-group-item">Bandeja: {{ $atual->bandeja }}</li>
-          <li class="list-group-item">Jogada: {{ $atual->jogada }}</li>
+          <li class="list-group-item">Rebote: {{ $atual->rebote }}</li>
         </ul>
       </div>
     </div>
@@ -53,7 +53,7 @@
           <li class="list-group-item">Passe: {{ $anterior->passe }}</li>
           <li class="list-group-item">Marcação: {{ $anterior->marcacao }}</li>
           <li class="list-group-item">Bandeja: {{ $anterior->bandeja }}</li>
-          <li class="list-group-item">Jogada: {{ $anterior->jogada }}</li>
+          <li class="list-group-item">Rebote: {{ $anterior->rebote }}</li>
         </ul>
       </div>
     </div>

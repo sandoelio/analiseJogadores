@@ -107,8 +107,8 @@ class ComparativoPublicoController extends Controller
             }
 
             // chance de manter posse
-            $pKeep = ($ast['dominio'] + $ast['jogada'])
-                / max(1, $ast['dominio'] + $ast['jogada'] + $dfst['marcacao']);
+            $pKeep = ($ast['dominio'] + $ast['rebote'])
+                / max(1, $ast['dominio'] + $ast['rebote'] + $dfst['marcacao']);
 
             if ($randFloat() > $pKeep) {
                 // drible falhou
