@@ -3,10 +3,9 @@
 @section('title', 'Narração Atletas')
 
 <style>
-  
-  .back-logonarracao {
-      background: #28365F;
-      margin-bottom: 5px
+    .back-logonarracao {
+        background: #28365F;
+        margin-bottom: 5px
     }
 </style>
 
@@ -14,6 +13,12 @@
 
     <div class="container my-4">
         <div class="container my-4">
+            {{-- 1) Mensagem de erro / throttle --}}
+            @if (session('error'))
+                <div class="alert alert-warning text-center">
+                    {{ session('error') }}
+                </div>
+            @endif
             {{-- Logo --}}
             <div class="text-center mb-0">
                 <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana"
@@ -82,8 +87,16 @@
                     });
                 }
 
-                sel1.addEventListener('change', () => atualizarOpcoes(sel1, sel2));
-                sel2.addEventListener('change', () => atualizarOpcoes(sel2, sel1));
+                sel1.addEventListener('change', () => {
+                    // habilita o segundo select quando escolher o primeiro
+                    sel2.disabled = !sel1.value;
+                    sel2.value = ''; // reseta seleção anterior
+                    atualizarOpcoes(sel1, sel2); // bloqueia opção duplicada
+                });
+
+                sel2.addEventListener('change', () => {
+                    atualizarOpcoes(sel2, sel1); // bloqueia no primeiro a opção escolhida no segundo
+                });
             });
         </script>
     @endpush

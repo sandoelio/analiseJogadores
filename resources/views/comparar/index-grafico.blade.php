@@ -134,7 +134,16 @@ document.addEventListener('DOMContentLoaded', () => {
         aluno2_id: sel2.value
       })
     })
-    .then(res => res.json())
+    .then(res => {
+      if (res.status === 429) {
+        // lê cabeçalho Retry-After (segundos)
+        const wait = res.headers.get('Retry-After') || 60;
+        alert(`Você atingiu o limite de requisições. Aguarde ${wait}s e tente novamente.`);
+        // interrompe a cadeia de promessas
+        throw new Error('Too Many Requests');
+      }
+      return res.json();
+    })
     .then(data => {
       if (chart) chart.destroy();
 
