@@ -25,24 +25,23 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 | Página Pública (Seleção de Instituição / Estatísticas)
 |--------------------------------------------------------------------------
 */
-
 Route::get('/', [PublicDashboardController::class, 'index'])->name('public.dashboard');
-
 Route::get('/analise',[AlunoPublicoController::class, 'index'])->name('analise.index');
-
-Route::get('/analise/instituicao/{instituicao}/alunos',[AlunoPublicoController::class,'listarPorInstituicao']
-)->name('analise.alunos');
-
-Route::get('/analise/aluno/{matricula}',[AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar');
-
-// Comparativo Público
 Route::get('/comparar', [ComparativoPublicoController::class, 'index'])->name('comparar.index');
-
-Route::post('/comparar', [ComparativoPublicoController::class, 'narrar'])->name('comparar.narrar');
-
 Route::get('comparar/grafico', [ComparativoGraficoController::class, 'index'])->name('comparar.grafico.index');
 
-Route::post('comparar/grafico/dados', [ComparativoGraficoController::class, 'comparar'])->name('comparar.grafico.dados');
+Route::middleware('throttle:60,1')->group(function () {
+
+    Route::get('/analise/instituicao/{instituicao}/alunos',[AlunoPublicoController::class, 'listarPorInstituicao']
+    )->name('analise.alunos');
+    Route::get('/analise/aluno/{matricula}',[AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar');
+});
+
+Route::middleware('throttle:20,1')->group(function () {
+
+    Route::post('/comparar',[ComparativoPublicoController::class, 'narrar'])->name('comparar.narrar');
+    Route::post('/comparar/grafico/dados',[ComparativoGraficoController::class, 'comparar'])->name('comparar.grafico.dados');
+});
 
 /*
 |--------------------------------------------------------------------------
