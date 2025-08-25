@@ -21,7 +21,7 @@
 <div class="row justify-content-center">
   <div class="col-12 col-md-6 col-lg-5">
     <div class="card border-0 shadow-sm rounded">
-      <div class="card-body p-4">
+      <div class="card-body">
 
         {{-- Título --}}
         <h2 class="card-title text-center mb-4" style="color: #1B265E;">
@@ -89,7 +89,7 @@
           </div>
 
           {{-- Confirmar Senha --}}
-          <div class="mb-3">
+          {{-- <div class="mb-3">
             <label for="password_confirmation" class="form-label">Confirmar Senha</label>
             <input
               type="password"
@@ -99,7 +99,7 @@
               placeholder="Repita a senha"
               required
             >
-          </div>
+          </div> --}}
 
           {{-- Instituição --}}
           <div class="mb-4">
@@ -114,6 +114,39 @@
               required
             >
             @error('instituicao_nome')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+
+           {{-- E-mail para atletas --}}
+          <div class="mb-3">
+            <label for="email" class="form-label">E-mail para atletas</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control form-control-lg @error('email') is-invalid @enderror"
+              placeholder="exemplo@dominio.com"
+              value="{{ old('email') }}"
+              required
+            >
+            @error('email')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+
+          {{-- Senha para atletas--}}
+          <div class="mb-3">
+            <label for="password" class="form-label">Senha para atletas</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-control form-control-lg @error('password') is-invalid @enderror"
+              placeholder="Mínimo 8 caracteres"
+              required
+            >
+            @error('password')
               <div class="invalid-feedback">{{ $message }}</div>
             @enderror
           </div>

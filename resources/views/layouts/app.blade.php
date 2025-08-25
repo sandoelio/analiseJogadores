@@ -58,7 +58,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            /* overflow-y: auto; */
             padding: 1.5rem;
             background: #FF7209;
             box-sizing: border-box;
