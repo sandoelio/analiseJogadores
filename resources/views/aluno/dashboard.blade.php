@@ -20,7 +20,7 @@
         }
 
         .dashboard-container {
-            min-height: calc(90vh - 10rem - 12rem);
+            min-height: calc(90vh - 20rem - 12rem);
             /* desconta header e footer */
             display: flex;
             align-items: center;
@@ -31,7 +31,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1.5rem;
-            max-width: 400px;
+            max-width: 600px;
             width: 100%;
         }
 
@@ -60,24 +60,33 @@
             font-size: 2rem;
             margin-bottom: 0.5rem;
         }
+
         .back-logo {
             background: #28365F;
-            
+
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-buttons {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: center;
+                gap: 0.5rem;
+                max-width: 400px;
+                width: 100%;
+                margin-top: 10px;
+            }
         }
     </style>
 @endpush
 
 @section('content')
 
-    {{-- Logo --}}   
+    {{-- Logo --}}
     <div class="text-center mb-0">
-      <img 
-        src="{{ asset('imagem/LOGO1.png') }}" 
-        alt="Cesta Baiana" 
-        style="max-width: 200px; width: 100%; height: auto; margin-top: 5%;"
-        class="back-logo"
-        loading="lazy"
-      >
+        <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana"
+            style="max-width: 200px; width: 100%; height: auto; margin-top: 5%;" class="back-logo" loading="lazy">
     </div>
     <div class="container-fluid dashboard-container">
         <div class="dashboard-buttons">
@@ -91,7 +100,7 @@
                 Atualizar Atleta
             </a>
 
-            <a href="{{route("aluno.index")}} " class="dashboard-btn">
+            <a href="{{ route('aluno.index') }} " class="dashboard-btn">
                 <i class="bi bi-people-fill"></i>
                 Atletas Cadastrados
             </a>
