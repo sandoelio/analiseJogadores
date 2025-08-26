@@ -44,44 +44,32 @@ Route::post('/aluno/logout',[AlunoAuthController::class, 'logout'])->name('aluno
 | Dashboard do Aluno (só quem tiver sessão de atleta)
 |--------------------------------------------------------------------------
 */
-Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])
-     ->middleware(CheckAlunoSession::class)
-     ->name('aluno.dashboard');
+Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])->middleware(CheckAlunoSession::class)->name('aluno.dashboard');
 
 /*
 |--------------------------------------------------------------------------
 | Rotas que TODOS os logados (admin | técnico | atleta) podem acessar
 |--------------------------------------------------------------------------
 */
-Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])
-     ->group(function () {
+Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function () {
 
     // Dashboard genérico
-    Route::get('/public/dashboard', [PublicDashboardController::class, 'index'])
-         ->name('public.dashboard');
+    Route::get('/public/dashboard', [PublicDashboardController::class, 'index'])->name('public.dashboard');
 
     // Visão de Análise
-    Route::get('/analise', [AlunoPublicoController::class, 'index'])
-         ->name('analise.index');
+    Route::get('/analise', [AlunoPublicoController::class, 'index'])->name('analise.index');
 
-    Route::get('/analise/aluno/{matricula}', [AlunoPublicoController::class, 'mostrar'])
-         ->name('analise.mostrar')
-         ->middleware('throttle:60,1');
+    Route::get('/analise/aluno/{matricula}', [AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar')->middleware('throttle:60,1');
 
     // Comparativos
-    Route::get('/comparar', [ComparativoPublicoController::class, 'index'])
-         ->name('comparar.index');
+    Route::get('/comparar', [ComparativoPublicoController::class, 'index'])->name('comparar.index');
 
-    Route::post('/comparar', [ComparativoPublicoController::class, 'narrar'])
-         ->name('comparar.narrar')
-         ->middleware('throttle:20,1');
+    Route::post('/comparar', [ComparativoPublicoController::class, 'narrar'])->name('comparar.narrar')->middleware('throttle:20,1');
 
-    Route::get('/comparar/grafico', [ComparativoGraficoController::class, 'index'])
-         ->name('comparar.grafico.index');
+    Route::get('/comparar/grafico', [ComparativoGraficoController::class, 'index'])->name('comparar.grafico.index');
 
-    Route::post('/comparar/grafico/dados', [ComparativoGraficoController::class, 'comparar'])
-         ->name('comparar.grafico.dados')
-         ->middleware('throttle:20,1');
+    Route::post('/comparar/grafico/dados', [ComparativoGraficoController::class, 'comparar'])->name('comparar.grafico.dados')->middleware('throttle:20,1');
+
     Route::get('/analise/instituicao/{instituicao}/alunos',[AlunoPublicoController::class, 'listarPorInstituicao'])->name('analise.alunos')->middleware('throttle:60,1');
 });
 
@@ -91,40 +79,28 @@ Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])
 | Rotas Protegidas (Técnico)
 |--------------------------------------------------------------------------
 */
-Route::middleware([ CheckSession::class ])
-     ->group(function () {
-    Route::get('/alunos/cadastrados', [AlunoController::class, 'index'])
-         ->name('aluno.index');
+Route::middleware([ CheckSession::class ])->group(function () {
+    Route::get('/alunos/cadastrados', [AlunoController::class, 'index'])->name('aluno.index');
 
-    Route::get('/aluno/create', [AlunoController::class, 'create'])
-         ->name('aluno.create');
+    Route::get('/aluno/create', [AlunoController::class, 'create'])->name('aluno.create');
 
-    Route::post('/aluno', [AlunoController::class, 'store'])
-         ->name('aluno.store');
+    Route::post('/aluno', [AlunoController::class, 'store'])->name('aluno.store');
 
-    Route::get('/aluno/{aluno}/edit', [AlunoController::class, 'edit'])
-         ->name('aluno.edit');
+    Route::get('/aluno/{aluno}/edit', [AlunoController::class, 'edit'])->name('aluno.edit');
 
-    Route::put('/aluno/{aluno}', [AlunoController::class, 'update'])
-         ->name('aluno.update');
+    Route::put('/aluno/{aluno}', [AlunoController::class, 'update'])->name('aluno.update');
 
-    Route::delete('/aluno/{aluno}', [AlunoController::class, 'destroy'])
-         ->name('aluno.destroy');
+    Route::delete('/aluno/{aluno}', [AlunoController::class, 'destroy'])->name('aluno.destroy');
 
-    Route::get('/aluno/atualizar', [AlunoController::class, 'habilidade'])
-         ->name('aluno.updateForm');
+    Route::get('/aluno/atualizar', [AlunoController::class, 'habilidade'])->name('aluno.updateForm');
 
-    Route::post('/aluno/habilidade/update', [AlunoController::class, 'updateHabilidade'])
-         ->name('aluno.habilidade.update');
+    Route::post('/aluno/habilidade/update', [AlunoController::class, 'updateHabilidade'])->name('aluno.habilidade.update');
 
-    Route::get('/aluno/{aluno}/ultima-analise', [AlunoController::class, 'fetchLastAnalysis'])
-         ->name('aluno.lastAnalysis');
+    Route::get('/aluno/{aluno}/ultima-analise', [AlunoController::class, 'fetchLastAnalysis'])->name('aluno.lastAnalysis');
 
-    Route::get('/aluno/comparativo/{aluno}', [AlunoController::class, 'showComparativo'])
-         ->name('aluno.comparativo');
+    Route::get('/aluno/comparativo/{aluno}', [AlunoController::class, 'showComparativo'])->name('aluno.comparativo');
 
-    Route::get('/tecnico/dashboard', [AlunoController::class, 'dashboard'])
-         ->name('tecnico.dashboard');
+    Route::get('/tecnico/dashboard', [AlunoController::class, 'dashboard'])->name('tecnico.dashboard');
 });
 
 /*
@@ -132,11 +108,9 @@ Route::middleware([ CheckSession::class ])
 | Rotas de Administração (Usuário Admin)
 |--------------------------------------------------------------------------
 */
-Route::middleware([ CheckSession::class, CheckAdmin::class ])
-     ->group(function () {
-    Route::get('/admin/dashboard', fn() => view('admin.dashboard'))
-         ->name('admin.dashboard');
+Route::middleware([ CheckSession::class, CheckAdmin::class ])->group(function () {
 
-    Route::resource('usuarios', UsuarioController::class)
-         ->except(['show']);
+    Route::get('/admin/dashboard', fn() => view('admin.dashboard'))->name('admin.dashboard');
+
+    Route::resource('usuarios', UsuarioController::class)->except(['show']);
 });
