@@ -4,90 +4,139 @@
 @section('title', 'Novo Aluno / Análise')
 
 @push('styles')
-    <style>
-        /* Deixa os inputs readonly com aparência desabilitada */
-        input[readonly] {
-            background-color: #e9ecef;
-            opacity: 1;
-            cursor: not-allowed;
-        }
+<style>
+  /* Readonly com aparência padronizada */
+  input[readonly] {
+    background-color: #e9ecef;
+    opacity: 1;
+    cursor: not-allowed;
+  }
 
-        
-        /* Cor do navbar */
-        .bg-navbar-blue {
-            background-color: #28365F !important;
-            color: #fff;
-        }
+  /* Cores do header e botão */
+  .bg-navbar-blue { background: #28365F !important; color: #fff; }
+  .btn-navbar-blue {
+    background: #28365F;
+    border-color: #28365F;
+    color: #fff;
+  }
+  .btn-navbar-blue:hover {
+    background: #28365F;
+    border-color: #28365F;
+  }
 
-        /* Botão Salvar com a mesma cor */
-        .btn-navbar-blue {
-            background-color: #28365F;
-            border-color: #28365F;
-            color: #fff;
-        }
+  /* ========= MOBILE: até 576px ========= */
+  @media (max-width: 576px) {
+    /* container do formulário rola verticalmente, sem horizontal */
+    .aluno-card-body {
+      max-height: calc(100vh - 160px); /* header+footer+paddings */
+      overflow-y: auto;
+      overflow-x: hidden;            /* bloqueia rolagem lateral */
+      padding: 1rem;                 /* padding completo para compensar gutters */
+      box-sizing: border-box;        /* inclui padding na largura */
+    }
 
-        .btn-navbar-blue:hover {
-            background-color: #28365F;
-            border-color: #28365F;
-        }
-    </style>
+    /* zera a margem negativa do .row.g-3 */
+    .aluno-card-body .row.g-3 {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    /* reaplica gutters suaves nas colunas */
+    .aluno-card-body .row.g-3 > [class*="col-"] {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    /* inputs, selects e botões não extrapolam */
+    .aluno-card-body input,
+    .aluno-card-body select,
+    .aluno-card-body .btn {
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+    }
+  }
+
+  /* Segurança extra: impede scroll-x em todo o documento */
+  html, body {
+    overflow-x: hidden;
+  }
+</style>
 @endpush
 
+
+
 @section('content')
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
+    <div class="row justify-content-center mt-4 mb-4">
+      <div class="col-12 col-md-8 col-lg-6">
 
-            {{-- Cartão de Formulário --}}
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-navbar-blue text-center">
-                    <h5 class="mb-0">Novo Atleta</h5>
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-navbar-blue text-center">
+            <h5 class="mb-0">Novo Atleta</h5>
+          </div>
+
+          <div class="card-body aluno-card-body">
+            @if(session('success'))
+              <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            <form action="{{ route('aluno.store') }}" method="POST">
+              @csrf
+
+              <div class="row g-3">
+                {{-- Nome (100% largura) --}}
+                <div class="col-12">
+                  <label for="nome" class="form-label">Nome do Atleta</label>
+                  <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    placeholder="Nome e sobrenome"
+                    class="form-control @error('nome') is-invalid @enderror"
+                    value="{{ old('nome') }}"
+                    required
+                  >
+                  @error('nome')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
 
-                <div class="card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                {{-- Estatísticas em 2 colunas --}}
+                @foreach (['arremesso','passe','marcacao','bandeja','rebote','dominio'] as $campo)
+                  <div class="col-6">
+                    <label for="{{ $campo }}" class="form-label">
+                      {{ ucfirst($campo==='dominio'?'Domínio de Bola':$campo) }}
+                    </label>
+                    <input type="hidden" name="{{ $campo }}" value="1">
+                    <input
+                      type="number"
+                      id="{{ $campo }}"
+                      class="form-control"
+                      value="1"
+                      min="0"
+                      max="100"
+                      readonly
+                    >
+                  </div>
+                @endforeach
 
-                    <form action="{{ route('aluno.store') }}" method="POST">
-                        @csrf
-
-                        {{-- Apenas o nome fica editável --}}
-                        <div class="mb-3">
-                            <label for="nome" class="form-label">Nome do Atleta</label>
-                            <input type="text" id="nome" name="nome" placeholder="Nome e sobrenome ou apelideo"
-                                class="form-control @error('nome') is-invalid @enderror" value="{{ old('nome') }}"
-                                required>
-                            @error('nome')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        {{-- Campos de estatística com valor padrão '1' e readonly --}}
-                        @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'] as $campo)
-                            <div class="mb-3">
-                                <label for="{{ $campo }}" class="form-label">
-                                    {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
-                                </label>
-
-                                {{-- Input oculto para envio --}}
-                                <input type="hidden" name="{{ $campo }}" value="1">
-
-                                {{-- Input visual readonly --}}
-                                <input type="number" id="{{ $campo }}" class="form-control" value="1"
-                                    min="0" max="100" readonly>
-                            </div>
-                        @endforeach
-
-                        <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-navbar-blue">Salvar</button>
-                            <a href="{{ route('aluno.dashboard') }}" class="btn btn-secondary">Cancelar</a>
-                        </div>
-                    </form>
-
+                {{-- Botões: em full-width no mobile, lado a lado no desktop --}}
+                <div class="col-12">
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                    <button type="submit" class="btn btn-navbar-blue flex-md-grow-1">
+                      Salvar
+                    </button>
+                    <a href="{{ route('tecnico.dashboard') }}"
+                       class="btn btn-secondary flex-md-grow-1">
+                      Cancelar
+                    </a>
+                  </div>
                 </div>
-            </div>
+              </div>
+            </form>
+          </div>
         </div>
+
+      </div>
     </div>
 @endsection

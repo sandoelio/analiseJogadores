@@ -39,14 +39,14 @@
     <div class="container-fluid py-4">
 
         {{-- Cartão de Listagem de Alunos --}}
-        @if (!empty($alunos) && $alunos->count())
+        @if ($alunos->count())
             <div class="row justify-content-center">
                 <div class="col-12 col-lg-10">
                     <div class="card alunos-card shadow-sm">
 
                         <div class="card-header text-white">
                             <h5 class="mb-0">
-                                Alunos Cadastrados ({{ $totalAlunos }})
+                                Alunos Cadastrados ({{ $alunos->total() }})
                             </h5>
                         </div>
 
@@ -67,18 +67,19 @@
                                                 <td class="text-center">{{ $aluno->matricula }}</td>
                                                 <td class="text-center">
                                                     <a href="{{ route('aluno.edit', $aluno) }}"
-                                                        class="btn btn-sm btn-outline-secondary action-btn" title="Editar">
+                                                       class="btn btn-sm btn-outline-secondary action-btn"
+                                                       title="Editar">
                                                         <i class="bi bi-pencil-fill"></i>
                                                     </a>
-
-                                                    <form action="{{ route('aluno.destroy', $aluno) }}" method="POST"
-                                                        class="d-inline"
-                                                        onsubmit="return confirm('Deseja excluir este aluno?');">
+                                                    <form action="{{ route('aluno.destroy', $aluno) }}"
+                                                          method="POST"
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('Deseja excluir este aluno?')">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"
-                                                            class="btn btn-sm btn-outline-danger action-btn"
-                                                            title="Excluir">
+                                                                class="btn btn-sm btn-outline-danger action-btn"
+                                                                title="Excluir">
                                                             <i class="bi bi-trash-fill"></i>
                                                         </button>
                                                     </form>
@@ -94,7 +95,6 @@
                         @if ($alunos->hasPages())
                             <div class="card-footer bg-white border-0">
                                 <div class="d-flex justify-content-center">
-                                    {{-- simples – só Anterior/Próximo --}}
                                     {{ $alunos->links('pagination::bootstrap-5') }}
                                 </div>
                             </div>

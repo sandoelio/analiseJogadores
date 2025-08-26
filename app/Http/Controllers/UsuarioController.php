@@ -18,8 +18,8 @@ class UsuarioController extends Controller
     public function index()
     {
         $usuarios = User::where('is_admin', false)
-                        ->with('instituicao')
-                        ->paginate(10);
+            ->with('instituicao')
+            ->paginate(10);
 
         return view('usuarios.index', compact('usuarios'));
     }
@@ -27,26 +27,31 @@ class UsuarioController extends Controller
     public function create()
     {
         $instituicoes = Instituicao::orderBy('nome')->get();
-
         return view('usuarios.create', compact('instituicoes'));
     }
 
     public function store(Request $request)
     {
-       // 1. Validação: instituicao_nome agora é obrigatória
+        // 1) Validação incluindo credenciais de atleta
         $data = $request->validate([
-            'name'             => 'required|string|max:255',
-            'email'            => 'required|email|unique:users,email',
-            'password'         => 'required|string|min:6|confirmed',
-            'instituicao_nome' => 'required|string|max:255',
+            'name'               => 'required|string|max:255',
+            'email'              => 'required|email|unique:users,email',
+            'password'           => 'required|string|min:6|confirmed',
+            'instituicao_nome'   => 'required|string|max:255',
+            'athlete_email'      => 'required|email|unique:instituicoes,athlete_email',
+            'athlete_password'   => 'required|string|min:8',
         ]);
 
-        // 2. Cria ou recupera a instituição a partir do nome
-        $instituicao = Instituicao::firstOrCreate([
-            'nome' => $data['instituicao_nome']
-        ]);
+        // 2) Cria ou atualiza a Instituição
+        $instituicao = Instituicao::updateOrCreate(
+            ['nome' => $data['instituicao_nome']],
+            [
+                'athlete_email'    => $data['athlete_email'],
+                'athlete_password' => $data['athlete_password'], // mutator faz o Hash
+            ]
+        );
 
-        // 3. Cria o usuário vinculado à instituição
+        // 3) Cria o usuário técnico
         User::create([
             'name'           => $data['name'],
             'email'          => $data['email'],
@@ -57,43 +62,52 @@ class UsuarioController extends Controller
 
         return redirect()
             ->route('usuarios.create')
-            ->with('success', 'Usuário cadastrado com sucesso!');
+            ->with('success', 'Usuário e credenciais de atleta cadastrados com sucesso!');
     }
 
-    // Formulário de edição
     public function edit(User $usuario)
     {
         $instituicoes = Instituicao::orderBy('nome')->get();
-        return view('usuarios.edit', compact('usuario'));
+        return view('usuarios.edit', compact('usuario', 'instituicoes'));
     }
 
-    // Atualizar dados
     public function update(Request $request, User $usuario)
     {
+        // 1) Validação incluindo credenciais de atleta
         $data = $request->validate([
-            'name'             => 'required|string|max:255',
-            'email'            => 'required|email|unique:users,email,'.$usuario->id,
-            'password'         => 'nullable|string|min:6|confirmed',
+            'name'               => 'required|string|max:255',
+            'email'              => 'required|email|unique:users,email,' . $usuario->id,
+            'password'           => 'nullable|string|min:6|confirmed',
+            'athlete_email'      => 'required|email|unique:instituicoes,athlete_email,' . $usuario->instituicao_id,
+            'athlete_password'   => 'nullable|string|min:8',
         ]);
 
-        $usuario->name           = $data['name'];
-        $usuario->email          = $data['email'];
-
+        // 2) Atualiza o usuário técnico
+        $usuario->name  = $data['name'];
+        $usuario->email = $data['email'];
         if (!empty($data['password'])) {
             $usuario->password = Hash::make($data['password']);
         }
-
         $usuario->save();
+
+        // 3) Atualiza as credenciais de atleta na Instituição
+        $usuario->instituicao->update([
+            'athlete_email'    => $data['athlete_email'],
+            'athlete_password' => $data['athlete_password'] ?? $usuario->instituicao->athlete_password,
+        ]);
 
         return redirect()
             ->route('usuarios.index')
-            ->with('success', 'Usuário atualizado com sucesso!');
+            ->with('success', 'Usuário e credenciais de atleta atualizados com sucesso!');
     }
 
-    // Excluir usuário
     public function destroy(User $usuario)
     {
+        //    opcional: se desejar remover a instituição
+        // $usuario->instituicao()->delete();
+
         $usuario->delete();
+
         return redirect()
             ->route('usuarios.index')
             ->with('success', 'Usuário excluído com sucesso!');

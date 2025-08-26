@@ -1,3 +1,4 @@
+{{-- resources/views/analise/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Análise individual')
@@ -18,97 +19,167 @@
             z-index: 10;
         }
 
+        .overlay-spinner .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
         /* wrapper relative para selects e chart */
         .field-wrapper,
         .chart-wrapper {
             position: relative;
         }
 
-        /* estiliza o spinner maior */
-        .overlay-spinner .spinner-border {
-            width: 3rem;
-            height: 3rem;
-        }
-
+        /* reduz e centraliza a logo */
         .back-logo {
             background: #28365F;
-            margin-bottom: 5px;
+            display: block;
+            margin: 0 auto 1.5rem;
+            max-width: 200px;
+            width: 100%;
+            height: auto;
         }
 
+        /* limita a largura dos selects e centraliza */
+        .field-wrapper .form-select {
+            display: block;
+            margin: 0 auto;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* opcional: limita também o botão “Voltar” */
+        .volver-wrapper .btn {
+            max-width: 200px;
+            width: 100%;
+            margin: 0 auto;
+            display: block;
+            background: #28365F;
+        }
+
+        /* canvas do Chart.js */
         #estatisticas-chart {
             width: 100% !important;
             height: auto !important;
-            max-width: 650px;
+            max-width: 600px;
             min-height: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ------------------------------
+            Ajustes específicos para desktop
+         ------------------------------- */
+        @media (min-width: 768px) {
+
+            /* remove qualquer scroll horizontal no desktop */
+            html,
+            body {
+                overflow-x: hidden;
+            }
+
+            /* adiciona espaço entre navbar e logo */
+            .back-logo {
+                margin-top: 2rem;
+                margin-bottom: 1.5rem;
+            }
+
+            /* reduz o espaçamento vertical entre selects */
+            #selecao-container {
+                --bs-gutter-y: .5rem;
+                margin-bottom: 1.5rem !important;
+                /* flex-direction: column; */
+                gap: 1rem;
+            }
+
+            #selecao-container .field-wrapper {
+                width: 100% !important;
+                max-width: 600px;
+                /* largura máxima dos selects */
+            }
+
+            /* limita a largura do card de gráfico e centraliza */
+            .chart-wrapper {
+                max-width: 600px;
+                margin: 1.5rem auto 2rem;
+            }
         }
     </style>
 @endpush
 
 @section('content')
+    @php
+        $atletaInst = session('aluno_instituicao_id');
+    @endphp
+
     <div class="container-fluid">
-
         {{-- Logo --}}
-        <div class="text-center mb-0">
-            <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" style="max-width: 200px; width: 100%; height: auto;"
-                class="back-logo" loading="lazy">
+        <div class="text-center back-logo">
+            <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" style="max-width:150px; width:80%;" loading="lazy">
         </div>
 
-
-        {{-- Botão Voltar --}}
-        <div class="text-center my-3">
-            <a href="{{ route('public.dashboard') }}" class="btn btn-primary" style="background: #28365F; color: #fff;">
-                <i class="bi bi-house-door me-1"></i> Voltar
-            </a>
-        </div>
-
-        {{-- Seleção de Instituição e Aluno --}}
-        <div id="selecao-container" class="row gx-3 gy-3 mb-4 justify-content-center">
-
-            <div id="instituicao-wrapper" class="col-12 col-md-6 field-wrapper">
-                <label for="instituicao" class="form-label">
-                    <i class="bi bi-building me-1"></i>Instituição
-                </label>
-                <select id="instituicao" class="form-select">
-                    <option selected disabled>Selecione a instituição</option>
-                    @foreach ($instituicoes as $inst)
-                        <option value="{{ $inst->id }}">{{ $inst->nome }}</option>
-                    @endforeach
-                </select>
-                {{-- overlay spinner para instituição --}}
-                <div id="overlay-instituicao" class="overlay-spinner d-none">
-                    <div class="spinner-border text-primary" role="status"></div>
-                </div>
-            </div>
-
-            <div id="aluno-wrapper" class="col-12 col-md-6 d-none field-wrapper">
-                <label for="aluno" class="form-label">
-                    <i class="bi bi-person-badge me-1"></i>Atleta
-                </label>
-                <select id="aluno" class="form-select">
-                    <option selected disabled>Selecione um atleta</option>
-                </select>
-                {{-- overlay spinner para aluno --}}
-                <div id="overlay-aluno" class="overlay-spinner d-none">
-                    <div class="spinner-border text-primary" role="status"></div>
-                </div>
+        {{-- Voltar --}}
+        <div class="row justify-content-center mb-4 volver-wrapper">
+            <div class="col-12 col-md-6 text-center">
+                <a href="{{ route('public.dashboard') }}" class="btn btn-primary">
+                    <i class="bi bi-house-door me-1"></i> Voltar
+                </a>
             </div>
         </div>
 
-        {{-- Gráfico de Estatísticas --}}
+
+        {{-- SELEÇÃO --}}
+        <div id="selecao-container" class="row gx-3 gy-3 justify-content-center mb-1">
+            @if ($atletaInst)
+                {{-- Usuário atleta: só seleciona o próprio atleta --}}
+                <div class="col-12 col-md-6 position-relative field-wrapper">
+                    <select id="aluno" class="form-select">
+                        <option selected disabled>Carregando atletas…</option>
+                    </select>
+                    <div id="overlay-aluno" class="overlay-spinner">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            @else
+                {{-- Público/Admin/Técnico: escolhe instituição e depois atleta --}}
+                <div id="selecao-container" class="d-flex flex-column align-items-center mb-4" style="flex-direction: column">
+                    <div id="instituicao-wrapper" class="position-relative field-wrapper w-100">
+                        <select id="instituicao" class="form-select">
+                            <option selected disabled>Selecione a instituição</option>
+                            @foreach ($instituicoes as $inst)
+                                <option value="{{ $inst->id }}">{{ $inst->nome }}</option>
+                            @endforeach
+                        </select>
+                        <div id="overlay-instituicao" class="overlay-spinner d-none">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+                    </div>
+
+                    <div id="aluno-wrapper" class="position-relative field-wrapper w-100 mt-3 d-none">
+                        <select id="aluno" class="form-select">
+                            <option selected disabled>Selecione o atleta</option>
+                        </select>
+                        <div id="overlay-aluno" class="overlay-spinner d-none">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        {{-- GRÁFICO --}}
         <div id="estatisticas-container" class="card shadow-sm d-none chart-wrapper">
             <div class="card-header d-flex align-items-center">
                 <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
                 <h5 class="mb-0">Estatísticas do Atleta</h5>
             </div>
-            <div class="card-body p-3 d-flex justify-content-center" style="min-height: 320px; position: relative;">
-                {{-- overlay spinner para o chart --}}
+            <div class="card-body p-3 d-flex justify-content-center" style="min-height:320px;position:relative;">
                 <div id="overlay-chart" class="overlay-spinner d-none">
                     <div class="spinner-border text-primary" role="status"></div>
                 </div>
                 <canvas id="estatisticas-chart"></canvas>
             </div>
         </div>
-
     </div>
 @endsection
 
@@ -117,60 +188,65 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const instWrapper = document.getElementById('instituicao-wrapper');
             const selectInst = document.getElementById('instituicao');
             const selectAluno = document.getElementById('aluno');
-            const wrapperInst = document.getElementById('overlay-instituicao');
-            const wrapperAluno = document.getElementById('overlay-aluno');
-            const wrapperChart = document.getElementById('overlay-chart');
-            const statsContainer = document.getElementById('estatisticas-container');
+            const overlayInst = document.getElementById('overlay-instituicao');
+            const overlayAluno = document.getElementById('overlay-aluno');
+            const overlayChart = document.getElementById('overlay-chart');
+            const statsCont = document.getElementById('estatisticas-container');
             const canvas = document.getElementById('estatisticas-chart');
             let chartInstance = null;
 
             const tplAlunos = "{{ route('analise.alunos', ['instituicao' => 'INSTITUICAO_ID']) }}";
             const tplShow = "{{ route('analise.mostrar', ['matricula' => 'MATRICULA_ID']) }}";
 
-            selectInst.addEventListener('change', () => {
-                wrapperInst.classList.remove('d-none');
-
-                fetch(tplAlunos.replace('INSTITUICAO_ID', selectInst.value))
-                    .then(res => {
-                        if (res.status === 429) throw new Error('Too Many Requests');
-                        return res.json();
-                    })
+            // Se jogador está logado, já dispara fetch de atletas da própria instituição
+            @if ($atletaInst)
+                overlayAluno.classList.remove('d-none');
+                fetch(tplAlunos.replace('INSTITUICAO_ID', "{{ $atletaInst }}"))
+                    .then(r => r.json())
                     .then(alunos => {
-                        wrapperInst.classList.add('d-none');
-                        selectAluno.innerHTML =
-                        '<option selected disabled>Selecione um atleta</option>';
+                        overlayAluno.classList.add('d-none');
+                        selectAluno.innerHTML = '<option selected disabled>Selecione o atleta</option>';
                         alunos.forEach(a => selectAluno.append(new Option(a.nome, a.matricula)));
-
-                        document.getElementById('instituicao-wrapper').classList.remove('text-center');
-                        document.getElementById('aluno-wrapper').classList.remove('d-none');
-                        statsContainer.classList.add('d-none');
                     })
-                    .catch(err => {
-                        console.error(err);
-                        wrapperInst.classList.add('d-none');
+                    .catch(() => {
+                        overlayAluno.classList.add('d-none');
+                        alert('Falha ao carregar atletas');
                     });
-            });
+            @endif
 
+            // Se selecionou instituição (público ou técnico), carrega atletas
+            if (selectInst) {
+                selectInst.addEventListener('change', () => {
+                    overlayInst.classList.remove('d-none');
+                    fetch(tplAlunos.replace('INSTITUICAO_ID', selectInst.value))
+                        .then(r => r.json())
+                        .then(alunos => {
+                            overlayInst.classList.add('d-none');
+                            document.getElementById('aluno-wrapper').classList.remove('d-none');
+                            selectAluno.innerHTML =
+                                '<option selected disabled>Selecione o atleta</option>';
+                            alunos.forEach(a => selectAluno.append(new Option(a.nome, a.matricula)));
+                            statsCont.classList.add('d-none');
+                        })
+                        .catch(() => overlayInst.classList.add('d-none'));
+                });
+            }
+
+            // Ao escolher atleta, exibe o gráfico
             selectAluno.addEventListener('change', () => {
-                // mostra spinner do aluno e do chart
-                wrapperAluno.classList.remove('d-none');
-                wrapperChart.classList.remove('d-none');
-                statsContainer.classList.remove('d-none');
+                overlayAluno.classList.remove('d-none');
+                overlayChart.classList.remove('d-none');
+                statsCont.classList.remove('d-none');
                 canvas.style.display = 'none';
 
                 fetch(tplShow.replace('MATRICULA_ID', selectAluno.value))
-                    .then(res => {
-                        if (res.status === 429) throw new Error('Too Many Requests');
-                        return res.json();
-                    })
+                    .then(r => r.json())
                     .then(data => {
-                        // esconde spinners
-                        wrapperAluno.classList.add('d-none');
-                        wrapperChart.classList.add('d-none');
-
-                        // exibe canvas e desenha
+                        overlayAluno.classList.add('d-none');
+                        overlayChart.classList.add('d-none');
                         canvas.style.display = '';
                         if (chartInstance) chartInstance.destroy();
 
@@ -181,14 +257,14 @@
                                 datasets: [{
                                         label: 'Anterior',
                                         data: data.anterior,
-                                        backgroundColor: 'rgba(255, 159, 64, 0.8)',
+                                        backgroundColor: 'rgba(255,159,64,0.8)',
                                         borderRadius: 4,
                                         maxBarThickness: 50
                                     },
                                     {
                                         label: 'Atual',
                                         data: data.atual,
-                                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                                        backgroundColor: 'rgba(54,162,235,0.8)',
                                         borderRadius: 4,
                                         maxBarThickness: 50
                                     }
@@ -202,7 +278,6 @@
                                         ticks: {
                                             autoSkip: true,
                                             maxRotation: 45,
-                                            minRotation: 0,
                                             font: {
                                                 size: 12
                                             }
@@ -241,12 +316,10 @@
                             plugins: [ChartDataLabels]
                         });
                     })
-                    .catch(err => {
-                        console.error(err);
-                        // esconde spinners em caso de erro
-                        wrapperAluno.classList.add('d-none');
-                        wrapperChart.classList.add('d-none');
-                        alert('Não foi possível carregar o gráfico. Tente novamente.');
+                    .catch(() => {
+                        overlayAluno.classList.add('d-none');
+                        overlayChart.classList.add('d-none');
+                        alert('Não foi possível carregar o gráfico.');
                     });
             });
         });

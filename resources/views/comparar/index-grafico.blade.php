@@ -1,60 +1,113 @@
+{{-- resources/views/comparar/grafico.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Comparar Gráfico')
 
 @push('styles')
-    <style>
-        #comparativo-chart {
-            width: 100% !important;
-            height: auto !important;
-            max-width: 600px;
-            min-height: 300px;
-        }
+<style>
+  .central-column {
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 80px;        /* folga para não encostar no footer fixo */
+    overflow-x: hidden;          /* previne rolagem horizontal no mobile */
+  }
 
-        .back-logograph {
-            background: #28365F;
-            margin-bottom: 5px;
-        }
+  .central-column .back-logograph {
+    display: block;
+    margin: 8px auto 1rem;
+    max-width: 200px;
+    width: 100%;
+    background: #28365F;
+    height: auto;
+  }
 
-        /* overlay semi-transparente com spinner */
-        .overlay-spinner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
+  .central-column .form-select {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
 
-        .overlay-spinner .spinner-border {
-            width: 3rem;
-            height: 3rem;
-        }
-        .chart-wrapper {
-            position: relative;
-        }
-    </style>
+  /* botões lado a lado sem estourar com o gap */
+  .central-column .d-flex {
+    gap: .5rem;
+  }
+  .central-column .d-flex .btn {
+    flex: 1 1 0;     /* divide igualmente a linha */
+    min-width: 0;    /* evita overflow por conteúdo longo */
+  }
+
+  .chart-wrapper {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 0;
+  }
+
+  /* canvas 100% da coluna, sem exceder */
+  #comparativo-chart {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+    height: auto !important;
+    min-height: 300px;
+  }
+
+  .overlay-spinner {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  @media (max-width: 576px) {
+    #comparativo-chart {
+      min-height: 240px;
+    }
+  }
+
+  /* telas muito estreitas: bota os botões em duas linhas */
+  @media (max-width: 400px) {
+    .central-column .d-flex {
+      flex-wrap: wrap;
+    }
+    .central-column .d-flex .btn {
+      flex: 1 0 100%;
+    }
+  }
+
+  /* segurança extra contra rolagem lateral em todo o documento */
+  html, body {
+    overflow-x: hidden;
+  }
+</style>
 @endpush
 
+
 @section('content')
+    @php
+        $instId = session('aluno_instituicao_id');
+        $instLog = $instId ? $instituicoes->firstWhere('id', $instId) : null;
+    @endphp
+
     <div class="container">
+        <div class="central-column">
+            {{-- Logo --}}
+            <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" class="back-logograph" loading="lazy">
 
-        {{-- Logo --}}
-        <div class="text-center mb-0">
-            <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" style="max-width: 200px; width: 100%; height: auto;"
-                class="back-logograph" loading="lazy">
-        </div>
-
-        {{-- Seleção --}}
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label for="aluno1" class="form-label">Atleta 1</label>
-                <select id="aluno1" class="form-select">
-                    <option value="">Selecione um atleta</option>
+            {{-- Atleta 1 --}}
+            <select id="aluno1" class="form-select">
+                <option value="">Selecione o primeiro atleta</option>
+                @if ($instLog)
+                    @foreach ($instLog->alunos as $aluno)
+                        <option value="{{ $aluno->id }}">{{ $aluno->nome }}</option>
+                    @endforeach
+                @else
                     @foreach ($instituicoes as $inst)
                         <optgroup label="{{ $inst->nome }}">
                             @foreach ($inst->alunos as $aluno)
@@ -62,13 +115,17 @@
                             @endforeach
                         </optgroup>
                     @endforeach
-                </select>
-            </div>
+                @endif
+            </select>
 
-            <div class="col-md-6">
-                <label for="aluno2" class="form-label">Atleta 2</label>
-                <select id="aluno2" class="form-select" disabled>
-                    <option value="">Selecione um atleta</option>
+            {{-- Atleta 2 --}}
+            <select id="aluno2" class="form-select" disabled>
+                <option value="">Selecione o segundo atleta</option>
+                @if ($instLog)
+                    @foreach ($instLog->alunos as $aluno)
+                        <option value="{{ $aluno->id }}">{{ $aluno->nome }}</option>
+                    @endforeach
+                @else
                     @foreach ($instituicoes as $inst)
                         <optgroup label="{{ $inst->nome }}">
                             @foreach ($inst->alunos as $aluno)
@@ -76,38 +133,37 @@
                             @endforeach
                         </optgroup>
                     @endforeach
-                </select>
-            </div>
-        </div>
+                @endif
+            </select>
 
-        {{-- Botões --}}
-        <div class="row justify-content-center mt-4">
-            <div class="col-auto">
-                <button id="btn-gerar-grafico" class="btn btn-lg" style="background: #28365F; color: white;" disabled>
+            {{-- Botões lado a lado, metade cada --}}
+            <div class="d-flex gap-2 mb-3">
+                <button id="btn-gerar-grafico" class="btn btn-primary btn-lg flex-fill" disabled>
                     Gerar Gráfico
                 </button>
-            </div>
-            <div class="col-auto">
-                <a href="{{ route('public.dashboard') }}" class="btn btn-lg" style="background: #28365F; color: white;">
-                    <i class="bi bi-house-door me-1"></i>Voltar
+                <a href="{{ route('public.dashboard') }}" class="btn btn-secondary btn-lg flex-fill">
+                    <i class="bi bi-house-door me-1"></i> Voltar
                 </a>
             </div>
-        </div>
 
-        {{-- Gráfico de Comparativo --}}
-        <div id="chart-container" class="card shadow-sm mt-4 d-none chart-wrapper">
-            {{-- overlay spinner do chart --}}
-            <div id="overlay-chart" class="overlay-spinner d-none">
-                <div class="spinner-border text-primary" role="status"></div>
+            {{-- Gráfico --}}
+            <div>
+
+                <div id="chart-container" class="card shadow-sm d-none chart-wrapper">
+                    <div id="overlay-chart" class="overlay-spinner d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                    <div class="card-header d-flex align-items-center">
+                        <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
+                        <h5 class="mb-0">Gráfico</h5>
+                    </div>
+                    <div class="card-body d-flex justify-content-center">
+                        <canvas id="comparativo-chart"></canvas>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="card-header d-flex align-items-center">
-                <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
-                <h5 class="mb-0">Gráfico</h5>
-            </div>
-            <div class="card-body d-flex justify-content-center p-3">
-                <canvas id="comparativo-chart"></canvas>
-            </div>
         </div>
     </div>
 @endsection
@@ -126,25 +182,22 @@
             let chartInstance = null;
             const urlApi = "{{ route('comparar.grafico.dados') }}";
 
-            // bloqueia opção igual no segundo select
             sel1.addEventListener('change', () => {
                 sel2.disabled = !sel1.value;
                 Array.from(sel2.options).forEach(opt => {
-                    opt.disabled = opt.value !== "" && opt.value === sel1.value;
+                    opt.disabled = opt.value === sel1.value && opt.value !== "";
                 });
                 sel2.value = "";
                 btn.disabled = true;
                 card.classList.add('d-none');
             });
 
-            // habilita botão e oculta card
             sel2.addEventListener('change', () => {
                 btn.disabled = !sel2.value;
                 card.classList.add('d-none');
             });
 
             btn.addEventListener('click', () => {
-                // mostra o card e o overlay spinner
                 card.classList.remove('d-none');
                 overlay.classList.remove('d-none');
 
@@ -168,7 +221,6 @@
                         return res.json();
                     })
                     .then(data => {
-                        // desenha o gráfico
                         if (chartInstance) chartInstance.destroy();
                         chartInstance = new Chart(ctx, {
                             type: 'bar',
@@ -238,12 +290,10 @@
                             plugins: [ChartDataLabels]
                         });
 
-                        // esconde o overlay
                         overlay.classList.add('d-none');
                     })
                     .catch(err => {
                         console.error(err);
-                        // sempre esconda o overlay em caso de erro
                         overlay.classList.add('d-none');
                         alert('Não foi possível gerar o gráfico. Tente novamente.');
                     });

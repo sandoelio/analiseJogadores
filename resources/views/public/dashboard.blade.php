@@ -18,7 +18,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
     overflow: hidden;
   }
 
@@ -45,7 +44,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    padding: 1.2rem;
     background: #fff;
     border: 2px solid #ddd;
     border-radius: 0.5rem;
@@ -99,7 +98,7 @@
 
       {{-- 1) Análise Individual --}}
       <a href="{{ route('analise.index') }}" class="dashboard-btn">
-        <i class="bi bi-person-circle"></i>
+        <i class="bi bi-pie-chart-fill"></i>
         Análise Individual
       </a>
 

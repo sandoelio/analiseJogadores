@@ -1,31 +1,27 @@
+{{-- resources/views/public/dashboard.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Dashboard Admin')
+@section('title', 'Dashboard Home')
 
 @push('styles')
-    <style>
-        .site-container,
-        .dashboard-container {
-            overflow: hidden !important;
-        }
+<style>
+  /* 1) Sem scroll horizontal em toda a página */
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden !important;
+  }
 
-        html,
-        body {
-            overflow-x: hidden;
-        }
+  /* 2) Container centralizado, sem overflow */
+  .dashboard-container {
+    min-height: calc(100vh - 16rem); /* header ativo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-        .content-box {
-            overflow: visible !important;
-        }
-
-        .dashboard-container {
-            min-height: calc(100vh - 12rem - 4rem);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-         /* 3) Grid de botões fixa em 2 colunas, com gap */
+  /* 3) Grid de botões fixa em 2 colunas, com gap */
   .dashboard-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -84,12 +80,11 @@
     font-size: 2.5rem;
     margin-bottom: 0.75rem;
   }
-    </style>
+</style>
 @endpush
 
 @section('content')
-
-    <div class="container-fluid dashboard-container">
+  <div class="container-fluid dashboard-container">
     <div class="dashboard-buttons">
 
       {{-- Logo no grid (sem hover/link) --}}
@@ -101,19 +96,22 @@
         >
       </div>
 
-      <a href="{{ route('usuarios.create') }}" class="dashboard-btn">
-        <i class="bi bi-person-plus-fill"></i>
-          Novo Usuário
+      {{-- 1) Análise Individual --}}
+      <a href="{{ route('login') }}" class="dashboard-btn">
+        <i class="bi bi-person-fill-gear"></i>
+        Acesso Administrativo
       </a>
 
-      <a href="{{ route('usuarios.index') }}" class="dashboard-btn">
+      {{-- 2) 1×1 Narrativo --}}
+      <a href="{{ route('aluno.login') }}" class="dashboard-btn">
         <i class="bi bi-people-fill"></i>
-          Listar Usuários
+        Acesso Atleta
       </a>
 
-      <a href="{{ route('public.dashboard') }}" class="dashboard-btn">
-        <i class="bi bi-house-door-fill"></i>
-          Página Inicial
+      {{-- 3) 1×1 Gráfico --}}
+      <a href="{{ route('login') }}" class="dashboard-btn">
+        <i class="bi bi-person-video2"></i>
+        Acesso Técnico
       </a>
 
     </div>

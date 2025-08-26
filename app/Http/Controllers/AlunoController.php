@@ -22,7 +22,10 @@ class AlunoController extends Controller
     // Apenas para usuários autenticados
     public function dashboard()
     {
-        return view('aluno.dashboard');
+        $instId = session('aluno_instituicao_id');
+        $alunos = Aluno::where('instituicao_id', $instId)->get();
+
+        return view('aluno.dashboard', compact('alunos'));
     }
 
     /**
@@ -39,7 +42,7 @@ class AlunoController extends Controller
             ->paginate(10);
 
         // Total absoluto (query separada)
-        $totalAlunos = Aluno::count();
+        $totalAlunos = $alunos->total();
 
         return view('aluno.index', compact('alunos', 'totalAlunos')); 
     }

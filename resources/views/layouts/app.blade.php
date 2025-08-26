@@ -59,7 +59,7 @@
             display: flex;
             flex-direction: column;
             /* overflow-y: auto; */
-            padding: 1.5rem;
+            padding: 0rem;
             background: #FF7209;
             box-sizing: border-box;
             width: 100%;
@@ -109,12 +109,24 @@
                 <h1 class="h4 text-white m-0">Análises de Atletas</h1>
             </div>
 
-            {{-- Dashboard + Toggler juntos --}}
+            {{-- Dashboard + Logout de Atleta + Toggler juntos --}}
             <div class="d-flex align-items-center">
 
+                {{-- Logout Atleta (só aparece se estiver na sessão de atleta) --}}
+                @if (session()->has('aluno_instituicao_id'))
+                    <form id="aluno-logout-form" action="{{ route('aluno.logout') }}" method="POST"
+                        class="me-2 my-2 my-md-0">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-light">
+                            Sair
+                        </button>
+                    </form>
+                @endif
+
+                {{-- Link para dashboard (admin/técnico) --}}
                 @auth
                     @php
-                        $dashboardRoute = Auth::user()->is_admin ? 'admin.dashboard' : 'aluno.dashboard';
+                        $dashboardRoute = Auth::user()->is_admin ? 'admin.dashboard' : 'tecnico.dashboard';
                     @endphp
                     <a href="{{ route($dashboardRoute) }}" class="btn btn-sm btn-outline-light me-2 my-2 my-md-0"
                         style="background: transparent; border-color: #fff; color: #fff; z-index: 1100;">
@@ -122,6 +134,7 @@
                     </a>
                 @endauth
 
+                {{-- Botão Hambúrguer --}}
                 <div class="position-relative">
                     <button class="navbar-toggler btn btn-sm btn-light" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarUser" aria-controls="navbarUser" aria-expanded="false"
@@ -129,7 +142,9 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
-                    <div id="navbarUser" class="collapse position-absolute end-0"style="top: 100%; margin-top: 0.25rem;z-index: 1000;background: #28365F;min-width: 200px;">
+                    <div id="navbarUser" class="collapse position-absolute end-0"
+                        style="top: 100%; margin-top: 0.25rem; z-index: 1000; background: #28365F; min-width: 200px;">
+
                         @auth
                             <span class="d-block mb-2 text-white">Olá, {{ Auth::user()->name }}</span>
                             <form action="{{ route('logout') }}" method="POST" class="m-0">
@@ -145,11 +160,13 @@
                                 Login
                             </a>
                         @endguest
+
                     </div>
                 </div>
             </div>
         </nav>
     </header>
+
     <!-- Hero (opcional) -->
     @hasSection('hero')
         @yield('hero')

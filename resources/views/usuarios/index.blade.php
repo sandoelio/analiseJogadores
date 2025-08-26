@@ -43,6 +43,26 @@
     display: flex;
     gap: .5rem;
   }
+
+  /* ============================= *
+     Ajustes só para desktop (md+)
+  * ============================= */
+  @media (min-width: 768px) {
+    /* impede qualquer scroll horizontal na página */
+    html, body {
+      overflow-x: hidden;
+    }
+
+    /* remove scroll interno da tabela no desktop */
+    .table-responsive {
+      overflow-x: hidden;
+    }
+
+    /* espaço entre o nav e o card de listagem */
+    .d-none.d-md-block.card.shadow-sm {
+      margin-top: 2rem;
+    }
+  }
 </style>
 @endpush
 
@@ -132,6 +152,7 @@
         <p class="text-center text-muted">Nenhum usuário encontrado.</p>
       @endforelse
     </div>
+
     {{-- Footer de Paginação --}}
     @if ($usuarios->hasPages())
       <div class="card-footer bg-white border-0">
@@ -140,6 +161,7 @@
         </div>
       </div>
     @endif
+
   </div>
 </div>
 @endsection
