@@ -13,7 +13,10 @@
         }
 
         /* Cores do header e botão */
-        .bg-navbar-blue { background-color: #28365F !important; color: #fff; }
+        .bg-navbar-blue {
+            background-color: #28365F !important;
+            color: #fff;
+        }
         .btn-navbar-blue {
             background-color: #28365F;
             border-color: #28365F;
@@ -24,14 +27,46 @@
             border-color: #28365F;
         }
 
-        /* -------------------------------
-           Scroll interno em mobile
-           ------------------------------- */
+        /* ====================== *
+           Ajustes Gerais
+        * ====================== */
+        /* impede qualquer scroll horizontal na página */
+        html, body {
+            overflow-x: hidden;
+        }
+
+        /* ====================== *
+           Mobile: até 576px
+        * ====================== */
         @media (max-width: 576px) {
             .habilidade-card-body {
-                max-height: calc(100vh - 160px); /* header + footer + padding */
+                /* altura entre header+footer, scroll apenas vertical */
+                max-height: calc(100vh - 160px);
                 overflow-y: auto;
+                overflow-x: hidden;        /* bloqueia scroll horizontal */
+                padding: 1rem;             /* compensa gutters do .row */
+                box-sizing: border-box;    /* padding dentro da largura */
+            }
+
+            /* zera as gutters negativas da row.g-3 */
+            .habilidade-card-body .row.g-3 {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            /* reaplica gutters como padding nas colunas */
+            .habilidade-card-body .row.g-3 > [class*="col-"] {
+                padding-left: 0.5rem;
                 padding-right: 0.5rem;
+            }
+
+            /* form controls não extrapolam a largura */
+            .habilidade-card-body input,
+            .habilidade-card-body select,
+            .habilidade-card-body .btn {
+                width: 100%;
+                box-sizing: border-box;
+                min-width: 0;
             }
         }
     </style>
