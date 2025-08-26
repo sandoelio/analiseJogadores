@@ -22,7 +22,10 @@ class AlunoController extends Controller
     // Apenas para usuários autenticados
     public function dashboard()
     {
-        return view('aluno.dashboard');
+        $instId = session('aluno_instituicao_id');
+        $alunos = Aluno::where('instituicao_id', $instId)->get();
+
+        return view('aluno.dashboard', compact('alunos'));
     }
 
     /**

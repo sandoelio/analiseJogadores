@@ -15,6 +15,11 @@ return new class extends Migration
 
             $table->id();
             $table->string('nome', 100)->unique();
+
+            // credenciais de login para atletas
+            $table->string('athlete_email')->unique();
+            $table->string('athlete_password');
+
             $table->timestampsTz();
             $table->softDeletesTz();
         });

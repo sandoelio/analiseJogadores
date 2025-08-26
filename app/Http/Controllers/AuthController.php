@@ -49,7 +49,7 @@ class AuthController extends Controller
         // Redireciona admin ou usuário
         return $user->is_admin
             ? redirect()->route('admin.dashboard')
-            : redirect()->route('aluno.dashboard');
+            : redirect()->route('tecnico.dashboard');
     }
 
     /**
