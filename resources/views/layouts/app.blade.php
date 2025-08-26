@@ -59,7 +59,7 @@
             display: flex;
             flex-direction: column;
             /* overflow-y: auto; */
-            padding: 1.5rem;
+            padding: 0rem;
             background: #FF7209;
             box-sizing: border-box;
             width: 100%;

@@ -65,7 +65,7 @@
 @endpush
 
 @section('content')
-<div class="container my-4">
+<div class="container">
   {{-- Cabeçalho --}}
   <div class="row justify-content-center mb-4">
     <div class="col-12 col-md-8 text-center">

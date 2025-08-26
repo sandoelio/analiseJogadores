@@ -44,7 +44,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    padding: 1.2rem;
     background: #fff;
     border: 2px solid #ddd;
     border-radius: 0.5rem;

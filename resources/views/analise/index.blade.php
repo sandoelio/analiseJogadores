@@ -95,9 +95,6 @@
             @if ($atletaInst)
                 {{-- Usuário atleta: só seleciona o próprio atleta --}}
                 <div class="col-12 col-md-6 position-relative field-wrapper">
-                    {{-- <label for="aluno" class="form-label">
-                        <i class="bi bi-person-badge me-1"></i>Atleta
-                    </label> --}}
                     <select id="aluno" class="form-select">
                         <option selected disabled>Carregando atletas…</option>
                     </select>
