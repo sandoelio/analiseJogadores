@@ -4,36 +4,67 @@
 @section('title', 'Novo Aluno / Análise')
 
 @push('styles')
-    <style>
-      /* Readonly com aparência padronizada */
-      input[readonly] {
-        background-color: #e9ecef;
-        opacity: 1;
-        cursor: not-allowed;
-      }
+<style>
+  /* Readonly com aparência padronizada */
+  input[readonly] {
+    background-color: #e9ecef;
+    opacity: 1;
+    cursor: not-allowed;
+  }
 
-      /* Cores do header e botão */
-      .bg-navbar-blue { background: #28365F !important; color: #fff; }
-      .btn-navbar-blue {
-        background: #28365F;
-        border-color: #28365F;
-        color: #fff;
-      }
-      .btn-navbar-blue:hover {
-        background: #28365F;
-        border-color: #28365F;
-      }
+  /* Cores do header e botão */
+  .bg-navbar-blue { background: #28365F !important; color: #fff; }
+  .btn-navbar-blue {
+    background: #28365F;
+    border-color: #28365F;
+    color: #fff;
+  }
+  .btn-navbar-blue:hover {
+    background: #28365F;
+    border-color: #28365F;
+  }
 
-      /* Card-body com scroll interno caso ultrapasse a área visível */
-      @media (max-width: 576px) {
-        .aluno-card-body {
-          max-height: calc(100vh - 160px); /* header + footer + padding */
-          overflow-y: auto;
-          padding-right: 0.5rem; /* folga para a scrollbar interna */
-        }
-      }
-    </style>
+  /* ========= MOBILE: até 576px ========= */
+  @media (max-width: 576px) {
+    /* container do formulário rola verticalmente, sem horizontal */
+    .aluno-card-body {
+      max-height: calc(100vh - 160px); /* header+footer+paddings */
+      overflow-y: auto;
+      overflow-x: hidden;            /* bloqueia rolagem lateral */
+      padding: 1rem;                 /* padding completo para compensar gutters */
+      box-sizing: border-box;        /* inclui padding na largura */
+    }
+
+    /* zera a margem negativa do .row.g-3 */
+    .aluno-card-body .row.g-3 {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    /* reaplica gutters suaves nas colunas */
+    .aluno-card-body .row.g-3 > [class*="col-"] {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    /* inputs, selects e botões não extrapolam */
+    .aluno-card-body input,
+    .aluno-card-body select,
+    .aluno-card-body .btn {
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
+    }
+  }
+
+  /* Segurança extra: impede scroll-x em todo o documento */
+  html, body {
+    overflow-x: hidden;
+  }
+</style>
 @endpush
+
+
 
 @section('content')
     <div class="row justify-content-center mt-4 mb-4">
