@@ -16,17 +16,46 @@
             border-color: #162049;
         }
 
+        /* ============================================
+           Impede scroll horizontal em qualquer viewport
+        ============================================= */
+        html, body {
+            overflow-x: hidden;
+        }
+
         /* ====================================================
-           Em mobile, afasta o form do header e do footer,
-           dá scroll interno e garante visibilidade total
+           Em mobile (≤576px), scroll vertical sem horizontal,
+           ajusta gutters e evita overflow dos inputs/buttons
         ====================================================== */
         @media (max-width: 576px) {
             .usuarios-create-wrapper {
-                max-height: calc(100vh - 112px); /* subtrai header+footer */
-                margin-top: 1px;    /* altura do header */
-                margin-bottom: 56px; /* altura do footer */
+                max-height: calc(100vh - 112px); /* header + footer */
+                margin-top: 1px;                 /* compensa header fixo */
+                margin-bottom: 56px;             /* compensa footer fixo */
                 overflow-y: auto;
-                padding: 0 1rem;
+                overflow-x: hidden;              /* bloqueia scroll lateral */
+                padding: 0 1rem;                 /* padding completo */
+                box-sizing: border-box;          /* inclui padding na largura */
+            }
+
+            /* zera as gutters negativas da .row.g-3 */
+            .usuarios-create-wrapper .row.g-3 {
+                margin-left: 0;
+                margin-right: 0;
+            }
+            /* reaplica gutters via padding nos cols */
+            .usuarios-create-wrapper .row.g-3 > [class*="col-"] {
+                padding-left: .5rem;
+                padding-right: .5rem;
+                box-sizing: border-box;
+            }
+
+            /* inputs, selects e botões não extrapolam */
+            .usuarios-create-wrapper input,
+            .usuarios-create-wrapper select,
+            .usuarios-create-wrapper .btn {
+                width: 100%;
+                min-width: 0;
                 box-sizing: border-box;
             }
         }
@@ -58,7 +87,7 @@
                             <div class="row g-3">
                                 {{-- Nome --}}
                                 <div class="col-12 col-lg-6">
-                                    <label for="name" class="form-label">Nome do usuario</label>
+                                    <label for="name" class="form-label">Nome do usuário</label>
                                     <input
                                         type="text"
                                         id="name"
@@ -92,7 +121,7 @@
 
                                 {{-- E-mail --}}
                                 <div class="col-12 col-lg-6">
-                                    <label for="email" class="form-label">E-mail do usuario</label>
+                                    <label for="email" class="form-label">E-mail do usuário</label>
                                     <input
                                         type="email"
                                         id="email"
@@ -109,7 +138,7 @@
 
                                 {{-- Senha --}}
                                 <div class="col-12 col-lg-6">
-                                    <label for="password" class="form-label">Senha do usuario</label>
+                                    <label for="password" class="form-label">Senha do usuário</label>
                                     <input
                                         type="password"
                                         id="password"
@@ -125,7 +154,7 @@
 
                                 {{-- Confirmar Senha --}}
                                 <div class="col-12">
-                                    <label for="password_confirmation" class="form-label">Confirmar Senha do usuario</label>
+                                    <label for="password_confirmation" class="form-label">Confirmar Senha</label>
                                     <input
                                         type="password"
                                         id="password_confirmation"
