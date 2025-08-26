@@ -43,8 +43,8 @@ Route::post('/aluno/logout', [AlunoAuthController::class, 'logout'])
 
 // Dashboard do atleta
 Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])
-    ->middleware(CheckAlunoSession::class)               // só o nosso
-    ->withoutMiddleware(CheckSession::class)             // tira o CheckSession
+    ->middleware(CheckAlunoSession::class)
+    ->withoutMiddleware(CheckSession::class)
     ->name('aluno.dashboard');
 
 /*

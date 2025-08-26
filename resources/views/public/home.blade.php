@@ -14,7 +14,7 @@
 
   /* 2) Container centralizado, sem overflow */
   .dashboard-container {
-    min-height: calc(100vh - 14rem); /* header ativo */
+    min-height: calc(100vh - 16rem); /* header ativo */
     display: flex;
     align-items: center;
     justify-content: center;
