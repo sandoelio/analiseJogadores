@@ -112,7 +112,7 @@
       </a>
 
       <a href="{{ route('public.dashboard') }}" class="dashboard-btn">
-        <i class="bi bi-house-door me-1"></i>
+        <i class="bi bi-house-door-fill"></i>
           Página Inicial
       </a>
 

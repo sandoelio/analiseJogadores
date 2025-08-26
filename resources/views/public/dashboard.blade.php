@@ -98,7 +98,7 @@
 
       {{-- 1) Análise Individual --}}
       <a href="{{ route('analise.index') }}" class="dashboard-btn">
-        <i class="bi bi-person-circle"></i>
+        <i class="bi bi-pie-chart-fill"></i>
         Análise Individual
       </a>
 

@@ -98,19 +98,19 @@
 
       {{-- 1) Análise Individual --}}
       <a href="{{ route('login') }}" class="dashboard-btn">
-        <i class="bi bi-person-circle"></i>
+        <i class="bi bi-person-fill-gear"></i>
         Acesso Administrativo
       </a>
 
       {{-- 2) 1×1 Narrativo --}}
       <a href="{{ route('aluno.login') }}" class="dashboard-btn">
-        <i class="bi bi-person-circle"></i>
+        <i class="bi bi-people-fill"></i>
         Acesso Atleta
       </a>
 
       {{-- 3) 1×1 Gráfico --}}
       <a href="{{ route('login') }}" class="dashboard-btn">
-        <i class="bi bi-person-circle"></i>
+        <i class="bi bi-person-video2"></i>
         Acesso Técnico
       </a>
 
