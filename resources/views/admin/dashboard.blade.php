@@ -19,7 +19,7 @@
         }
 
         .dashboard-container {
-            min-height: calc(100vh - 10rem - 4rem);
+            min-height: calc(100vh - 12rem - 4rem);
             display: flex;
             align-items: center;
             justify-content: center;
