@@ -32,13 +32,13 @@ class AlunoAuthController extends Controller
         $request->session()->regenerate();
         $request->session()->put('aluno_instituicao_id', $inst->id);
 
-        return redirect()->route('aluno.dashboard');
+        return redirect()->route('public.dashboard');
     }
 
     public function logout(Request $request)
     {
         // limpa só a sessão de atleta
         $request->session()->forget('aluno_instituicao_id');
-        return redirect()->route('aluno.login');
+        return redirect()->route('public.home');
     }
 }

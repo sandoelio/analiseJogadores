@@ -47,13 +47,22 @@ Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])
     ->withoutMiddleware(CheckSession::class)             // tira o CheckSession
     ->name('aluno.dashboard');
 
+/*
+|--------------------------------------------------------------------------
+| Landing Page Pública (antes de qualquer login)
+|--------------------------------------------------------------------------
+*/
+Route::view('/', 'public.home')
+    ->name('public.home');
+
+
 
 /*
 |--------------------------------------------------------------------------
 | Página Pública (Seleção de Instituição / Estatísticas)
 |--------------------------------------------------------------------------
 */
-Route::get('/',                             [PublicDashboardController::class, 'index'])
+Route::get('/public/dashboard',            [PublicDashboardController::class, 'index'])
     ->name('public.dashboard');
 Route::get('/analise',                     [AlunoPublicoController::class,    'index'])
     ->name('analise.index');
