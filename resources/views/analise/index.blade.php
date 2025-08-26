@@ -19,16 +19,15 @@
             z-index: 10;
         }
 
+        .overlay-spinner .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+
         /* wrapper relative para selects e chart */
         .field-wrapper,
         .chart-wrapper {
             position: relative;
-        }
-
-        /* estiliza o spinner maior */
-        .overlay-spinner .spinner-border {
-            width: 3rem;
-            height: 3rem;
         }
 
         /* reduz e centraliza a logo */
@@ -37,7 +36,6 @@
             display: block;
             margin: 0 auto 1.5rem;
             max-width: 200px;
-            /* <– ajuste pra largura desejada */
             width: 100%;
             height: auto;
         }
@@ -47,24 +45,64 @@
             display: block;
             margin: 0 auto;
             max-width: 600px;
-            /* <– ajuste pra largura desejada */
             width: 100%;
         }
 
         /* opcional: limita também o botão “Voltar” */
         .volver-wrapper .btn {
             max-width: 200px;
-            width: 200%;
+            width: 100%;
             margin: 0 auto;
             display: block;
-            background: #28365F
+            background: #28365F;
         }
 
+        /* canvas do Chart.js */
         #estatisticas-chart {
             width: 100% !important;
             height: auto !important;
-            max-width: 650px;
+            max-width: 600px;
             min-height: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ------------------------------
+            Ajustes específicos para desktop
+         ------------------------------- */
+        @media (min-width: 768px) {
+
+            /* remove qualquer scroll horizontal no desktop */
+            html,
+            body {
+                overflow-x: hidden;
+            }
+
+            /* adiciona espaço entre navbar e logo */
+            .back-logo {
+                margin-top: 2rem;
+                margin-bottom: 1.5rem;
+            }
+
+            /* reduz o espaçamento vertical entre selects */
+            #selecao-container {
+                --bs-gutter-y: .5rem;
+                margin-bottom: 1.5rem !important;
+                /* flex-direction: column; */
+                gap: 1rem;
+            }
+
+            #selecao-container .field-wrapper {
+                width: 100% !important;
+                max-width: 600px;
+                /* largura máxima dos selects */
+            }
+
+            /* limita a largura do card de gráfico e centraliza */
+            .chart-wrapper {
+                max-width: 600px;
+                margin: 1.5rem auto 2rem;
+            }
         }
     </style>
 @endpush
@@ -91,7 +129,7 @@
 
 
         {{-- SELEÇÃO --}}
-        <div id="selecao-container" class="row gx-3 gy-3 justify-content-center mb-5">
+        <div id="selecao-container" class="row gx-3 gy-3 justify-content-center mb-1">
             @if ($atletaInst)
                 {{-- Usuário atleta: só seleciona o próprio atleta --}}
                 <div class="col-12 col-md-6 position-relative field-wrapper">
@@ -104,29 +142,26 @@
                 </div>
             @else
                 {{-- Público/Admin/Técnico: escolhe instituição e depois atleta --}}
-                <div id="instituicao-wrapper" class="col-12 col-md-6 position-relative field-wrapper">
-                    <label for="instituicao" class="form-label">
-                        <i class="bi bi-building me-1"></i>Instituição
-                    </label>
-                    <select id="instituicao" class="form-select">
-                        <option selected disabled>Selecione a instituição</option>
-                        @foreach ($instituicoes as $inst)
-                            <option value="{{ $inst->id }}">{{ $inst->nome }}</option>
-                        @endforeach
-                    </select>
-                    <div id="overlay-instituicao" class="overlay-spinner d-none">
-                        <div class="spinner-border text-primary" role="status"></div>
+                <div id="selecao-container" class="d-flex flex-column align-items-center mb-4" style="flex-direction: column">
+                    <div id="instituicao-wrapper" class="position-relative field-wrapper w-100">
+                        <select id="instituicao" class="form-select">
+                            <option selected disabled>Selecione a instituição</option>
+                            @foreach ($instituicoes as $inst)
+                                <option value="{{ $inst->id }}">{{ $inst->nome }}</option>
+                            @endforeach
+                        </select>
+                        <div id="overlay-instituicao" class="overlay-spinner d-none">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
                     </div>
-                </div>
-                <div id="aluno-wrapper" class="col-12 col-md-6 d-none position-relative field-wrapper">
-                    <label for="aluno" class="form-label">
-                        <i class="bi bi-person-badge me-1"></i>Atleta
-                    </label>
-                    <select id="aluno" class="form-select">
-                        <option selected disabled>Selecione um atleta</option>
-                    </select>
-                    <div id="overlay-aluno" class="overlay-spinner d-none">
-                        <div class="spinner-border text-primary" role="status"></div>
+
+                    <div id="aluno-wrapper" class="position-relative field-wrapper w-100 mt-3 d-none">
+                        <select id="aluno" class="form-select">
+                            <option selected disabled>Selecione o atleta</option>
+                        </select>
+                        <div id="overlay-aluno" class="overlay-spinner d-none">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -173,7 +208,7 @@
                     .then(r => r.json())
                     .then(alunos => {
                         overlayAluno.classList.add('d-none');
-                        selectAluno.innerHTML = '<option selected disabled>Selecione um atleta</option>';
+                        selectAluno.innerHTML = '<option selected disabled>Selecione o atleta</option>';
                         alunos.forEach(a => selectAluno.append(new Option(a.nome, a.matricula)));
                     })
                     .catch(() => {
@@ -192,7 +227,7 @@
                             overlayInst.classList.add('d-none');
                             document.getElementById('aluno-wrapper').classList.remove('d-none');
                             selectAluno.innerHTML =
-                                '<option selected disabled>Selecione um atleta</option>';
+                                '<option selected disabled>Selecione o atleta</option>';
                             alunos.forEach(a => selectAluno.append(new Option(a.nome, a.matricula)));
                             statsCont.classList.add('d-none');
                         })
@@ -290,4 +325,3 @@
         });
     </script>
 @endpush
-
