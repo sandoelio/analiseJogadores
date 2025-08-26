@@ -7,7 +7,7 @@
   <div class="col-12 col-md-6 col-lg-5">
 
     <h2 class="mb-4">Editar Atleta</h2>
-    <a href="{{ route('aluno.create') }}" class="btn btn-outline-secondary mb-3">
+    <a href="{{ route('aluno.index') }}" class="btn btn-outline-secondary mb-3">
       ← Voltar
     </a>
 

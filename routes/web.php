@@ -55,8 +55,6 @@ Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])
 Route::view('/', 'public.home')
     ->name('public.home');
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Página Pública (Seleção de Instituição / Estatísticas)

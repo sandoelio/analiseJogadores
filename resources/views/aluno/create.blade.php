@@ -82,7 +82,7 @@
 
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn btn-navbar-blue">Salvar</button>
-                            <a href="{{ route('aluno.dashboard') }}" class="btn btn-secondary">Cancelar</a>
+                            <a href="{{ route('tecnico.dashboard') }}" class="btn btn-secondary">Cancelar</a>
                         </div>
                     </form>
 
