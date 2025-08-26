@@ -23,7 +23,7 @@
 
       {{-- Nome --}}
       <div class="mb-3">
-        <label for="name" class="form-label">Nome</label>
+        <label for="name" class="form-label">Nome do usuario</label>
         <input
           type="text"
           id="name"
@@ -39,7 +39,7 @@
 
       {{-- E-mail do usuário --}}
       <div class="mb-3">
-        <label for="email" class="form-label">E-mail</label>
+        <label for="email" class="form-label">E-mail do usuario</label>
         <input
           type="email"
           id="email"
@@ -55,7 +55,7 @@
 
       {{-- Nova Senha do usuário --}}
       <div class="mb-3">
-        <label for="password" class="form-label">Nova Senha (opcional)</label>
+        <label for="password" class="form-label">Nova Senha do usuario (opcional)</label>
         <input
           type="password"
           id="password"
@@ -70,7 +70,7 @@
 
       {{-- Confirmar Senha do usuário --}}
       <div class="mb-3">
-        <label for="password_confirmation" class="form-label">Confirmar Senha</label>
+        <label for="password_confirmation" class="form-label">Confirmar Senha do usuario</label>
         <input
           type="password"
           id="password_confirmation"
