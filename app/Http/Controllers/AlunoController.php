@@ -42,7 +42,7 @@ class AlunoController extends Controller
             ->paginate(10);
 
         // Total absoluto (query separada)
-        $totalAlunos = Aluno::count();
+        $totalAlunos = $alunos->total();
 
         return view('aluno.index', compact('alunos', 'totalAlunos')); 
     }
