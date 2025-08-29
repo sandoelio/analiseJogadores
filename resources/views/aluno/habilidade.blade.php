@@ -17,35 +17,41 @@
             background-color: #28365F !important;
             color: #fff;
         }
+
         .btn-navbar-blue {
             background-color: #28365F;
             border-color: #28365F;
             color: #fff;
         }
+
         .btn-navbar-blue:hover {
             background-color: #28365F;
             border-color: #28365F;
         }
 
         /* ====================== *
-           Ajustes Gerais
-        * ====================== */
+               Ajustes Gerais
+            * ====================== */
         /* impede qualquer scroll horizontal na página */
-        html, body {
+        html,
+        body {
             overflow-x: hidden;
         }
 
         /* ====================== *
-           Mobile: até 576px
-        * ====================== */
+               Mobile: até 576px
+            * ====================== */
         @media (max-width: 576px) {
             .habilidade-card-body {
                 /* altura entre header+footer, scroll apenas vertical */
                 max-height: calc(100vh - 160px);
                 overflow-y: auto;
-                overflow-x: hidden;        /* bloqueia scroll horizontal */
-                padding: 1rem;             /* compensa gutters do .row */
-                box-sizing: border-box;    /* padding dentro da largura */
+                overflow-x: hidden;
+                /* bloqueia scroll horizontal */
+                padding: 1rem;
+                /* compensa gutters do .row */
+                box-sizing: border-box;
+                /* padding dentro da largura */
             }
 
             /* zera as gutters negativas da row.g-3 */
@@ -55,7 +61,7 @@
             }
 
             /* reaplica gutters como padding nas colunas */
-            .habilidade-card-body .row.g-3 > [class*="col-"] {
+            .habilidade-card-body .row.g-3>[class*="col-"] {
                 padding-left: 0.5rem;
                 padding-right: 0.5rem;
             }
@@ -101,21 +107,13 @@
                             </div>
 
                             {{-- Estatísticas em duas colunas para reduzir altura --}}
-                            @foreach (['arremesso','passe','marcacao','bandeja','rebote','dominio'] as $campo)
+                            @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'] as $campo)
                                 <div class="col-6">
                                     <label for="{{ $campo }}" class="form-label">
-                                        {{ ucfirst($campo==='dominio'?'Domínio de Bola':$campo) }}
+                                        {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
                                     </label>
-                                    <input
-                                        type="number"
-                                        id="{{ $campo }}"
-                                        name="{{ $campo }}"
-                                        class="form-control"
-                                        value="1"
-                                        min="0"
-                                        max="10"
-                                        readonly
-                                    >
+                                    <input type="number" id="{{ $campo }}" name="{{ $campo }}"
+                                        class="form-control" value="1" min="0" max="10" readonly>
                                 </div>
                             @endforeach
 
@@ -125,8 +123,7 @@
                                     <button type="submit" class="btn btn-navbar-blue flex-md-grow-1">
                                         Atualizar Atleta
                                     </button>
-                                    <a href="{{ route('tecnico.dashboard') }}"
-                                       class="btn btn-secondary flex-md-grow-1">
+                                    <a href="{{ route('tecnico.dashboard') }}" class="btn btn-secondary flex-md-grow-1">
                                         Cancelar
                                     </a>
                                 </div>
@@ -145,16 +142,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             const select = document.getElementById('aluno_select');
             if (!select) return;
+
             select.addEventListener('change', () => {
                 const id = select.value;
-                fetch(`/aluno/${id}/ultima-analise`)
+                fetch("{{ url('/aluno') }}/" + id + "/ultima-analise")
                     .then(res => res.json())
                     .then(data => {
-                        ['arremesso','passe','marcacao','bandeja','rebote','dominio'].forEach(campo => {
-                            const inp = document.getElementById(campo);
-                            inp.value = data[campo];
-                            inp.removeAttribute('readonly');
-                        });
+                        ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'].forEach(
+                            campo => {
+                                const inp = document.getElementById(campo);
+                                if (inp) {
+                                    inp.value = data[campo] ?? '';
+                                    inp.removeAttribute('readonly');
+                                }
+                            });
                     })
                     .catch(() => alert('Não foi possível carregar a última análise.'));
             });
