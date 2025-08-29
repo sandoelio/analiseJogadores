@@ -113,7 +113,7 @@ class AlunoController extends Controller
             ->latest('created_at')
             ->first();
 
-        if (! $analise) {
+        if (!$analise) {
             return response()->json([
                 'error' => 'Nenhuma análise encontrada.'
             ], 404);
@@ -228,7 +228,7 @@ class AlunoController extends Controller
         $aluno->delete();
 
         return redirect()
-            ->route('aluno.create')
+            ->route('aluno.index')
             ->with('success', "Aluno “{$aluno->nome}” excluído com sucesso.");
     }
 
