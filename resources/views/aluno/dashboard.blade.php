@@ -4,111 +4,118 @@
 @section('title', 'Dashboard Usuario')
 
 @push('styles')
-    <style>
-        .site-container,
-        .dashboard-container {
-            overflow: hidden !important;
-        }
+<style>
+  .dashboard-shell {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+  }
 
-        html,
-        body {
-            overflow-x: hidden;
-        }
+  .dashboard-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+  }
 
-        .content-box {
-            overflow: visible !important;
-        }
+  .dashboard-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.2rem;
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: background 0.2s, border-color 0.2s;
+  }
 
-        .dashboard-container {
-            min-height: calc(90vh - 20rem - 12rem);
-            /* desconta header e footer */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+  .dashboard-btn i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
 
-        .dashboard-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            max-width: 600px;
-            width: 100%;
-        }
+  /* Logo com mesma largura do shell/botões */
+  .logo-wrap {
+    width: 94%;
+    margin: 3% auto 0;     /* menos espaço no desktop */
+    background-color: #28365F; /* se quiser manter fundo, aplique no wrapper */
+    border-radius: 0.5rem;     /* opcional, combina com botões */
+    padding: 0.5rem;           /* opcional, para respiro interno */
+    margin-bottom: 1.5rem !important;
+  }
 
-        .dashboard-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1.2rem;
-            background: #fff;
-            border: 2px solid #ddd;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: background 0.2s, border-color 0.2s;
-        }
+  .back-logo {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: 120px;     /* limite no desktop */
+    object-fit: contain;
+  }
 
-        .dashboard-btn:hover {
-            background: #f8f9fa;
-            border-color: #28365F;
-            color: #28365F;
-        }
+  /* Tablet: pode aumentar um pouco se quiser */
+  @media (min-width: 577px) and (max-width: 991.98px) {
+    .back-logo { max-height: 140px; }
+  }
 
-        .dashboard-btn i {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
+  /* Mobile */
+  @media (max-width: 576px) {
+    .dashboard-shell { max-width: 400px; }
 
-        .back-logo {
-            background: #28365F;
+    .dashboard-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+      margin-top: 10px;
+    }
 
-        }
+    .dashboard-btn { padding: 0.8rem; }
+    .dashboard-btn i { font-size: 1.6rem; margin-bottom: 0.3rem; }
 
-        @media (max-width: 576px) {
-            .dashboard-buttons {
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                justify-content: center;
-                gap: 0.5rem;
-                max-width: 400px;
-                width: 100%;
-                margin-top: 10px;
-            }
-        }
-    </style>
+    .logo-wrap { 
+        margin-top: 2%; 
+        padding: 0.4rem;
+    }
+    .back-logo { max-height: 100px; }
+  }
+</style>
 @endpush
 
+
 @section('content')
-
-    {{-- Logo --}}
-    <div class="text-center mb-0">
-        <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana"
-            style="max-width: 200px; width: 100%; height: auto; margin-top: 5%;" class="back-logo" loading="lazy">
+  <div class="dashboard-shell">
+    {{-- Logo com mesma largura do shell/botões --}}
+    <div class="logo-wrap text-center mb-0" >
+      <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" class="back-logo" loading="lazy">
     </div>
+
     <div class="container-fluid dashboard-container">
-        <div class="dashboard-buttons">
-            <a href="{{ route('aluno.create') }}" class="dashboard-btn">
-                <i class="bi bi-person-plus-fill"></i>
-                Novo Atleta
-            </a>
+      <div class="dashboard-buttons">
+        <a href="{{ route('aluno.create') }}" class="dashboard-btn">
+          <i class="bi bi-person-plus-fill"></i>
+          Novo Atleta
+        </a>
 
-            <a href="{{ route('aluno.updateForm') }}" class="dashboard-btn">
-                <i class="bi bi-pencil-square"></i>
-                Atualizar Atleta
-            </a>
+        <a href="{{ route('aluno.updateForm') }}" class="dashboard-btn">
+          <i class="bi bi-pencil-square"></i>
+          Atualizar Atleta
+        </a>
 
-            <a href="{{ route('aluno.index') }} " class="dashboard-btn">
-                <i class="bi bi-people-fill"></i>
-                Atletas Cadastrados
-            </a>
+        <a href="{{ route('aluno.index') }}" class="dashboard-btn">
+          <i class="bi bi-people-fill"></i>
+          Atletas Cadastrados
+        </a>
 
-            <a href="{{ route('public.dashboard') }}" class="dashboard-btn">
-                <i class="bi bi-house-door me-1"></i>
-                Página Inicial
-            </a>
-        </div>
+        <a href="{{ route('public.dashboard') }}" class="dashboard-btn">
+          <i class="bi bi-house-door me-1"></i>
+          Página Inicial
+        </a>
+      </div>
     </div>
+  </div>
 @endsection

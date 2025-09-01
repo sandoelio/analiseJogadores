@@ -35,6 +35,7 @@
   @media (max-width: 576px) {
     .dashboard-buttons {
       grid-template-columns: 1fr;
+      gap: 0.5rem;
     }
   }
 
