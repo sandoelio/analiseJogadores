@@ -34,7 +34,7 @@
         .back-logo {
             background: #28365F;
             display: block;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 0.4rem;
             max-width: 200px;
             width: 100%;
             height: auto;
@@ -68,8 +68,8 @@
         }
 
         /* ------------------------------
-            Ajustes específicos para desktop
-         ------------------------------- */
+            Ajustes específicos para desk
+        ------------------------------- */
         @media (min-width: 768px) {
 
             /* remove qualquer scroll horizontal no desktop */
@@ -80,16 +80,14 @@
 
             /* adiciona espaço entre navbar e logo */
             .back-logo {
-                margin-top: 2rem;
-                margin-bottom: 1.5rem;
+                margin-top: 1rem;
+                margin-bottom: 1.0rem;
             }
 
             /* reduz o espaçamento vertical entre selects */
             #selecao-container {
                 --bs-gutter-y: .5rem;
-                margin-bottom: 1.5rem !important;
-                /* flex-direction: column; */
-                gap: 1rem;
+                margin-bottom: 0.1rem !important;
             }
 
             #selecao-container .field-wrapper {
@@ -119,7 +117,7 @@
         </div>
 
         {{-- Voltar --}}
-        <div class="row justify-content-center mb-4 volver-wrapper">
+        <div class="row justify-content-center mb-2 volver-wrapper">
             <div class="col-12 col-md-6 text-center">
                 <a href="{{ route('public.dashboard') }}" class="btn btn-primary">
                     <i class="bi bi-house-door me-1"></i> Voltar
@@ -127,9 +125,8 @@
             </div>
         </div>
 
-
         {{-- SELEÇÃO --}}
-        <div id="selecao-container" class="row gx-3 gy-3 justify-content-center mb-1">
+        <div id="selecao-container" class="row gx-1 gy-1 justify-content-center mb-0">
             @if ($atletaInst)
                 {{-- Usuário atleta: só seleciona o próprio atleta --}}
                 <div class="col-12 col-md-6 position-relative field-wrapper">
@@ -142,7 +139,8 @@
                 </div>
             @else
                 {{-- Público/Admin/Técnico: escolhe instituição e depois atleta --}}
-                <div id="selecao-container" class="d-flex flex-column align-items-center mb-4" style="flex-direction: column">
+                <div id="selecao-container" class="d-flex flex-column align-items-center mb-1"
+                    style="flex-direction: column">
                     <div id="instituicao-wrapper" class="position-relative field-wrapper w-100">
                         <select id="instituicao" class="form-select">
                             <option selected disabled>Selecione a instituição</option>
@@ -169,10 +167,24 @@
 
         {{-- GRÁFICO --}}
         <div id="estatisticas-container" class="card shadow-sm d-none chart-wrapper">
-            <div class="card-header d-flex align-items-center">
-                <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
-                <h5 class="mb-0">Estatísticas do Atleta</h5>
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
+                    <h5 class="mb-0">Estatísticas do Atleta</h5>
+                </div>
+
+                @php
+                    $isPrivilegiado = auth()->check() && !session()->has('aluno_instituicao_id');
+                @endphp
+
+                @if ($isPrivilegiado)
+                    <a href="{{ route('analise.index') }}" class="btn btn-lg btn-outline-danger"
+                        title="Registrar nova análise">
+                        <i class="bi bi-heart-fill"></i>
+                    </a>
+                @endif
             </div>
+
             <div class="card-body p-3 d-flex justify-content-center" style="min-height:320px;position:relative;">
                 <div id="overlay-chart" class="overlay-spinner d-none">
                     <div class="spinner-border text-primary" role="status"></div>
