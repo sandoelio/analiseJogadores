@@ -1,18 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\AlunoAuthController;
-use App\Http\Controllers\AlunoController;
-use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\AlunoPublicoController;
-use App\Http\Controllers\PublicDashboardController;
-use App\Http\Controllers\ComparativoPublicoController;
-use App\Http\Controllers\ComparativoGraficoController;
-use App\Http\Middleware\CheckAnySession;
 use App\Http\Middleware\CheckAdmin;
 use App\Http\Middleware\CheckSession;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Middleware\CheckAnySession;
+use App\Http\Controllers\AlunoController;
 use App\Http\Middleware\CheckAlunoSession;
+use App\Http\Controllers\AnaliseController;
+use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\AlunoAuthController;
+use App\Http\Controllers\AlunoPublicoController;
+use App\Http\Controllers\PublicDashboardController;
+use App\Http\Controllers\ComparativoGraficoController;
+use App\Http\Controllers\ComparativoPublicoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +53,9 @@ Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])->middlewar
 |--------------------------------------------------------------------------
 */
 Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function () {
+
+
+    Route::get('/analise/extras/{matricula}', [AlunoController::class, 'fetchExtras'])->name('analise.extras');
 
     // Dashboard genérico
     Route::get('/public/dashboard', [PublicDashboardController::class, 'index'])->name('public.dashboard');

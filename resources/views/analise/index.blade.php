@@ -5,6 +5,20 @@
 
 @push('styles')
     <style>
+        #graficoFisico {
+            min-height: 290px;
+        }
+
+        #graficoClinico {
+            width: 100% !important;
+            max-width: 600px;
+            min-height: 300px;
+            height: auto !important;
+            display: block;
+            margin: 0 auto;
+        }
+
+
         /* overlay spinner genérico */
         .overlay-spinner {
             position: absolute;
@@ -67,9 +81,7 @@
             margin: 0 auto;
         }
 
-        /* ------------------------------
-            Ajustes específicos para desk
-        ------------------------------- */
+        /* Ajustes específicos para desk*/
         @media (min-width: 768px) {
 
             /* remove qualquer scroll horizontal no desktop */
@@ -178,14 +190,18 @@
                 @endphp
 
                 @if ($isPrivilegiado)
-                    <a href="{{ route('analise.index') }}" class="btn btn-lg btn-outline-danger"
-                        title="Nova análise">
+                    <!-- Botão Nova Análise Física -->
+                    <button class="btn btn-lg btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#modalAnaliseFisica"
+                        onclick="carregarGraficosExtras(document.getElementById('aluno').value)">
                         <i class="bi bi-clipboard2-pulse"></i>
-                    </a>
-                    <a href="{{ route('analise.index') }}" class="btn btn-lg btn-outline-danger"
-                        title="Saúde do atleta">
+                    </button>
+
+                    <!-- Botão Saúde do Atleta -->
+                    <button class="btn btn-lg btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalSaudeAtleta"
+                        onclick="carregarGraficosExtras(document.getElementById('aluno').value)">
                         <i class="bi bi-clipboard2-heart"></i>
-                    </a>
+                    </button>
                 @endif
             </div>
 
@@ -197,13 +213,55 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal: Análise Física --}}
+    <div class="modal fade" id="modalAnaliseFisica" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Atributos Físicos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <canvas id="graficoFisico" style="max-height:400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal: Saúde do Atleta --}}
+    <div class="modal fade" id="modalSaudeAtleta" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Classificação Corporal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <canvas id="graficoClinico" style="max-height:400px;"></canvas>
+                    <div class="mt-3 text-center">
+                        <strong>Classificação:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+    <script>
+        window.ATLETA_INST = @json($atletaInst);
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // ------------------------------------------------
+            // Referências de elementos
+            // ------------------------------------------------
             const instWrapper = document.getElementById('instituicao-wrapper');
             const selectInst = document.getElementById('instituicao');
             const selectAluno = document.getElementById('aluno');
@@ -217,10 +275,12 @@
             const tplAlunos = "{{ route('analise.alunos', ['instituicao' => 'INSTITUICAO_ID']) }}";
             const tplShow = "{{ route('analise.mostrar', ['matricula' => 'MATRICULA_ID']) }}";
 
-            // Se jogador está logado, já dispara fetch de atletas da própria instituição
-            @if ($atletaInst)
+            // ------------------------------------------------
+            // Carrega atletas automaticamente se for atleta
+            // ------------------------------------------------
+            if (window.ATLETA_INST) {
                 overlayAluno.classList.remove('d-none');
-                fetch(tplAlunos.replace('INSTITUICAO_ID', "{{ $atletaInst }}"))
+                fetch(tplAlunos.replace('INSTITUICAO_ID', String(window.ATLETA_INST)))
                     .then(r => r.json())
                     .then(alunos => {
                         overlayAluno.classList.add('d-none');
@@ -231,9 +291,11 @@
                         overlayAluno.classList.add('d-none');
                         alert('Falha ao carregar atletas');
                     });
-            @endif
+            }
 
-            // Se selecionou instituição (público ou técnico), carrega atletas
+            // ------------------------------------------------
+            // Selecionou instituição → carrega atletas
+            // ------------------------------------------------
             if (selectInst) {
                 selectInst.addEventListener('change', () => {
                     overlayInst.classList.remove('d-none');
@@ -247,40 +309,135 @@
                             alunos.forEach(a => selectAluno.append(new Option(a.nome, a.matricula)));
                             statsCont.classList.add('d-none');
                         })
-                        .catch(() => overlayInst.classList.add('d-none'));
+                        .catch(() => {
+                            overlayInst.classList.add('d-none');
+                        });
                 });
             }
 
-            // Ao escolher atleta, exibe o gráfico
-            selectAluno.addEventListener('change', () => {
-                overlayAluno.classList.remove('d-none');
-                overlayChart.classList.remove('d-none');
-                statsCont.classList.remove('d-none');
-                canvas.style.display = 'none';
+            // ------------------------------------------------
+            // Escolheu atleta → mostra gráfico principal
+            // ------------------------------------------------
+            if (selectAluno) {
+                selectAluno.addEventListener('change', () => {
+                    overlayAluno.classList.remove('d-none');
+                    overlayChart.classList.remove('d-none');
+                    statsCont.classList.remove('d-none');
+                    canvas.style.display = 'none';
 
-                fetch(tplShow.replace('MATRICULA_ID', selectAluno.value))
+                    fetch(tplShow.replace('MATRICULA_ID', selectAluno.value))
+                        .then(r => r.json())
+                        .then(data => {
+                            overlayAluno.classList.add('d-none');
+                            overlayChart.classList.add('d-none');
+                            canvas.style.display = '';
+                            if (chartInstance) chartInstance.destroy();
+
+                            chartInstance = new Chart(canvas.getContext('2d'), {
+                                type: 'bar',
+                                data: {
+                                    labels: data.labels,
+                                    datasets: [{
+                                            label: 'Anterior',
+                                            data: data.anterior,
+                                            backgroundColor: 'rgba(255,159,64,0.8)',
+                                            borderRadius: 4,
+                                            maxBarThickness: 50
+                                        },
+                                        {
+                                            label: 'Atual',
+                                            data: data.atual,
+                                            backgroundColor: 'rgba(54,162,235,0.8)',
+                                            borderRadius: 4,
+                                            maxBarThickness: 50
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        x: {
+                                            ticks: {
+                                                autoSkip: true,
+                                                maxRotation: 45,
+                                                font: {
+                                                    size: 12
+                                                }
+                                            }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            suggestedMax: 100,
+                                            ticks: {
+                                                stepSize: 10,
+                                                font: {
+                                                    size: 12
+                                                }
+                                            }
+                                        }
+                                    },
+                                    layout: {
+                                        padding: {
+                                            top: 10,
+                                            bottom: 10
+                                        }
+                                    },
+                                    plugins: {
+                                        datalabels: {
+                                            anchor: 'end',
+                                            align: 'end',
+                                            color: '#444',
+                                            offset: 4,
+                                            formatter: v => v
+                                        },
+                                        legend: {
+                                            position: 'top'
+                                        }
+                                    }
+                                },
+                                plugins: [ChartDataLabels]
+                            });
+                        })
+                        .catch(() => {
+                            overlayAluno.classList.add('d-none');
+                            overlayChart.classList.add('d-none');
+                            alert('Não foi possível carregar o gráfico.');
+                        });
+                });
+            }
+
+            // ------------------------------------------------
+            // Gráficos dos modais: físicos e clínicos
+            // ------------------------------------------------
+            let graficoFisicoInstance = null;
+            let graficoClinicoInstance = null;
+
+            window.carregarGraficosExtras = function(matricula) {
+                const baseURL = window.location.origin;
+                const url = `${baseURL}/analise/extras/${matricula}`;
+
+                fetch(url)
                     .then(r => r.json())
                     .then(data => {
-                        overlayAluno.classList.add('d-none');
-                        overlayChart.classList.add('d-none');
-                        canvas.style.display = '';
-                        if (chartInstance) chartInstance.destroy();
-
-                        chartInstance = new Chart(canvas.getContext('2d'), {
+                        // Gráfico físico (comparativo)
+                        const ctxFisico = document.getElementById('graficoFisico').getContext('2d');
+                        if (graficoFisicoInstance) graficoFisicoInstance.destroy();
+                        graficoFisicoInstance = new Chart(ctxFisico, {
                             type: 'bar',
                             data: {
-                                labels: data.labels,
+                                labels: data.fisico.labels,
                                 datasets: [{
                                         label: 'Anterior',
-                                        data: data.anterior,
-                                        backgroundColor: 'rgba(255,159,64,0.8)',
+                                        data: data.fisico.anterior,
+                                        backgroundColor: 'rgba(255,159,64,0.7)',
                                         borderRadius: 4,
                                         maxBarThickness: 50
                                     },
                                     {
                                         label: 'Atual',
-                                        data: data.atual,
-                                        backgroundColor: 'rgba(54,162,235,0.8)',
+                                        data: data.fisico.atual,
+                                        backgroundColor: 'rgba(75,192,192,0.8)',
                                         borderRadius: 4,
                                         maxBarThickness: 50
                                     }
@@ -290,30 +447,11 @@
                                 responsive: true,
                                 maintainAspectRatio: false,
                                 scales: {
-                                    x: {
-                                        ticks: {
-                                            autoSkip: true,
-                                            maxRotation: 45,
-                                            font: {
-                                                size: 12
-                                            }
-                                        }
-                                    },
                                     y: {
                                         beginAtZero: true,
-                                        suggestedMax: 100,
                                         ticks: {
-                                            stepSize: 10,
-                                            font: {
-                                                size: 12
-                                            }
+                                            callback: value => Number.isInteger(value) ? value : ''
                                         }
-                                    }
-                                },
-                                layout: {
-                                    padding: {
-                                        top: 10,
-                                        bottom: 10
                                     }
                                 },
                                 plugins: {
@@ -331,12 +469,88 @@
                             },
                             plugins: [ChartDataLabels]
                         });
+
+                        // Gráfico clínico (comparativo)
+                        const ctxClinico = document.getElementById('graficoClinico').getContext('2d');
+                        if (graficoClinicoInstance) graficoClinicoInstance.destroy();
+                        graficoClinicoInstance = new Chart(ctxClinico, {
+                            type: 'bar',
+                            data: {
+                                labels: data.clinico.labels,
+                                datasets: [{
+                                        label: 'Anterior',
+                                        data: data.clinico.anterior,
+                                        backgroundColor: 'rgba(255,99,132,0.6)',
+                                        borderRadius: 4,
+                                        maxBarThickness: 50
+                                    },
+                                    {
+                                        label: 'Atual',
+                                        data: data.clinico.atual,
+                                        backgroundColor: 'rgba(54,162,235,0.7)',
+                                        borderRadius: 4,
+                                        maxBarThickness: 50
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            callback: value => Number.isInteger(value) ? value : ''
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    datalabels: {
+                                        anchor: 'end',
+                                        align: 'end',
+                                        color: '#444',
+                                        offset: 4,
+                                        formatter: v => v
+                                    },
+                                    legend: {
+                                        position: 'top'
+                                    }
+                                }
+                            },
+                            plugins: [ChartDataLabels]
+                        });
+
+                        // Classificação corporal
+                        const classificacao = document.getElementById('classificacaoLabel');
+                        if (classificacao) {
+                            classificacao.textContent = data.classificacao;
+                            classificacao.classList.remove('d-none');
+                        }
                     })
                     .catch(() => {
-                        overlayAluno.classList.add('d-none');
-                        overlayChart.classList.add('d-none');
-                        alert('Não foi possível carregar o gráfico.');
+                        alert('Erro ao carregar dados físicos e clínicos.');
                     });
+            };
+
+            // ------------------------------------------------
+            // Limpa gráficos ao fechar modais
+            // ------------------------------------------------
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', () => {
+                    if (graficoFisicoInstance) {
+                        graficoFisicoInstance.destroy();
+                        graficoFisicoInstance = null;
+                    }
+                    if (graficoClinicoInstance) {
+                        graficoClinicoInstance.destroy();
+                        graficoClinicoInstance = null;
+                    }
+                    const classificacao = document.getElementById('classificacaoLabel');
+                    if (classificacao) {
+                        classificacao.textContent = '';
+                        classificacao.classList.add('d-none');
+                    }
+                });
             });
         });
     </script>

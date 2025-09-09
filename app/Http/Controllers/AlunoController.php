@@ -260,4 +260,71 @@ class AlunoController extends Controller
             'anterior' => $analises[1],
         ]);
     }
+
+    public function fetchExtras($matricula)
+    {
+        $aluno = Aluno::where('matricula', $matricula)->firstOrFail();
+
+        $analise = $aluno->analises()->latest()->take(2)->get();
+        $analiseAtual = $analise->first();
+        $analiseAnterior = $analise->count() > 1 ? $analise->last() : null;
+
+        if (!$analise) {
+            return response()->json(['error' => 'Nenhuma análise encontrada.'], 404);
+        }
+        return response()->json([
+            'fisico' => [
+                'labels' => [
+                    'Envergadura',
+                    'Velocidade',
+                    'Agilidade',
+                    'Salto Horizontal',
+                    'Resistência'
+                ],
+                'anterior' => [
+                    $analiseAnterior?->envergadura,
+                    $analiseAnterior?->velocidade,
+                    $analiseAnterior?->agilidade,
+                    $analiseAnterior?->salto_horizontal,
+                    $analiseAnterior?->resistencia
+                ],
+                'atual' => [
+                    $analiseAtual->envergadura,
+                    $analiseAtual->velocidade,
+                    $analiseAtual->agilidade,
+                    $analiseAtual->salto_horizontal,
+                    $analiseAtual->resistencia
+                ]
+            ],
+            'clinico' => [
+                'labels' => [
+                    'Massa Magra (kg)',
+                    'Massa Adiposa (kg)',
+                    'Massa Magra (%)',
+                    'Massa Adiposa (%)',
+                    'Peso Residual (kg)'
+                ],
+                'anterior' => [
+                    $analiseAnterior?->massa_magra_kg,
+                    $analiseAnterior?->massa_adiposa_kg,
+                    $analiseAnterior?->massa_magra_pct,
+                    $analiseAnterior?->massa_adiposa_pct,
+                    $analiseAnterior?->peso_residual_kg
+                ],
+                'atual' => [
+                    $analiseAtual->massa_magra_kg,
+                    $analiseAtual->massa_adiposa_kg,
+                    $analiseAtual->massa_magra_pct,
+                    $analiseAtual->massa_adiposa_pct,
+                    $analiseAtual->peso_residual_kg
+                ]
+            ],
+            'classificacao' => match (true) {
+                $analiseAtual->massa_adiposa_pct < 5  => 'Muito Baixo',
+                $analiseAtual->massa_adiposa_pct < 10 => 'Baixo',
+                $analiseAtual->massa_adiposa_pct < 16 => 'Ideal',
+                default                                => 'Acima do Ideal',
+            }
+        ]);
+    }
 }
