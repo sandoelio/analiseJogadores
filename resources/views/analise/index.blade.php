@@ -179,8 +179,12 @@
 
                 @if ($isPrivilegiado)
                     <a href="{{ route('analise.index') }}" class="btn btn-lg btn-outline-danger"
-                        title="Registrar nova análise">
-                        <i class="bi bi-heart-fill"></i>
+                        title="Nova análise">
+                        <i class="bi bi-clipboard2-pulse"></i>
+                    </a>
+                    <a href="{{ route('analise.index') }}" class="btn btn-lg btn-outline-danger"
+                        title="Saúde do atleta">
+                        <i class="bi bi-clipboard2-heart"></i>
                     </a>
                 @endif
             </div>
