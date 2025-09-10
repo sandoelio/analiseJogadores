@@ -19,6 +19,21 @@ class Analise extends Model
         'bandeja',
         'rebote',
         'dominio',
+        'envergadura',
+        'velocidade',
+        'agilidade',
+        'salto_horizontal',
+        'resistencia',
+        'massa_magra_kg',
+        'massa_adiposa_kg',
+        'massa_magra_pct',
+        'massa_adiposa_pct',
+        'peso_residual_kg',
+        'problema_saude',
+        'atestado_valido',
+        'usa_medicacao',
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [

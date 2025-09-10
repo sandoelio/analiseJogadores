@@ -3,28 +3,50 @@
 @section('title', 'Novo Aluno / Análise')
 
 @push('styles')
-<style>
-  input[readonly] {
-    background-color: #e9ecef;
-    opacity: 1;
-    cursor: not-allowed;
-  }
+  <style>
+    input[readonly] {
+      background-color: #e9ecef;
+      opacity: 1;
+      cursor: not-allowed;
+    }
 
-  .bg-navbar-blue { background: #28365F !important; color: #fff; }
-  .btn-navbar-blue {
-    background: #28365F;
-    border-color: #28365F;
-    color: #fff;
-  }
-  .btn-navbar-blue:hover {
-    background: #28365F;
-    border-color: #28365F;
-  }
+    .bg-navbar-blue { background: #28365F !important; color: #fff; }
+    .btn-navbar-blue {
+      background: #28365F;
+      border-color: #28365F;
+      color: #fff;
+    }
+    .btn-navbar-blue:hover {
+      background: #28365F;
+      border-color: #28365F;
+    }
 
-  html, body {
-    overflow-x: hidden;
-  }
-</style>
+    html, body {
+      overflow-x: hidden;
+    }
+
+    /* Layout horizontal fixo para perguntas e respostas */
+    .saude-item {
+      /* display: flex; */
+      align-items: center;
+      /* justify-content: space-between;
+      flex-wrap: nowrap;
+      gap: 1rem; */
+      /* margin-bottom: 1rem; */
+    }
+
+    .saude-item label {
+      margin-bottom: 0;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .saude-radios {
+      display: flex;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+  </style>
 @endpush
 
 @section('content')
@@ -49,6 +71,7 @@
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba2">Habilidades Técnicas</a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba3">Atributos Físicos</a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba4">Composição Corporal</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba5">Perguntas</a></li>
           </ul>
 
           {{-- Conteúdo das abas --}}
@@ -148,17 +171,45 @@
                 @endforeach
               </div>
             </div>
+
+            {{-- Aba 5: Perguntas --}}
+            <div class="tab-pane fade" id="aba5">
+              <div class="row g-3">
+                <div class="col-12 mt-2">
+                  <h6 class="text-primary">Informações de Saúde</h6>
+                </div>
+
+                @php
+                  $saudeCampos = [
+                    'problema_saude'  => 'Possui problema de saúde?',
+                    'atestado_valido' => 'Está com atestado válido?',
+                    'usa_medicacao'   => 'Faz uso de medicação?'
+                  ];
+                @endphp
+
+                @foreach ($saudeCampos as $campo => $label)
+                  <div class="col-12 saude-item">
+                    <label for="{{ $campo }}_sim">{{ $label }}</label>
+                    <div class="saude-radios">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="{{ $campo }}" id="{{ $campo }}_sim" value="1" required>
+                        <label class="form-check-label" for="{{ $campo }}_sim">Sim</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="{{ $campo }}" id="{{ $campo }}_nao" value="0">
+                        <label class="form-check-label" for="{{ $campo }}_nao">Não</label>
+                      </div>
+                    </div>
+                  </div>
+                @endforeach
+              </div>
+            </div>
           </div>
 
           {{-- Botões --}}
           <div class="mt-4 d-grid gap-2 d-md-flex justify-content-md-between">
-            <button type="submit" class="btn btn-navbar-blue flex-md-grow-1">
-              Salvar
-            </button>
-            <a href="{{ route('tecnico.dashboard') }}"
-               class="btn btn-secondary flex-md-grow-1">
-              Cancelar
-            </a>
+            <button type="submit" class="btn btn-navbar-blue flex-md-grow-1">Salvar</button>
+            <a href="{{ route('tecnico.dashboard') }}" class="btn btn-secondary flex-md-grow-1">Cancelar</a>
           </div>
         </form>
       </div>
