@@ -27,12 +27,7 @@
 
     /* Layout horizontal fixo para perguntas e respostas */
     .saude-item {
-      /* display: flex; */
-      align-items: center;
-      /* justify-content: space-between;
-      flex-wrap: nowrap;
-      gap: 1rem; */
-      /* margin-bottom: 1rem; */
+      align-items: center;  
     }
 
     .saude-item label {
