@@ -23,10 +23,11 @@ return new class extends Migration
             $table->float('massa_magra_pct')->nullable();
             $table->float('massa_adiposa_pct')->nullable();
             $table->float('peso_residual_kg')->nullable();
-            // $table->string('classificacao_corporal')->nullable();
             $table->boolean('problema_saude')->nullable();
             $table->boolean('atestado_valido')->nullable();
             $table->boolean('usa_medicacao')->nullable();
+            $table->timestamp('created_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
         });
     }
 
