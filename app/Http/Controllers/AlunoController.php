@@ -59,28 +59,68 @@ class AlunoController extends Controller
      * Atualiza as habilidades do aluno.
      * Registra uma nova análise com os dados fornecidos.
      */
-
     public function updateHabilidade(Request $request)
     {
         $data = $request->validate([
-            'aluno_id'     => 'required|exists:alunos,id',
-            'arremesso'    => 'required|integer|between:0,10',
-            'passe'        => 'required|integer|between:0,10',
-            'marcacao'     => 'required|integer|between:0,10',
-            'bandeja'      => 'required|integer|between:0,10',
-            'rebote'       => 'required|integer|between:0,10',
-            'dominio'      => 'required|integer|between:0,10',
+            'aluno_id'           => 'required|exists:alunos,id',
+
+            // Habilidades Técnicas
+            'arremesso'          => 'required|integer|between:0,10',
+            'passe'              => 'required|integer|between:0,10',
+            'marcacao'           => 'required|integer|between:0,10',
+            'bandeja'            => 'required|integer|between:0,10',
+            'rebote'             => 'required|integer|between:0,10',
+            'dominio'            => 'required|integer|between:0,10',
+
+            // Atributos Físicos
+            'envergadura'        => 'required|numeric|min:0',
+            'velocidade'         => 'required|numeric|min:0',
+            'agilidade'          => 'required|numeric|min:0',
+            'salto_horizontal'   => 'required|numeric|min:0',
+            'resistencia'        => 'required|numeric|min:0|max:100',
+
+            // Composição Corporal
+            'massa_magra_kg'     => 'required|numeric|min:0',
+            'massa_adiposa_kg'   => 'required|numeric|min:0',
+            'massa_magra_pct'    => 'required|numeric|min:0|max:100',
+            'massa_adiposa_pct'  => 'required|numeric|min:0|max:100',
+            'peso_residual_kg'   => 'required|numeric|min:0',
+
+            // Informações de Saúde
+            'problema_saude'     => 'required|boolean',
+            'atestado_valido'    => 'required|boolean',
+            'usa_medicacao'      => 'required|boolean',
         ]);
 
         $aluno = Aluno::findOrFail($data['aluno_id']);
 
         $aluno->analises()->create([
-            'arremesso'   => $data['arremesso'],
-            'passe'       => $data['passe'],
-            'marcacao'    => $data['marcacao'],
-            'bandeja'     => $data['bandeja'],
-            'rebote'      => $data['rebote'],
-            'dominio'     => $data['dominio'],
+            // Técnicas
+            'arremesso'          => $data['arremesso'],
+            'passe'              => $data['passe'],
+            'marcacao'           => $data['marcacao'],
+            'bandeja'            => $data['bandeja'],
+            'rebote'             => $data['rebote'],
+            'dominio'            => $data['dominio'],
+
+            // Físicos
+            'envergadura'        => $data['envergadura'],
+            'velocidade'         => $data['velocidade'],
+            'agilidade'          => $data['agilidade'],
+            'salto_horizontal'   => $data['salto_horizontal'],
+            'resistencia'        => $data['resistencia'],
+
+            // Corporal
+            'massa_magra_kg'     => $data['massa_magra_kg'],
+            'massa_adiposa_kg'   => $data['massa_adiposa_kg'],
+            'massa_magra_pct'    => $data['massa_magra_pct'],
+            'massa_adiposa_pct'  => $data['massa_adiposa_pct'],
+            'peso_residual_kg'   => $data['peso_residual_kg'],
+
+            // Saúde
+            'problema_saude'     => $data['problema_saude'],
+            'atestado_valido'    => $data['atestado_valido'],
+            'usa_medicacao'      => $data['usa_medicacao'],
         ]);
 
         return redirect()
@@ -119,15 +159,35 @@ class AlunoController extends Controller
             ], 404);
         }
 
-        // devolvêmos o nome do aluno e cada atributo
         return response()->json([
-            'nome'        => $aluno->nome,
-            'arremesso'   => $analise->arremesso,
-            'passe'       => $analise->passe,
-            'marcacao'    => $analise->marcacao,
-            'bandeja'     => $analise->bandeja,
-            'rebote'      => $analise->rebote,
-            'dominio'     => $analise->dominio,
+            'nome'               => $aluno->nome,
+
+            // Habilidades Técnicas
+            'arremesso'          => $analise->arremesso,
+            'passe'              => $analise->passe,
+            'marcacao'           => $analise->marcacao,
+            'bandeja'            => $analise->bandeja,
+            'rebote'             => $analise->rebote,
+            'dominio'            => $analise->dominio,
+
+            // Atributos Físicos
+            'envergadura'        => $analise->envergadura,
+            'velocidade'         => $analise->velocidade,
+            'agilidade'          => $analise->agilidade,
+            'salto_horizontal'   => $analise->salto_horizontal,
+            'resistencia'        => $analise->resistencia,
+
+            // Composição Corporal
+            'massa_magra_kg'     => $analise->massa_magra_kg,
+            'massa_adiposa_kg'   => $analise->massa_adiposa_kg,
+            'massa_magra_pct'    => $analise->massa_magra_pct,
+            'massa_adiposa_pct'  => $analise->massa_adiposa_pct,
+            'peso_residual_kg'   => $analise->peso_residual_kg,
+
+            // Informações de Saúde
+            'problema_saude'     => $analise->problema_saude,
+            'atestado_valido'    => $analise->atestado_valido,
+            'usa_medicacao'      => $analise->usa_medicacao,
         ]);
     }
 
@@ -137,25 +197,41 @@ class AlunoController extends Controller
      */
     public function store(Request $request)
     {
-        //dados do usuário e instituição
         $user          = Auth::user();
         $userId        = $user->id;
         $instituicaoId = $user->instituicao_id;
 
-        // validação (sem 'matricula')
+        // Validação completa
         $data = $request->validate([
-            'nome'        => 'required|string|max:255',
-            'arremesso'   => 'required|integer|between:0,10',
-            'passe'       => 'required|integer|between:0,10',
-            'marcacao'    => 'required|integer|between:0,10',
-            'bandeja'     => 'required|integer|between:0,10',
-            'rebote'      => 'required|integer|between:0,10',
-            'dominio'     => 'required|integer|between:0,10',
+            'nome'               => 'required|string|max:255',
+            'arremesso'          => 'required|integer|between:0,100',
+            'passe'              => 'required|integer|between:0,100',
+            'marcacao'           => 'required|integer|between:0,100',
+            'bandeja'            => 'required|integer|between:0,100',
+            'rebote'             => 'required|integer|between:0,100',
+            'dominio'            => 'required|integer|between:0,100',
+
+            // Atributos físicos (float → numeric)
+            'envergadura'        => 'required|numeric|min:0',
+            'velocidade'         => 'required|numeric|min:0',
+            'agilidade'          => 'required|numeric|min:0',
+            'salto_horizontal'   => 'required|numeric|min:0',
+            'resistencia'        => 'required|numeric|min:0',
+
+            // Composição corporal (float → numeric)
+            'massa_magra_kg'     => 'required|numeric|min:0',
+            'massa_adiposa_kg'   => 'required|numeric|min:0',
+            'massa_magra_pct'    => 'required|numeric|min:0|max:100',
+            'massa_adiposa_pct'  => 'required|numeric|min:0|max:100',
+            'peso_residual_kg'   => 'required|numeric|min:0',
+            'problema_saude'     => 'required|boolean',
+            'atestado_valido'    => 'required|boolean',
+            'usa_medicacao'      => 'required|boolean',
+
         ]);
-        
-        // Checa existência
+        // Verifica se já existe
         $jaCadastrado = Aluno::where('nome', $data['nome'])
-            ->where('user_id', $user->id)
+            ->where('user_id', $userId)
             ->where('instituicao_id', $instituicaoId)
             ->exists();
 
@@ -165,12 +241,12 @@ class AlunoController extends Controller
                 ->withInput();
         }
 
-        // gera matrícula só para novos alunos
+        // Gera matrícula
         $sigla     = strtoupper(substr($user->instituicao->nome, 0, 3));
         $uid       = Str::random(7);
         $matricula = "{$sigla}-{$uid}";
 
-        // 4. firstOrCreate: busca pelo aluno já existente
+        // Cria aluno
         $aluno = Aluno::firstOrCreate(
             [
                 'nome'           => $data['nome'],
@@ -182,14 +258,27 @@ class AlunoController extends Controller
             ]
         );
 
-        // 5. registra a nova análise
+        // Registra análise completa
         $aluno->analises()->create([
-            'arremesso'   => $data['arremesso'],
-            'passe'       => $data['passe'],
-            'marcacao'    => $data['marcacao'],
-            'bandeja'     => $data['bandeja'],
-            'rebote'      => $data['rebote'],
-            'dominio'     => $data['dominio'],
+            'arremesso'          => $data['arremesso'],
+            'passe'              => $data['passe'],
+            'marcacao'           => $data['marcacao'],
+            'bandeja'            => $data['bandeja'],
+            'rebote'             => $data['rebote'],
+            'dominio'            => $data['dominio'],
+            'envergadura'        => $data['envergadura'],
+            'velocidade'         => $data['velocidade'],
+            'agilidade'          => $data['agilidade'],
+            'salto_horizontal'   => $data['salto_horizontal'],
+            'resistencia'        => $data['resistencia'],
+            'massa_magra_kg'     => $data['massa_magra_kg'],
+            'massa_adiposa_kg'   => $data['massa_adiposa_kg'],
+            'massa_magra_pct'    => $data['massa_magra_pct'],
+            'massa_adiposa_pct'  => $data['massa_adiposa_pct'],
+            'peso_residual_kg'   => $data['peso_residual_kg'],
+            'problema_saude'     => $data['problema_saude'],
+            'atestado_valido'    => $data['atestado_valido'],
+            'usa_medicacao'      => $data['usa_medicacao'],
         ]);
 
         return redirect()
@@ -258,6 +347,73 @@ class AlunoController extends Controller
             'aluno'    => $aluno,
             'atual'    => $analises[0],
             'anterior' => $analises[1],
+        ]);
+    }
+
+    public function fetchExtras($matricula)
+    {
+        $aluno = Aluno::where('matricula', $matricula)->firstOrFail();
+
+        $analise = $aluno->analises()->latest()->take(2)->get();
+        $analiseAtual = $analise->first();
+        $analiseAnterior = $analise->count() > 1 ? $analise->last() : null;
+
+        if (!$analise) {
+            return response()->json(['error' => 'Nenhuma análise encontrada.'], 404);
+        }
+        return response()->json([
+            'fisico' => [
+                'labels' => [
+                    'Envergadura',
+                    'Velocidade',
+                    'Agilidade',
+                    'Salto Horizontal',
+                    'Resistência'
+                ],
+                'anterior' => [
+                    $analiseAnterior?->envergadura,
+                    $analiseAnterior?->velocidade,
+                    $analiseAnterior?->agilidade,
+                    $analiseAnterior?->salto_horizontal,
+                    $analiseAnterior?->resistencia
+                ],
+                'atual' => [
+                    $analiseAtual->envergadura,
+                    $analiseAtual->velocidade,
+                    $analiseAtual->agilidade,
+                    $analiseAtual->salto_horizontal,
+                    $analiseAtual->resistencia
+                ]
+            ],
+            'clinico' => [
+                'labels' => [
+                    'Massa Magra (kg)',
+                    'Massa Adiposa (kg)',
+                    'Massa Magra (%)',
+                    'Massa Adiposa (%)',
+                    'Peso Residual (kg)'
+                ],
+                'anterior' => [
+                    $analiseAnterior?->massa_magra_kg,
+                    $analiseAnterior?->massa_adiposa_kg,
+                    $analiseAnterior?->massa_magra_pct,
+                    $analiseAnterior?->massa_adiposa_pct,
+                    $analiseAnterior?->peso_residual_kg
+                ],
+                'atual' => [
+                    $analiseAtual->massa_magra_kg,
+                    $analiseAtual->massa_adiposa_kg,
+                    $analiseAtual->massa_magra_pct,
+                    $analiseAtual->massa_adiposa_pct,
+                    $analiseAtual->peso_residual_kg
+                ]
+            ],
+            'classificacao' => match (true) {
+                $analiseAtual->massa_adiposa_pct < 5  => 'Muito Baixo',
+                $analiseAtual->massa_adiposa_pct < 10 => 'Baixo',
+                $analiseAtual->massa_adiposa_pct < 16 => 'Ideal',
+                default                                => 'Acima do Ideal',
+            }
         ]);
     }
 }

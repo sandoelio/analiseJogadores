@@ -29,11 +29,11 @@
         ====================================================== */
         @media (max-width: 576px) {
             .usuarios-create-wrapper {
-                max-height: calc(100vh - 112px); /* header + footer */
+                max-height: calc(100vh - 170px); /* header + footer */
                 margin-top: 1px;                 /* compensa header fixo */
                 margin-bottom: 56px;             /* compensa footer fixo */
                 overflow-y: auto;
-                overflow-x: hidden;              /* bloqueia scroll lateral */
+                /*overflow-x: hidden;              /* bloqueia scroll lateral */
                 padding: 0 1rem;                 /* padding completo */
                 box-sizing: border-box;          /* inclui padding na largura */
             }

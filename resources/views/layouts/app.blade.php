@@ -129,7 +129,7 @@
                         $dashboardRoute = Auth::user()->is_admin ? 'admin.dashboard' : 'tecnico.dashboard';
                     @endphp
                     <a href="{{ route($dashboardRoute) }}" class="btn btn-sm btn-outline-light me-2 my-2 my-md-0"
-                        style="background: transparent; border-color: #fff; color: #fff; z-index: 1100;">
+                        style="background: transparent; border-color: #fff; color: #fff; z-index: 1040;">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
                 @endauth
