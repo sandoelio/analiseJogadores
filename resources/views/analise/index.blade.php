@@ -12,7 +12,7 @@
         #graficoClinico {
             width: 100% !important;
             max-width: 600px;
-            min-height: 300px;
+            min-height: 290px;
             height: auto !important;
             display: block;
             margin: 0 auto;
@@ -111,7 +111,7 @@
             /* limita a largura do card de gráfico e centraliza */
             .chart-wrapper {
                 max-width: 600px;
-                margin: 1.5rem auto 2rem;
+                margin: 0.5rem auto 2rem;
             }
         }
     </style>
@@ -223,7 +223,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <canvas id="graficoFisico" style="max-height:400px;"></canvas>
+                    <canvas id="graficoFisico"></canvas>
                 </div>
             </div>
         </div>
@@ -238,7 +238,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <canvas id="graficoClinico" style="max-height:400px;"></canvas>
+                    <canvas id="graficoClinico" style="max-height:350px;"></canvas>
                     <div class="mt-3 text-center">
                         <strong>Classificação:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
                     </div>
@@ -340,14 +340,14 @@
                                     datasets: [{
                                             label: 'Anterior',
                                             data: data.anterior,
-                                            backgroundColor: 'rgba(255,159,64,0.8)',
+                                            backgroundColor: 'rgba(255,159,64,0.7)',
                                             borderRadius: 4,
                                             maxBarThickness: 50
                                         },
                                         {
                                             label: 'Atual',
                                             data: data.atual,
-                                            backgroundColor: 'rgba(54,162,235,0.8)',
+                                            backgroundColor: 'rgba(75,192,192,0.8)',
                                             borderRadius: 4,
                                             maxBarThickness: 50
                                         }
@@ -368,7 +368,7 @@
                                         },
                                         y: {
                                             beginAtZero: true,
-                                            suggestedMax: 100,
+                                            suggestedMax: 20,
                                             ticks: {
                                                 stepSize: 10,
                                                 font: {
@@ -451,6 +451,7 @@
                                         beginAtZero: true,
                                         ticks: {
                                             callback: value => Number.isInteger(value) ? value : ''
+                                            
                                         }
                                     }
                                 },
@@ -480,14 +481,14 @@
                                 datasets: [{
                                         label: 'Anterior',
                                         data: data.clinico.anterior,
-                                        backgroundColor: 'rgba(255,99,132,0.6)',
+                                       backgroundColor: 'rgba(255,159,64,0.7)',
                                         borderRadius: 4,
                                         maxBarThickness: 50
                                     },
                                     {
                                         label: 'Atual',
                                         data: data.clinico.atual,
-                                        backgroundColor: 'rgba(54,162,235,0.7)',
+                                        backgroundColor: 'rgba(75,192,192,0.8)',
                                         borderRadius: 4,
                                         maxBarThickness: 50
                                     }
