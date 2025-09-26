@@ -247,6 +247,12 @@
 
 @push('scripts')
     <script>
+
+        // Injeta a rota com placeholder
+        window.routes = {
+            lastAnalysis: "{{ route('aluno.lastAnalysis', ['aluno' => '__ID__']) }}"
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const select = document.getElementById('aluno_select');
             if (!select) return;
@@ -283,7 +289,7 @@
                 const id = select.value;
                 if (!id) return;
 
-                fetch(`{{ url('/aluno') }}/${id}/ultima-analise`)
+               fetch(window.routes.lastAnalysis.replace('__ID__', id))
                     .then(res => res.json())
                     .then(data => {
                         // Preenche e libera técnicos
