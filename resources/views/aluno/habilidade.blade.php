@@ -143,7 +143,8 @@
                                                 {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
                                             </label>
                                             <input type="number" id="{{ $campo }}" name="{{ $campo }}"
-                                                class="form-control" value="" min="0" max="10" readonly>
+                                                class="form-control" value="" min="0" max="10"
+                                                step="1" readonly>
                                         </div>
                                     @endforeach
                                 </div>
@@ -162,7 +163,7 @@
                                         <div class="col-6">
                                             <label for="{{ $campo }}" class="form-label">{{ $label }}</label>
                                             <input type="number" id="{{ $campo }}" name="{{ $campo }}"
-                                                class="form-control" value="" min="0" max="100" readonly>
+                                                class="form-control" value="" min="0" step="any" readonly>
                                         </div>
                                     @endforeach
                                 </div>
@@ -182,7 +183,7 @@
                                             <label for="{{ $campo }}"
                                                 class="form-label">{{ $label }}</label>
                                             <input type="number" id="{{ $campo }}" name="{{ $campo }}"
-                                                class="form-control" value="" min="0" max="100" readonly>
+                                                class="form-control" value="" min="0" step="any" readonly>
                                         </div>
                                     @endforeach
                                 </div>
@@ -247,7 +248,6 @@
 
 @push('scripts')
     <script>
-
         // Injeta a rota com placeholder
         window.routes = {
             lastAnalysis: "{{ route('aluno.lastAnalysis', ['aluno' => '__ID__']) }}"
@@ -289,7 +289,7 @@
                 const id = select.value;
                 if (!id) return;
 
-               fetch(window.routes.lastAnalysis.replace('__ID__', id))
+                fetch(window.routes.lastAnalysis.replace('__ID__', id))
                     .then(res => res.json())
                     .then(data => {
                         // Preenche e libera técnicos
@@ -341,6 +341,15 @@
                     })
                     .catch(() => alert('Não foi possível carregar a última análise.'));
             });
+            
+            // Auto-hide success alert
+            const alert = document.querySelector('.alert-success');
+            if (alert) {
+                setTimeout(() => {
+                    alert.classList.add('fade');
+                    alert.classList.remove('show');
+                }, 5000); // 5 segundos
+            }
         });
     </script>
 @endpush

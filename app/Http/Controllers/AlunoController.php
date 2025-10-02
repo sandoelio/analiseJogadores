@@ -204,12 +204,12 @@ class AlunoController extends Controller
         // Validação completa
         $data = $request->validate([
             'nome'               => 'required|string|max:255',
-            'arremesso'          => 'required|integer|between:0,100',
-            'passe'              => 'required|integer|between:0,100',
-            'marcacao'           => 'required|integer|between:0,100',
-            'bandeja'            => 'required|integer|between:0,100',
-            'rebote'             => 'required|integer|between:0,100',
-            'dominio'            => 'required|integer|between:0,100',
+            'arremesso'          => 'required|integer|between:0,10',
+            'passe'              => 'required|integer|between:0,10',
+            'marcacao'           => 'required|integer|between:0,10',
+            'bandeja'            => 'required|integer|between:0,10',
+            'rebote'             => 'required|integer|between:0,10',
+            'dominio'            => 'required|integer|between:0,10',
 
             // Atributos físicos (float → numeric)
             'envergadura'        => 'required|numeric|min:0',
@@ -221,8 +221,8 @@ class AlunoController extends Controller
             // Composição corporal (float → numeric)
             'massa_magra_kg'     => 'required|numeric|min:0',
             'massa_adiposa_kg'   => 'required|numeric|min:0',
-            'massa_magra_pct'    => 'required|numeric|min:0|max:100',
-            'massa_adiposa_pct'  => 'required|numeric|min:0|max:100',
+            'massa_magra_pct'    => 'required|numeric|min:0',
+            'massa_adiposa_pct'  => 'required|numeric|min:0',
             'peso_residual_kg'   => 'required|numeric|min:0',
             'problema_saude'     => 'required|boolean',
             'atestado_valido'    => 'required|boolean',
