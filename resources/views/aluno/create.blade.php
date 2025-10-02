@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Novo Aluno / Análise')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
   <style>

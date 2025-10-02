@@ -1,7 +1,7 @@
 {{-- resources/views/aluno/comparativo.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Comparativo de Análise — ' . $aluno->nome)
+@section('title', 'Análise de Desempenhos — ' . $aluno->nome)
 
 @section('content')
 <div class="row mb-4">

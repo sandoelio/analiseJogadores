@@ -1,7 +1,7 @@
 {{-- resources/views/analise/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Análise individual')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
     <style>
@@ -481,7 +481,7 @@
                                 datasets: [{
                                         label: 'Anterior',
                                         data: data.clinico.anterior,
-                                       backgroundColor: 'rgba(255,159,64,0.7)',
+                                        backgroundColor: 'rgba(255,159,64,0.7)',
                                         borderRadius: 4,
                                         maxBarThickness: 50
                                     },

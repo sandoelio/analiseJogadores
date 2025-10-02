@@ -1,7 +1,7 @@
 {{-- resources/views/aluno/habilidade.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Atualizar Atleta')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
     <style>

@@ -1,7 +1,7 @@
 {{-- resources/views/comparar/grafico.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Comparar Gráfico')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
 <style>

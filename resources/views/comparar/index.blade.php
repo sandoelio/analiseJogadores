@@ -1,7 +1,7 @@
 {{-- resources/views/comparativo/narracao.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Narração Atletas')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
     <style>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Admin')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
     <style>

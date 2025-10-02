@@ -1,7 +1,7 @@
 {{-- resources/views/aluno/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Alunos Cadastrados')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
     <style>

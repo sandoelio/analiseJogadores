@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@yield('title', 'Análises de Atletas')</title>
+    <title>@yield('title', 'Análise de Desempenhos')</title>
 
     <link rel="icon" sizes="16x16" href="{{ asset('imagem/LOGO1.png') }}" type="image/png">
 
@@ -106,7 +106,7 @@
             <div class="d-flex align-items-center mb-2 mb-md-0">
                 <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana"
                     style="height: 48px; width: auto; object-fit: contain;" class="me-3" loading="lazy">
-                <h1 class="h4 text-white m-0">Análises de Atletas</h1>
+                <h1 class="h4 text-white m-0">Análises de desempenhos</h1>
             </div>
 
             {{-- Dashboard + Logout de Atleta + Toggler juntos --}}

@@ -1,7 +1,7 @@
 {{-- resources/views/comparar/resultado.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Resultado do Duelo')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
 <style>
