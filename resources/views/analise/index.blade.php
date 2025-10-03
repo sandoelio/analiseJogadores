@@ -202,7 +202,14 @@
                         onclick="carregarGraficosExtras(document.getElementById('aluno').value)">
                         <i class="bi bi-clipboard2-heart"></i>
                     </button>
+
+                    <!-- Botão Linha do Tempo -->
+                    <button class="btn btn-lg btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalTimeline"
+                        onclick="carregarTimeline(document.getElementById('aluno').value)">
+                        <i class="bi bi-clock-history"></i>
+                    </button>
                 @endif
+
             </div>
 
             <div class="card-body p-3 d-flex justify-content-center" style="min-height:320px;position:relative;">
@@ -242,6 +249,60 @@
                     <div class="mt-3 text-center">
                         <strong>Classificação:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal: Linha do Tempo --}}
+    <div class="modal fade" id="modalTimeline" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Linha do Tempo do Atleta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="overlay-timeline" class="overlay-spinner d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+
+                    <div id="timeline-empty" class="text-center my-4 d-none">
+                        <p class="text-muted">Nenhum evento encontrado para este atleta.</p>
+                    </div>
+
+                    <div id="timeline-container">
+                        {{-- O JS irá injetar aqui o conteúdo agrupado por ano/mês --}}
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal: Detalhes do Evento --}}
+    <div class="modal fade" id="modalEventoDetalhes" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes do Evento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="overlay-evento" class="overlay-spinner d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+
+                    <div id="detalhes-conteudo">
+                        {{-- Conteúdo injetado pelo JS --}}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
         </div>
@@ -451,7 +512,7 @@
                                         beginAtZero: true,
                                         ticks: {
                                             callback: value => Number.isInteger(value) ? value : ''
-                                            
+
                                         }
                                     }
                                 },
@@ -532,6 +593,473 @@
                         alert('Erro ao carregar dados físicos e clínicos.');
                     });
             };
+
+
+            // ------------------------------------------------
+            // Linha do tempo
+            // ------------------------------------------------
+
+            const baseURL = window.location.origin;
+            const tplTimelineBase = `${baseURL}/analise/timeline`; // /analise/timeline/{matricula}
+            const tplEventBase = `${baseURL}/analise/timeline/event`; // /analise/timeline/event/{id}
+
+            // Formata data ISO para DD/MM/YYYY HH:mm:ss
+            function formatDateBR(iso) {
+                const d = new Date(iso);
+                const pad = n => String(n).padStart(2, '0');
+                return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+            }
+
+            // Renderiza rótulo do item: Criado ou Atualizado + data
+            function labelEvento(evento, iso) {
+                const formatted = formatDateBR(iso);
+
+                // Criação do atleta
+                if (evento === 'created') {
+                    return `Criado - ${formatted}`;
+                }
+
+                // Criação de análise (novo conjunto de atributos)
+                if (evento === 'analise_created' || evento === 'analise_create') {
+                    return `Atualizado - ${formatted}`;
+                }
+
+                // Atualizações explícitas (ajuste conforme seus nomes reais no DB)
+                const updateEvents = ['updated', 'analise_updated', 'analise_update'];
+                if (updateEvents.includes(evento)) {
+                    return `Atualizado - ${formatted}`;
+                }
+
+                // Fallback: se o evento contiver 'update' ou 'alter' tratamos como atualizado
+                if (String(evento).toLowerCase().includes('update') || String(evento).toLowerCase().includes(
+                        'alter')) {
+                    return `Atualizado - ${formatted}`;
+                }
+
+                return `${evento} - ${formatted}`;
+            }
+
+            // carregar timeline
+            window.carregarTimeline = function(matricula) {
+                const overlay = document.getElementById('overlay-timeline');
+                const container = document.getElementById('timeline-container');
+                const empty = document.getElementById('timeline-empty');
+
+                if (!matricula) {
+                    container.innerHTML = '';
+                    empty.classList.remove('d-none');
+                    return;
+                }
+
+                overlay.classList.remove('d-none');
+                container.innerHTML = '';
+                empty.classList.add('d-none');
+
+                const url = `${tplTimelineBase}/${encodeURIComponent(matricula)}`;
+
+                fetch(url)
+                    .then(r => {
+                        if (!r.ok) throw new Error('Fetch error');
+                        return r.json();
+                    })
+                    .then(json => {
+                        overlay.classList.add('d-none');
+                        const events = json.events || [];
+
+                        if (!events.length) {
+                            empty.classList.remove('d-none');
+                            return;
+                        }
+
+                        // agrupa por mês+ano (ex: Setembro de 2025)
+                        const grouped = {};
+                        events.forEach(ev => {
+                            const dt = new Date(ev.created_at);
+                            const monthLabel = dt.toLocaleString('pt-BR', {
+                                month: 'long',
+                                year: 'numeric'
+                            }); // "setembro de 2025"
+                            grouped[monthLabel] = grouped[monthLabel] || [];
+                            grouped[monthLabel].push(ev);
+                        });
+
+                        // renderizar apenas mês+ano como header e listar eventos daquele mês
+                        let html = '';
+                        Object.keys(grouped).sort((a, b) => {
+                            // ordenar por data: transformar mês ano em Date comparável pegando primeiro dia
+                            const toKey = s => new Date(s.split(' de ').reverse().join('-') +
+                                '-01');
+                            return toKey(b) - toKey(a);
+                        }).forEach(monthLabel => {
+                            html +=
+                                `<h5 class="mt-3">${monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}</h5>`;
+                            html += '<ul class="list-group mb-2">';
+                            grouped[monthLabel].forEach(ev => {
+                                const timeLabel = labelEvento(ev.evento, ev.created_at);
+                                const user = ev.changed_by ?
+                                    `<small class="text-muted"> — por ${ev.changed_by}</small>` :
+                                    '';
+
+                                // resumo breve: não exibir todos os atributos inline — apenas uma descrição curta
+                                let resumoBreve = '';
+                                if (ev.evento === 'analise_created') resumoBreve =
+                                    'Atleta Atualizado';
+                                else if (ev.evento === 'created') resumoBreve =
+                                    'Atleta criado';
+                                else {
+                                    // para eventos de update tente extrair chaves alteradas se disponíveis no payload
+                                    if (ev.dados && typeof ev.dados === 'object') {
+                                        const keys = Object.keys(ev.dados);
+                                        resumoBreve = keys.length ?
+                                            `Campos: ${keys.join(', ')}` : '';
+                                    }
+                                }
+
+                                html += `
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="me-2">
+                                        <div><strong>${timeLabel}</strong>${user}</div>
+                                        <div class="mt-1 text-muted"><small>${resumoBreve}</small></div>
+                                    </div>
+                                    <div class="text-end">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="verDetalhesEvento('${ev.id}', '${ev.evento}')">Detalhes</button>
+                                    </div>
+                                    </li>`;
+                            });
+                            html += '</ul>';
+                        });
+
+                        container.innerHTML = html;
+                    })
+                    .catch(() => {
+                        overlay.classList.add('d-none');
+                        container.innerHTML =
+                            '<div class="alert alert-danger">Erro ao carregar a linha do tempo.</div>';
+                    });
+            };
+            // Carrega detalhes do evento e exibe modal com conteúdo específico
+            window.verDetalhesEvento = function(id, evento) {
+                const overlay = document.getElementById('overlay-evento');
+                const conteudo = document.getElementById('detalhes-conteudo');
+                const modalEl = new bootstrap.Modal(document.getElementById('modalEventoDetalhes'));
+
+                overlay.classList.remove('d-none');
+                conteudo.innerHTML = '';
+
+                fetch(`${tplEventBase}/${encodeURIComponent(id)}`)
+                    .then(r => {
+                        if (!r.ok) throw new Error('Fetch error');
+                        return r.json();
+                    })
+                    .then(json => {
+                        
+                        overlay.classList.add('d-none');
+
+                        // detectar se existe diff válido
+                        const hasDiff = json && json.dados && json.dados.diff && typeof json.dados.diff ===
+                            'object' && Object.keys(json.dados.diff).length > 0;
+
+                        // tratar analise_created com diff como 'updated' para exibir somente o diff
+                        const effectiveEvento = (evento === 'analise_created' && hasDiff) ? 'updated' :
+                            evento;
+
+                        // montar HTML com o evento efetivo
+                        const html = buildDetalhesHtml(json, effectiveEvento);
+                        conteudo.innerHTML = html;
+
+                        modalEl.show();
+                    })
+                    .catch(() => {
+                        overlay.classList.add('d-none');
+                        conteudo.innerHTML =
+                            '<div class="alert alert-danger">Erro ao carregar detalhes do evento.</div>';
+                        modalEl.show();
+                    });
+
+            };
+
+            // Constrói o HTML do modal com prioridade para dados.diff quando presente
+            function buildDetalhesHtml(json, evento) {
+                const createdInfo =
+                    `<div class="mb-2"><strong>Data:</strong> ${formatDateBR(json.created_at)} ${json.changed_by ? ' — por ' + escapeHtml(json.changed_by) : ''}</div>`;
+                let html = createdInfo;
+                const d = json.dados || {};
+                if (!d || typeof d !== 'object') {
+                    html += '<div class="text-muted">Nenhum dado disponível.</div>';
+                    return html;
+                }
+
+                // Se existir diff: filtrar entradas onde antes !== depois (comparação tolerante) e renderizar apenas as mudanças reais
+                if (d && d.diff && typeof d.diff === 'object' && Object.keys(d.diff).length) {
+                    // normaliza um valor para comparação (null/undefined ficam null)
+                    const normalize = v => {
+                        if (v === null || v === undefined) return null;
+                        if (typeof v === 'boolean') return v;
+                        // tenta converter string numérica para número para comparação numérica
+                        if (typeof v === 'string' && v !== '' && !isNaN(v)) return Number(v);
+                        return v;
+                    };
+
+                    // retorna true se valores realmente diferentes
+                    const changed = (a, b) => {
+                        const na = normalize(a);
+                        const nb = normalize(b);
+                        // tratamento especial: null vs '' considera diferente
+                        if (na === null && nb === null) return false;
+                        if (typeof na === 'number' && typeof nb === 'number') return na !== nb;
+                        if (typeof na === 'boolean' || typeof nb === 'boolean') return na !== nb;
+                        // fallback string compare
+                        return String(na) !== String(nb);
+                    };
+
+                    // construir um diff filtrado contendo apenas campos que mudaram
+                    const filteredDiff = {};
+                    Object.entries(d.diff).forEach(([key, value]) => {
+                        // caso value seja um campo direto {antes,depois}
+                        if (value && typeof value === 'object' && ('antes' in value || 'depois' in value)) {
+                            if (changed(value.antes, value.depois)) {
+                                filteredDiff[key] = value;
+                            }
+                            return;
+                        }
+
+                        // caso value seja grupo (tecnicos, fisicos, etc)
+                        if (value && typeof value === 'object') {
+                            const groupObj = {};
+                            Object.entries(value).forEach(([campo, vals]) => {
+                                // vals esperado {antes,depois} ou pode ter outras formas; tratar defensivamente
+                                const antes = vals && (vals.antes !== undefined) ? vals.antes : (d
+                                    .antes && d.antes[campo] !== undefined ? d.antes[campo] :
+                                    null);
+                                const depois = vals && (vals.depois !== undefined) ? vals.depois : (
+                                    d.depois && d.depois[campo] !== undefined ? d.depois[
+                                    campo] : null);
+                                if (changed(antes, depois)) {
+                                    groupObj[campo] = {
+                                        antes: antes === undefined ? null : antes,
+                                        depois: depois === undefined ? null : depois
+                                    };
+                                }
+                            });
+                            if (Object.keys(groupObj).length) filteredDiff[key] = groupObj;
+                            return;
+                        }
+                    });
+
+                    // se após filtragem não houver mudanças reais, sair (mostrar fallback/payload)
+                    if (!Object.keys(filteredDiff).length) {
+                        // cai para o comportamento sem diff (primeira análise ou payload completo)
+                    } else {
+                        html += '<h6>Campos alterados</h6><ul class="list-group mb-2">';
+                        Object.entries(filteredDiff).forEach(([key, value]) => {
+                            // campo direto
+                            if (value && typeof value === 'object' && ('antes' in value || 'depois' in
+                                    value)) {
+                                const antes = value.antes === null || value.antes === undefined ? '—' :
+                                    escapeHtml(String(value.antes));
+                                const depois = value.depois === null || value.depois === undefined ? '—' :
+                                    escapeHtml(String(value.depois));
+                                html += `<li class="list-group-item">
+                            <div class="fw-semibold">${escapeHtml(key)}</div>
+                            <div class="small text-muted">Antes: <code>${antes}</code></div>
+                            <div class="small">Depois: <code>${depois}</code></div>
+                         </li>`;
+                                return;
+                            }
+
+                            // grupo com campos
+                            if (value && typeof value === 'object') {
+                                html +=
+                                    `<li class="list-group-item"><strong>${escapeHtml(key)}</strong><ul class="mt-2">`;
+                                Object.entries(value).forEach(([campo, vals]) => {
+                                    const antesStr = vals.antes === null || vals.antes ===
+                                        undefined ? '—' : escapeHtml(String(vals.antes));
+                                    const depoisStr = vals.depois === null || vals.depois ===
+                                        undefined ? '—' : escapeHtml(String(vals.depois));
+                                    html += `<li class="mb-2">
+                                <div class="fw-semibold">${escapeHtml(campo)}</div>
+                                <div class="small text-muted">Antes: <code>${antesStr}</code></div>
+                                <div class="small">Depois: <code>${depoisStr}</code></div>
+                             </li>`;
+                                });
+                                html += '</ul></li>';
+                                return;
+                            }
+                        });
+                        html += '</ul>';
+                        return html; // retorna só as mudanças reais
+                    }
+                }
+
+                // Se NÃO houver diff: comportamentos normais (primeira análise ou outros eventos)
+                if ((evento === 'analise_created' || evento === 'create' || evento === 'created') && (d.tecnicos ||
+                        d.fisicos || d.composicao || d.saude)) {
+                    if (d.tecnicos) {
+                        html += '<h6>Técnicos</h6><ul class="list-group mb-2">';
+                        Object.entries(d.tecnicos).forEach(([k, v]) => {
+                            html +=
+                                `<li class="list-group-item d-flex justify-content-between"><span>${escapeHtml(k)}</span><strong>${escapeHtml(String(v))}</strong></li>`;
+                        });
+                        html += '</ul>';
+                    }
+                    if (d.fisicos) {
+                        html += '<h6>Físicos</h6><ul class="list-group mb-2">';
+                        Object.entries(d.fisicos).forEach(([k, v]) => {
+                            html +=
+                                `<li class="list-group-item d-flex justify-content-between"><span>${escapeHtml(k)}</span><strong>${escapeHtml(String(v))}</strong></li>`;
+                        });
+                        html += '</ul>';
+                    }
+                    if (d.composicao) {
+                        html += '<h6>Composição Corporal</h6><ul class="list-group mb-2">';
+                        Object.entries(d.composicao).forEach(([k, v]) => {
+                            html +=
+                                `<li class="list-group-item d-flex justify-content-between"><span>${escapeHtml(k)}</span><strong>${escapeHtml(String(v))}</strong></li>`;
+                        });
+                        html += '</ul>';
+                    }
+                    if (d.saude) {
+                        html += '<h6>Saúde</h6><ul class="list-group mb-2">';
+                        Object.entries(d.saude).forEach(([k, v]) => {
+                            html +=
+                                `<li class="list-group-item d-flex justify-content-between"><span>${escapeHtml(k)}</span><strong>${escapeHtml(String(v))}</strong></li>`;
+                        });
+                        html += '</ul>';
+                    }
+                    return html;
+                }
+
+                // evento created de aluno: mostrar nome/matrícula/instituição
+                if (evento === 'created' && json.aluno) {
+                    const aluno = json.aluno;
+                    html += `<dl class="row">
+                    <dt class="col-sm-4">Nome</dt><dd class="col-sm-8">${escapeHtml(aluno.nome ?? '—')}</dd>
+                    <dt class="col-sm-4">Matrícula</dt><dd class="col-sm-8">${escapeHtml(aluno.matricula ?? '—')}</dd>
+                    <dt class="col-sm-4">Instituição</dt><dd class="col-sm-8">${escapeHtml(aluno.instituicao ?? '—')}</dd>
+                </dl>`;
+                    return html;
+                }
+
+                // fallback: mostrar raw pequeno
+                html += '<pre class="small bg-light p-2">' + escapeHtml(JSON.stringify(d, null, 2)) + '</pre>';
+                return html;
+            }
+
+            // helper para ler valores com tolerância a estruturas diferentes
+            function safeGetAntesDepois(dDiff, grupo, campo) {
+                const fallback = {
+                    antes: null,
+                    depois: null
+                };
+                if (!dDiff || typeof dDiff !== 'object') return fallback;
+
+                // aliases possíveis para before/after
+                const beforeKeys = ['antes', 'before', 'old', 'old_value', 'previous'];
+                const afterKeys = ['depois', 'after', 'new', 'new_value', 'current', 'value'];
+
+                // tenta dDiff[grupo][campo] padrão
+                if (dDiff[grupo] && typeof dDiff[grupo] === 'object' && dDiff[grupo][campo]) {
+                    const val = dDiff[grupo][campo];
+                    if (val && typeof val === 'object') {
+                        // procura chaves conhecidas
+                        let antes = null,
+                            depois = null;
+                        for (const k of beforeKeys)
+                            if (val[k] !== undefined) {
+                                antes = val[k];
+                                break;
+                            }
+                        for (const k of afterKeys)
+                            if (val[k] !== undefined) {
+                                depois = val[k];
+                                break;
+                            }
+                        // se encontrou ao menos um, retorna
+                        if (antes !== null || depois !== null) return {
+                            antes: antes ?? null,
+                            depois: depois ?? null
+                        };
+                        // se val é array [antes,depois] ou [depois]
+                        if (Array.isArray(val) && val.length) return {
+                            antes: val[0] ?? null,
+                            depois: val[1] ?? null
+                        };
+                    }
+                }
+
+                // dDiff[campo] sem grupo
+                if (dDiff[campo] && typeof dDiff[campo] === 'object') {
+                    const val = dDiff[campo];
+                    let antes = null,
+                        depois = null;
+                    for (const k of beforeKeys)
+                        if (val[k] !== undefined) {
+                            antes = val[k];
+                            break;
+                        }
+                    for (const k of afterKeys)
+                        if (val[k] !== undefined) {
+                            depois = val[k];
+                            break;
+                        }
+                    if (antes !== null || depois !== null) return {
+                        antes: antes ?? null,
+                        depois: depois ?? null
+                    };
+                }
+
+                // checar se dDiff.depois existe e tem estrutura de grupo->campo (caso gravado com 'depois' separado)
+                if (dDiff.depois && dDiff.depois[grupo] && dDiff.depois[grupo][campo] !== undefined) {
+                    const depois = dDiff.depois[grupo][campo];
+                    const antes = (dDiff.antes && dDiff.antes[grupo] && dDiff.antes[grupo][campo] !== undefined) ?
+                        dDiff.antes[grupo][campo] : null;
+                    return {
+                        antes: antes ?? null,
+                        depois: depois ?? null
+                    };
+                }
+
+                // procurar nomes alternativos no primeiro nível (ex: tecnicos.arremesso: {old:.., new:..})
+                if (dDiff[grupo] && typeof dDiff[grupo] === 'object') {
+                    const maybe = dDiff[grupo][campo];
+                    if (maybe && typeof maybe === 'object') {
+                        for (const k of beforeKeys)
+                            if (maybe[k] !== undefined) {
+                                return {
+                                    antes: maybe[k],
+                                    depois: maybe[afterKeys.find(x => maybe[x] !== undefined)] ?? null
+                                };
+                            }
+                    }
+                }
+
+                return fallback;
+            }
+
+            // helper simples para escapar conteúdo antes de injetar no DOM
+            function escapeHtml(s) {
+                if (s === null || s === undefined) return '—';
+                if (typeof s !== 'string') return String(s);
+                return s.replace(/[&<>"'`=\/]/g, function(c) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '/': '&#x2F;',
+                    '`': '&#x60;',
+                        '=': '&#x3D;'
+                    } [c];
+                });
+            }
+
+            // limpar modal detalhes ao fechar
+            document.getElementById('modalEventoDetalhes')?.addEventListener('hidden.bs.modal', () => {
+                const conteudo = document.getElementById('detalhes-conteudo');
+                if (conteudo) conteudo.innerHTML = '';
+                document.getElementById('overlay-evento')?.classList.add('d-none');
+            });
 
             // ------------------------------------------------
             // Limpa gráficos ao fechar modais

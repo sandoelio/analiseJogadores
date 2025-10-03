@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aluno;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Models\AlunoHistory;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class AlunoController extends Controller
 {
@@ -61,72 +62,158 @@ class AlunoController extends Controller
      */
     public function updateHabilidade(Request $request)
     {
-        $data = $request->validate([
+        // validação permissiva: os campos podem ou não vir no request (só validar formato quando vierem)
+        $rules = [
             'aluno_id'           => 'required|exists:alunos,id',
 
-            // Habilidades Técnicas
-            'arremesso'          => 'required|integer|between:0,10',
-            'passe'              => 'required|integer|between:0,10',
-            'marcacao'           => 'required|integer|between:0,10',
-            'bandeja'            => 'required|integer|between:0,10',
-            'rebote'             => 'required|integer|between:0,10',
-            'dominio'            => 'required|integer|between:0,10',
+            'arremesso'          => 'sometimes|nullable|integer|between:0,10',
+            'passe'              => 'sometimes|nullable|integer|between:0,10',
+            'marcacao'           => 'sometimes|nullable|integer|between:0,10',
+            'bandeja'            => 'sometimes|nullable|integer|between:0,10',
+            'rebote'             => 'sometimes|nullable|integer|between:0,10',
+            'dominio'            => 'sometimes|nullable|integer|between:0,10',
 
-            // Atributos Físicos
-            'envergadura'        => 'required|numeric|min:0',
-            'velocidade'         => 'required|numeric|min:0',
-            'agilidade'          => 'required|numeric|min:0',
-            'salto_horizontal'   => 'required|numeric|min:0',
-            'resistencia'        => 'required|numeric|min:0|max:100',
+            'envergadura'        => 'sometimes|nullable|numeric|min:0',
+            'velocidade'         => 'sometimes|nullable|numeric|min:0',
+            'agilidade'          => 'sometimes|nullable|numeric|min:0',
+            'salto_horizontal'   => 'sometimes|nullable|numeric|min:0',
+            'resistencia'        => 'sometimes|nullable|numeric|min:0',
 
-            // Composição Corporal
-            'massa_magra_kg'     => 'required|numeric|min:0',
-            'massa_adiposa_kg'   => 'required|numeric|min:0',
-            'massa_magra_pct'    => 'required|numeric|min:0|max:100',
-            'massa_adiposa_pct'  => 'required|numeric|min:0|max:100',
-            'peso_residual_kg'   => 'required|numeric|min:0',
+            'massa_magra_kg'     => 'sometimes|nullable|numeric|min:0',
+            'massa_adiposa_kg'   => 'sometimes|nullable|numeric|min:0',
+            'massa_magra_pct'    => 'sometimes|nullable|numeric|min:0',
+            'massa_adiposa_pct'  => 'sometimes|nullable|numeric|min:0',
+            'peso_residual_kg'   => 'sometimes|nullable|numeric|min:0',
 
-            // Informações de Saúde
-            'problema_saude'     => 'required|boolean',
-            'atestado_valido'    => 'required|boolean',
-            'usa_medicacao'      => 'required|boolean',
-        ]);
+            'problema_saude'     => 'sometimes|nullable|boolean',
+            'atestado_valido'    => 'sometimes|nullable|boolean',
+            'usa_medicacao'      => 'sometimes|nullable|boolean',
+        ];
+
+        $data = $request->validate($rules);
 
         $aluno = Aluno::findOrFail($data['aluno_id']);
 
-        $aluno->analises()->create([
-            // Técnicas
-            'arremesso'          => $data['arremesso'],
-            'passe'              => $data['passe'],
-            'marcacao'           => $data['marcacao'],
-            'bandeja'            => $data['bandeja'],
-            'rebote'             => $data['rebote'],
-            'dominio'            => $data['dominio'],
+        // atributos completos que a tabela analises espera
+        $allAttrs = [
+            'arremesso',
+            'passe',
+            'marcacao',
+            'bandeja',
+            'rebote',
+            'dominio',
+            'envergadura',
+            'velocidade',
+            'agilidade',
+            'salto_horizontal',
+            'resistencia',
+            'massa_magra_kg',
+            'massa_adiposa_kg',
+            'massa_magra_pct',
+            'massa_adiposa_pct',
+            'peso_residual_kg',
+            'problema_saude',
+            'atestado_valido',
+            'usa_medicacao',
+        ];
 
-            // Físicos
-            'envergadura'        => $data['envergadura'],
-            'velocidade'         => $data['velocidade'],
-            'agilidade'          => $data['agilidade'],
-            'salto_horizontal'   => $data['salto_horizontal'],
-            'resistencia'        => $data['resistencia'],
+        // buscar ultima analise existente (para usar como base)
+        $ultima = $aluno->analises()->orderBy('created_at', 'desc')->first();
 
-            // Corporal
-            'massa_magra_kg'     => $data['massa_magra_kg'],
-            'massa_adiposa_kg'   => $data['massa_adiposa_kg'],
-            'massa_magra_pct'    => $data['massa_magra_pct'],
-            'massa_adiposa_pct'  => $data['massa_adiposa_pct'],
-            'peso_residual_kg'   => $data['peso_residual_kg'],
+        // montar um array base com valores padrões (null) ou da última análise
+        $base = [];
+        foreach ($allAttrs as $attr) {
+            if ($ultima) {
+                $base[$attr] = $ultima->{$attr};
+            } else {
+                $base[$attr] = null; // ou defina um default específico se preferir
+            }
+        }
 
-            // Saúde
-            'problema_saude'     => $data['problema_saude'],
-            'atestado_valido'    => $data['atestado_valido'],
-            'usa_medicacao'      => $data['usa_medicacao'],
-        ]);
+        // sobrescrever base com os valores enviados no request (somente os que vieram)
+        foreach ($allAttrs as $attr) {
+            if (array_key_exists($attr, $data)) {
+                $base[$attr] = $data[$attr];
+            }
+        }
+
+        // agora criar a nova análise com todos os campos (preenchidos parcialmente)
+        $analise = $aluno->analises()->create($base);
+
+        // montar payloadAtual organizado (como antes)
+        $payloadAtual = [
+            'tecnicos' => [
+                'arremesso' => $analise->arremesso,
+                'passe' => $analise->passe,
+                'marcacao' => $analise->marcacao,
+                'bandeja' => $analise->bandeja,
+                'rebote' => $analise->rebote,
+                'dominio' => $analise->dominio,
+            ],
+            'fisicos' => [
+                'envergadura' => $analise->envergadura,
+                'velocidade' => $analise->velocidade,
+                'agilidade' => $analise->agilidade,
+                'salto_horizontal' => $analise->salto_horizontal,
+                'resistencia' => $analise->resistencia,
+            ],
+            'composicao' => [
+                'massa_magra_kg' => $analise->massa_magra_kg,
+                'massa_adiposa_kg' => $analise->massa_adiposa_kg,
+                'massa_magra_pct' => $analise->massa_magra_pct,
+                'massa_adiposa_pct' => $analise->massa_adiposa_pct,
+                'peso_residual_kg' => $analise->peso_residual_kg,
+            ],
+            'saude' => [
+                'problema_saude' => $analise->problema_saude,
+                'atestado_valido' => $analise->atestado_valido,
+                'usa_medicacao' => $analise->usa_medicacao,
+            ],
+            'analise_id' => $analise->id,
+        ];
+
+        // calcular diff comparando com última análise (se existir)
+        $diff = [];
+        if ($ultima) {
+            $groups = [
+                'tecnicos' => ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'],
+                'fisicos' => ['envergadura', 'velocidade', 'agilidade', 'salto_horizontal', 'resistencia'],
+                'composicao' => ['massa_magra_kg', 'massa_adiposa_kg', 'massa_magra_pct', 'massa_adiposa_pct', 'peso_residual_kg'],
+                'saude' => ['problema_saude', 'atestado_valido', 'usa_medicacao'],
+            ];
+
+            foreach ($groups as $g => $attrs) {
+                foreach ($attrs as $a) {
+                    $antes = $ultima->{$a};
+                    $depois = $analise->{$a};
+                    // considerar diferença mesmo entre null e valor
+                    if ($antes !== $depois) {
+                        $diff[$g][$a] = ['antes' => $antes, 'depois' => $depois];
+                    }
+                }
+                if (empty($diff[$g])) unset($diff[$g]);
+            }
+        } else {
+            // primeira análise: opcionalmente considerar diff vazio (gravamos payload completo)
+            $diff = [];
+        }
+
+        // montar dados a gravar: gravar somente diff quando houver, senão payload completo
+        if (!empty($diff)) {
+            $dadosHistorico = ['diff' => $diff];
+        } else {
+            $dadosHistorico = $payloadAtual;
+        }
+
+        // registra usando o observer (mantém changed_by e timestamp consistente)
+        app(\App\Observers\AlunoObserver::class)
+            ->recordAnalise($aluno, $dadosHistorico, Auth::id(), $analise->created_at);
 
         return redirect()
             ->route('aluno.updateForm')
             ->with('success', "Nova análise registrada para {$aluno->nome}.");
     }
+
 
     /**
      * Exibe o formulário para criar uma nova habilidade.
@@ -305,7 +392,7 @@ class AlunoController extends Controller
         $aluno->update(['nome' => $data['nome']]);
 
         return redirect()
-            ->route('aluno.create')
+            ->route('aluno.index')
             ->with('success', "Nome do aluno atualizado para “{$aluno->nome}”.");
     }
 
