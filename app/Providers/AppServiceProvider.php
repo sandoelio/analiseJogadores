@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Gate;
 
 use App\Models\Aluno;
+use App\Models\AlunoHistory;
 use App\Policies\AlunoPolicy;
-use App\Models\User; 
+use App\Models\User;
+use App\Observers\AlunoObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        Aluno::observe(AlunoObserver::class);
     }
 
     /**
@@ -35,8 +37,11 @@ class AppServiceProvider extends ServiceProvider
 
         // define o Gate "tecnico-admin"
         Gate::define('tecnico-admin', function (User $user) {
-            // ajuste 'role' pro nome do campo que vc usa
+
             return in_array($user->role, ['admin', 'tecnico']);
         });
+
+        // registra o observer para o model Aluno
+        Aluno::observe(AlunoObserver::class);
     }
 }

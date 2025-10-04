@@ -1,7 +1,7 @@
 {{-- resources/views/public/dashboard.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Dashboard Público')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
 <style>

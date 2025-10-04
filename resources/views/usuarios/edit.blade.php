@@ -1,7 +1,7 @@
 {{-- resources/views/usuarios/edit.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Editar Usuário')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
 <style>

@@ -1,7 +1,7 @@
 {{-- resources/views/comparar/grafico.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Comparar Gráfico')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
 <style>
@@ -98,10 +98,10 @@
     <div class="container">
         <div class="central-column">
             {{-- Logo --}}
-            <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" class="back-logograph" loading="lazy">
+            {{-- <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" class="back-logograph" loading="lazy"> --}}
 
             {{-- Atleta 1 --}}
-            <select id="aluno1" class="form-select">
+            <select id="aluno1" class="form-select mt-2">
                 <option value="">Selecione o primeiro atleta</option>
                 @if ($instLog)
                     @foreach ($instLog->alunos as $aluno)

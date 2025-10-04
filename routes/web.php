@@ -7,9 +7,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Middleware\CheckAnySession;
 use App\Http\Controllers\AlunoController;
 use App\Http\Middleware\CheckAlunoSession;
-use App\Http\Controllers\AnaliseController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AlunoAuthController;
+use App\Http\Controllers\AlunoHistoryController;
 use App\Http\Controllers\AlunoPublicoController;
 use App\Http\Controllers\PublicDashboardController;
 use App\Http\Controllers\ComparativoGraficoController;
@@ -54,6 +54,9 @@ Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])->middlewar
 */
 Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function () {
 
+    Route::get('analise/timeline/{matricula}', [AlunoHistoryController::class, 'timelineJson'])->name('analise.timeline.json');
+
+    Route::get('analise/timeline/event/{id}', [AlunoHistoryController::class, 'eventJson'])->name('analise.timeline.event.json');
 
     Route::get('/analise/extras/{matricula}', [AlunoController::class, 'fetchExtras'])->name('analise.extras');
 
@@ -84,6 +87,7 @@ Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function (
 |--------------------------------------------------------------------------
 */
 Route::middleware([ CheckSession::class ])->group(function () {
+    
     Route::get('/alunos/cadastrados', [AlunoController::class, 'index'])->name('aluno.index');
 
     Route::get('/aluno/create', [AlunoController::class, 'create'])->name('aluno.create');
@@ -105,7 +109,9 @@ Route::middleware([ CheckSession::class ])->group(function () {
     Route::get('/aluno/comparativo/{aluno}', [AlunoController::class, 'showComparativo'])->name('aluno.comparativo');
 
     Route::get('/tecnico/dashboard', [AlunoController::class, 'dashboard'])->name('tecnico.dashboard');
+    
 });
+
 
 /*
 |--------------------------------------------------------------------------

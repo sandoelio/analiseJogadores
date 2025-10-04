@@ -1,7 +1,7 @@
 {{-- resources/views/usuarios/create.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Cadastrar Usuário')
+@section('title', 'Análise de Desempenhos')
 
 @push('styles')
     <style>
