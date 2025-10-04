@@ -710,8 +710,9 @@
                                     // para eventos de update tente extrair chaves alteradas se disponíveis no payload
                                     if (ev.dados && typeof ev.dados === 'object') {
                                         const keys = Object.keys(ev.dados);
-                                        resumoBreve = keys.length ?
-                                            `Campos: ${keys.join(', ')}` : '';
+                                        resumoBreve = 'Atleta Atualizado';
+                                        // keys.length ?
+                                        //     `Campos: ${keys.join(', ')}` : '';
                                     }
                                 }
 
@@ -752,7 +753,7 @@
                         return r.json();
                     })
                     .then(json => {
-                        
+
                         overlay.classList.add('d-none');
 
                         // detectar se existe diff válido
