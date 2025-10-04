@@ -54,7 +54,7 @@
         $instId = session('aluno_instituicao_id');
     @endphp
 
-    <div class="container my-4">
+    <div class="container my-2">
 
         {{-- Mensagem de erro --}}
         @if(session('error'))
@@ -62,15 +62,15 @@
         @endif
 
         {{-- Logo centralizada e menor --}}
-        <div class="text-center mb-0">
+        {{-- <div class="text-center mb-0">
             <img src="{{ asset('imagem/LOGO1.png') }}"
                  alt="Cesta Baiana"
                  class="back-logonarracao"
                  loading="lazy">
-        </div>
+        </div> --}}
 
         {{-- Formulário --}}
-        <div class="form-wrapper mt-4">
+        <div class="form-wrapper mt-2">
             {{-- overlay que aparece no submit --}}
             <div id="overlay-narracao" class="overlay-spinner d-none">
                 <div class="spinner-border text-primary" role="status"></div>
@@ -135,7 +135,7 @@
                 </div>
 
                 {{-- Botões --}}
-                <div class="row justify-content-center mt-4 g-3">
+                <div class="row justify-content-center mt-1 g-3">
                     <div class="col-auto">
                         <button id="btn-narracao"
                                 type="submit"

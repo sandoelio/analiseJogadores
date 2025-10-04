@@ -81,6 +81,182 @@
             margin: 0 auto;
         }
 
+        /* Timeline vertical base */
+        .timeline {
+            position: relative;
+            padding-left: 36px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* linha vertical */
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 14px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, rgba(0, 123, 255, 0.15), rgba(0, 0, 0, 0.04));
+            border-radius: 2px;
+        }
+
+        /* item da timeline */
+        .timeline-item {
+            position: relative;
+            padding: 10px 12px 10px 22px;
+            margin-bottom: 14px;
+            border-radius: 6px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        /* marcador circular */
+        .timeline-marker {
+            position: absolute;
+            left: 2px;
+            top: 14px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        /* cores por tipo */
+        .marker-created {
+            background: #28a745;
+        }
+
+        .marker-updated {
+            background: #0d6efd;
+        }
+
+        .marker-other {
+            background: #6c757d;
+        }
+
+        /* pequeno ícone dentro do círculo (usando pseudo texto) */
+        .timeline-marker i {
+            font-style: normal;
+            font-size: 12px;
+        }
+
+        /* conteúdo principal do card à direita */
+        .timeline-content {
+            margin-left: 44px;
+            width: 100%;
+        }
+
+        /* cabeçalho (time + user) */
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-time {
+            font-weight: 700;
+        }
+
+        .timeline-user {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* resumo curto */
+        .timeline-summary {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 6px;
+        }
+
+        /* botão detalhes alinhado à direita pequena margem */
+        .timeline-actions {
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+
+        /* destaque para evento do dia inicial */
+        .timeline-item:first-child .timeline-marker {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+            transform: scale(1.03);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            /* espaço padrão entre botões no desktop */
+            align-items: center;
+        }
+
+        /* Modal Timeline — fundo suave azul claro */
+        #modalTimeline .modal-content {
+            background: linear-gradient(180deg, #f0f8ff 0%, #ffffff 100%);
+            color: #0d2433;
+            border: 1px solid rgba(13, 37, 51, 0.06);
+            box-shadow: 0 8px 24px rgba(13, 37, 51, 0.08);
+        }
+
+        /* Modal Detalhes do Evento — fundo suave bege/creme */
+        #modalEventoDetalhes .modal-content {
+            background: linear-gradient(180deg, #fffaf0 0%, #ffffff 100%);
+            color: #342a1a;
+            border: 1px solid rgba(52, 42, 26, 0.06);
+            box-shadow: 0 8px 24px rgba(52, 42, 26, 0.06);
+        }
+
+        /* Ajustes opcionais: cabeçalho transparente para harmonizar com o novo fundo */
+        #modalTimeline .modal-header,
+        #modalEventoDetalhes .modal-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        /* Garantir leitura dos botões (ex.: btn-close) */
+        #modalTimeline .btn-close,
+        #modalEventoDetalhes .btn-close {
+            filter: none;
+            opacity: 0.9;
+        }
+
+        /* responsividade */
+        @media (max-width: 576px) {
+            .timeline {
+                padding-left: 28px;
+            }
+
+            .timeline-marker {
+                left: -2px;
+            }
+
+            .timeline-content {
+                margin-left: 40px;
+            }
+
+            .action-buttons {
+                gap: 0.75rem;
+                justify-content: center;
+            }
+
+            /* botões maiores ganham margem inferior para evitar agrupamento visual */
+            .action-buttons .btn {
+                margin-bottom: 0.5rem;
+            }
+
+            /* se quiser empilhar em coluna com largura total dos botões */
+            .action-buttons.stack-mobile .btn {
+                width: 100%;
+            }
+        }
+
         /* Ajustes específicos para desk*/
         @media (min-width: 768px) {
 
@@ -124,12 +300,12 @@
 
     <div class="container-fluid">
         {{-- Logo --}}
-        <div class="text-center back-logo">
+        {{-- <div class="text-center back-logo">
             <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" style="max-width:150px; width:80%;" loading="lazy">
-        </div>
+        </div> --}}
 
         {{-- Voltar --}}
-        <div class="row justify-content-center mb-2 volver-wrapper">
+        <div class="row justify-content-center mb-2 mt-2 volver-wrapper">
             <div class="col-12 col-md-6 text-center">
                 <a href="{{ route('public.dashboard') }}" class="btn btn-primary">
                     <i class="bi bi-house-door me-1"></i> Voltar
@@ -182,7 +358,7 @@
             <div class="card-header d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                     <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
-                    <h5 class="mb-0">Estatísticas do Atleta</h5>
+                    <h6 class="mb-0">Estatísticas do Atleta</h6>
                 </div>
 
                 @php
@@ -190,24 +366,28 @@
                 @endphp
 
                 @if ($isPrivilegiado)
-                    <!-- Botão Nova Análise Física -->
-                    <button class="btn btn-lg btn-outline-danger" data-bs-toggle="modal"
-                        data-bs-target="#modalAnaliseFisica"
-                        onclick="carregarGraficosExtras(document.getElementById('aluno').value)">
-                        <i class="bi bi-clipboard2-pulse"></i>
-                    </button>
+                    <div class="action-buttons">
+                        <!-- Botão Nova Análise Física -->
+                        <button class="btn btn-lg btn-outline-danger" data-bs-toggle="modal"
+                            data-bs-target="#modalAnaliseFisica"
+                            onclick="carregarGraficosExtras(document.getElementById('aluno').value)">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                        </button>
 
-                    <!-- Botão Saúde do Atleta -->
-                    <button class="btn btn-lg btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalSaudeAtleta"
-                        onclick="carregarGraficosExtras(document.getElementById('aluno').value)">
-                        <i class="bi bi-clipboard2-heart"></i>
-                    </button>
+                        <!-- Botão Saúde do Atleta -->
+                        <button class="btn btn-lg btn-outline-danger" data-bs-toggle="modal"
+                            data-bs-target="#modalSaudeAtleta"
+                            onclick="carregarGraficosExtras(document.getElementById('aluno').value)">
+                            <i class="bi bi-clipboard2-heart"></i>
+                        </button>
 
-                    <!-- Botão Linha do Tempo -->
-                    <button class="btn btn-lg btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalTimeline"
-                        onclick="carregarTimeline(document.getElementById('aluno').value)">
-                        <i class="bi bi-clock-history"></i>
-                    </button>
+                        <!-- Botão Linha do Tempo -->
+                        <button class="btn btn-lg btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#modalTimeline"
+                            onclick="carregarTimeline(document.getElementById('aluno').value)">
+                            <i class="bi bi-clock-history"></i>
+                        </button>
+                    </div>
                 @endif
 
             </div>
@@ -276,10 +456,6 @@
                         {{-- O JS irá injetar aqui o conteúdo agrupado por ano/mês --}}
                     </div>
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                </div>
             </div>
         </div>
     </div>
@@ -300,9 +476,6 @@
                     <div id="detalhes-conteudo">
                         {{-- Conteúdo injetado pelo JS --}}
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
         </div>
@@ -678,59 +851,74 @@
                             const monthLabel = dt.toLocaleString('pt-BR', {
                                 month: 'long',
                                 year: 'numeric'
-                            }); // "setembro de 2025"
+                            });
                             grouped[monthLabel] = grouped[monthLabel] || [];
                             grouped[monthLabel].push(ev);
                         });
 
-                        // renderizar apenas mês+ano como header e listar eventos daquele mês
+                        // renderizar timeline por mês
                         let html = '';
                         Object.keys(grouped).sort((a, b) => {
-                            // ordenar por data: transformar mês ano em Date comparável pegando primeiro dia
                             const toKey = s => new Date(s.split(' de ').reverse().join('-') +
                                 '-01');
                             return toKey(b) - toKey(a);
                         }).forEach(monthLabel => {
                             html +=
                                 `<h5 class="mt-3">${monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}</h5>`;
-                            html += '<ul class="list-group mb-2">';
-                            grouped[monthLabel].forEach(ev => {
+                            html += '<div class="timeline">';
+
+                            // itens do mês (mais recente primeiro)
+                            grouped[monthLabel].forEach((ev, idx) => {
                                 const timeLabel = labelEvento(ev.evento, ev.created_at);
                                 const user = ev.changed_by ?
-                                    `<small class="text-muted"> — por ${ev.changed_by}</small>` :
+                                    `<span class="timeline-user"> — por ${escapeHtml(ev.changed_by)}</span>` :
                                     '';
+                                const resumoBreve = ev.evento === 'analise_created' ?
+                                    'Atleta Atualizado' : (ev.evento === 'created' ?
+                                        'Atleta criado' : 'Evento');
 
-                                // resumo breve: não exibir todos os atributos inline — apenas uma descrição curta
-                                let resumoBreve = '';
-                                if (ev.evento === 'analise_created') resumoBreve =
-                                    'Atleta Atualizado';
-                                else if (ev.evento === 'created') resumoBreve =
-                                    'Atleta criado';
-                                else {
-                                    // para eventos de update tente extrair chaves alteradas se disponíveis no payload
-                                    if (ev.dados && typeof ev.dados === 'object') {
-                                        const keys = Object.keys(ev.dados);
-                                        resumoBreve = 'Atleta Atualizado';
-                                        // keys.length ?
-                                        //     `Campos: ${keys.join(', ')}` : '';
-                                    }
-                                }
+                                const isCreated = (ev.evento === 'created') || (ev
+                                    .evento === 'analise_created' && !(ev.dados && ev
+                                        .dados.diff && Object.keys(ev.dados.diff).length
+                                    ));
+                                const hasDiff = ev.dados && ev.dados.diff && typeof ev.dados
+                                    .diff === 'object' && Object.keys(ev.dados.diff)
+                                    .length > 0;
+                                const markerClass = isCreated ? 'marker-created' : (
+                                    hasDiff ? 'marker-updated' : 'marker-other');
+                                const markerIcon = isCreated ? '★' : (hasDiff ? '✎' : '•');
 
                                 html += `
-                                    <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div class="me-2">
-                                        <div><strong>${timeLabel}</strong>${user}</div>
-                                        <div class="mt-1 text-muted"><small>${resumoBreve}</small></div>
-                                    </div>
-                                    <div class="text-end">
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="verDetalhesEvento('${ev.id}', '${ev.evento}')">Detalhes</button>
-                                    </div>
-                                    </li>`;
+                      <div class="timeline-item" data-event-id="${ev.id}" data-evento="${ev.evento}">
+                        <div class="timeline-marker ${markerClass}" aria-hidden="true"><i>${markerIcon}</i></div>
+                        <div class="timeline-content">
+                          <div class="timeline-header">
+                            <div class="timeline-time">${timeLabel}</div>
+                            ${user}
+                          </div>
+                          <div class="timeline-summary">${escapeHtml(resumoBreve)}</div>
+                        </div>
+                        <div class="timeline-actions">
+                          <button class="btn btn-sm btn-outline-secondary btn-detalhes">Detalhes</button>
+                        </div>
+                      </div>`;
                             });
-                            html += '</ul>';
+
+                            html += '</div>'; // .timeline
                         });
 
                         container.innerHTML = html;
+
+                        // adicionar listeners aos botões Detalhes
+                        container.querySelectorAll('.timeline-item').forEach(item => {
+                            const btn = item.querySelector('.btn-detalhes');
+                            const id = item.dataset.eventId;
+                            const evento = item.dataset.evento;
+                            if (btn) {
+                                btn.addEventListener('click', () => window.verDetalhesEvento(id,
+                                    evento));
+                            }
+                        });
                     })
                     .catch(() => {
                         overlay.classList.add('d-none');
@@ -738,6 +926,7 @@
                             '<div class="alert alert-danger">Erro ao carregar a linha do tempo.</div>';
                     });
             };
+
             // Carrega detalhes do evento e exibe modal com conteúdo específico
             window.verDetalhesEvento = function(id, evento) {
                 const overlay = document.getElementById('overlay-evento');
@@ -834,7 +1023,7 @@
                                     null);
                                 const depois = vals && (vals.depois !== undefined) ? vals.depois : (
                                     d.depois && d.depois[campo] !== undefined ? d.depois[
-                                    campo] : null);
+                                        campo] : null);
                                 if (changed(antes, depois)) {
                                     groupObj[campo] = {
                                         antes: antes === undefined ? null : antes,
