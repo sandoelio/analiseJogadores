@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('matricula');
 
             $table->timestampsTz();
-            $table->softDeletesTz();
 
             // índices para performance
             $table->index(['instituicao_id', 'user_id']);

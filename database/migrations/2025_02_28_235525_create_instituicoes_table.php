@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('athlete_password');
 
             $table->timestampsTz();
-            $table->softDeletesTz();
         });
     }
 
