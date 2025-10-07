@@ -133,7 +133,7 @@
                                     </select>
                                 </div>
                             </div>
-
+                            
                             {{-- Aba 2: Habilidades Técnicas --}}
                             <div class="tab-pane fade" id="aba2" role="tabpanel">
                                 <div class="row g-3">
@@ -154,12 +154,12 @@
                             <div class="tab-pane fade" id="aba3" role="tabpanel">
                                 <div class="row g-3">
                                     @foreach ([
-            'envergadura' => 'Envergadura (cm)',
-            'velocidade' => 'Velocidade (s)',
-            'agilidade' => 'Agilidade (s)',
-            'salto_horizontal' => 'Salto Horizontal (cm)',
-            'resistencia' => 'Resistência (%)',
-        ] as $campo => $label)
+                                        'envergadura' => 'Envergadura (cm)',
+                                        'velocidade' => 'Velocidade (s)',
+                                        'agilidade' => 'Agilidade (s)',
+                                        'salto_horizontal' => 'Salto Horizontal (cm)',
+                                        'resistencia' => 'Resistência (%)',
+                                    ] as $campo => $label)
                                         <div class="col-6">
                                             <label for="{{ $campo }}" class="form-label">{{ $label }}</label>
                                             <input type="number" id="{{ $campo }}" name="{{ $campo }}"
@@ -173,12 +173,12 @@
                             <div class="tab-pane fade" id="aba4" role="tabpanel">
                                 <div class="row g-3">
                                     @foreach ([
-            'massa_magra_kg' => 'Massa Magra (kg)',
-            'massa_adiposa_kg' => 'Massa Adiposa (kg)',
-            'massa_magra_pct' => 'Massa Magra (%)',
-            'massa_adiposa_pct' => 'Massa Adiposa (%)',
-            'peso_residual_kg' => 'Peso Residual (kg)',
-        ] as $campo => $label)
+                                        'massa_magra_kg' => 'Massa Magra (kg)',
+                                        'massa_adiposa_kg' => 'Massa Adiposa (kg)',
+                                        'massa_magra_pct' => 'Massa Magra (%)',
+                                        'massa_adiposa_pct' => 'Massa Adiposa (%)',
+                                        'peso_residual_kg' => 'Peso Residual (kg)',
+                                    ] as $campo => $label)
                                         <div class="col-6">
                                             <label for="{{ $campo }}"
                                                 class="form-label">{{ $label }}</label>
@@ -238,7 +238,6 @@
                                     class="btn btn-secondary flex-md-grow-1">Cancelar</a>
                             </div>
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -247,6 +246,311 @@
 @endsection
 
 @push('scripts')
+    <script>
+        // Base correta da aplicação (inclui /public em produção se necessário)
+        const APP_BASE = "{{ rtrim(url('/'), '/') }}";
+
+        // Injeta a rota com placeholder (usa APP_BASE quando necessário apenas para consistência)
+        window.routes = {
+            lastAnalysis: "{{ route('aluno.lastAnalysis', ['aluno' => '__ID__']) }}"
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('aluno_select');
+            if (!select) return;
+
+            const tecnicos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
+            const fisicos = ['envergadura', 'velocidade', 'agilidade', 'salto_horizontal', 'resistencia'];
+            const composicao = ['massa_magra_kg', 'massa_adiposa_kg', 'massa_magra_pct', 'massa_adiposa_pct',
+                'peso_residual_kg'
+            ];
+            const saude = ['problema_saude', 'atestado_valido', 'usa_medicacao'];
+
+            // Usa propriedades DOM em vez de atributos
+            function setReadOnlyByIds(ids, ro = true) {
+                ids.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.readOnly = !!ro;
+                    el.disabled = false; // garantir que não esteja disabled (disabled impede envio)
+                });
+            }
+
+            function setDisabledRadiosByNames(names, dis = true) {
+                names.forEach(name => {
+                    const radios = document.querySelectorAll(`input[name="${name}"]`);
+                    radios.forEach(r => {
+                        r.disabled = !!dis;
+                        if (dis) r.checked = false;
+                    });
+                });
+            }
+
+            // Inicial: tudo bloqueado (somente leitura)
+            setReadOnlyByIds([...tecnicos, ...fisicos, ...composicao], true);
+            setDisabledRadiosByNames(saude, true);
+
+            // preenche defaults para criação: valores fixos (por exemplo '1') e mantém readOnly
+            function fillDefaultsForCreate(defaultValue = 1) {
+                [...tecnicos, ...fisicos, ...composicao].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.value = defaultValue;
+                    el.readOnly = true;
+                    el.disabled = false;
+                });
+                setDisabledRadiosByNames(saude, true);
+            }
+
+            // Se quiser distinguir modo create/edit no servidor, injete window.MODE = 'create' ou 'edit'
+            if ((window.MODE && window.MODE === 'create') || !window.MODE) {
+                // quando não informado, assumimos comportamento create no carregamento inicial
+                fillDefaultsForCreate(1);
+            }
+
+            select.addEventListener('change', () => {
+                const id = select.value;
+                if (!id) return;
+
+                const url = window.routes.lastAnalysis.replace('__ID__', encodeURIComponent(id));
+
+                fetch(url, {
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Preenche Nome (se existir campo nome)
+                        const nomeEl = document.getElementById('nome');
+                        if (nomeEl) {
+                            nomeEl.value = (data && data.nome) ? data.nome : '';
+                            nomeEl.readOnly = false;
+                            nomeEl.disabled = false;
+                        }
+
+                        // Preenche e libera técnicos
+                        tecnicos.forEach(campo => {
+                            const el = document.getElementById(campo);
+                            if (!el) return;
+                            el.value = (data && data[campo] !== undefined && data[campo] !==
+                                null) ? data[campo] : '';
+                            el.readOnly = false;
+                            el.disabled = false;
+                        });
+
+                        // Preenche e libera físicos
+                        fisicos.forEach(campo => {
+                            const el = document.getElementById(campo);
+                            if (!el) return;
+                            el.value = (data && data[campo] !== undefined && data[campo] !==
+                                null) ? data[campo] : '';
+                            el.readOnly = false;
+                            el.disabled = false;
+                        });
+
+                        // Preenche e libera composição
+                        composicao.forEach(campo => {
+                            const el = document.getElementById(campo);
+                            if (!el) return;
+                            el.value = (data && data[campo] !== undefined && data[campo] !==
+                                null) ? data[campo] : '';
+                            el.readOnly = false;
+                            el.disabled = false;
+                        });
+
+                        // Preenche e libera saúde (radios)
+                        setDisabledRadiosByNames(saude, false);
+                        saude.forEach(name => {
+                            const val = data ? data[name] : undefined;
+                            const sim = document.getElementById(`${name}_sim`);
+                            const nao = document.getElementById(`${name}_nao`);
+                            const isTrue = val === 1 || val === '1' || val === true || val ===
+                                'true';
+                            const isFalse = val === 0 || val === '0' || val === false || val ===
+                                'false';
+                            if (sim && nao) {
+                                sim.checked = !!isTrue;
+                                nao.checked = !!isFalse;
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Erro ao carregar última análise:', err);
+                        alert('Não foi possível carregar a última análise.');
+                    });
+            });
+
+            // Auto-hide success alert
+            const alert = document.querySelector('.alert-success');
+            if (alert) {
+                setTimeout(() => {
+                    alert.classList.add('fade');
+                    alert.classList.remove('show');
+                }, 5000);
+            }
+        });
+    </script>
+@endpush
+
+{{-- DESCOMENTAR CASO OS INPUTS E RADIOS NAO FUNCIONEM --}}
+{{-- @section('content')
+    <div class="row justify-content-center mt-4 mb-4">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-navbar-blue text-center">
+                    <h5 class="mb-0">Atualizar Atleta</h5>
+                </div>
+
+                <div class="card-body habilidade-card-body">
+                    @if (session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+
+                    <form action="{{ route('aluno.habilidade.update') }}" method="POST">
+                        @csrf
+
+                        {{-- Abas --}}
+                        {{-- <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#aba1"
+                                    role="tab">Identificação</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba2"
+                                    role="tab">Habilidades Técnicas</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba3"
+                                    role="tab">Atributos Físicos</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba4"
+                                    role="tab">Composição Corporal</a></li>
+                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba5"
+                                    role="tab">Perguntas</a></li>
+                        </ul> --}}
+
+                        {{-- <div class="tab-content mt-3"> --}}
+                            {{-- Aba 1: Identificação --}}
+                            {{-- <div class="tab-pane fade show active" id="aba1" role="tabpanel">
+                                <div class="mb-3">
+                                    <label for="aluno_select" class="form-label">Selecione o Atleta</label>
+                                    <select id="aluno_select" name="aluno_id" class="form-select" required>
+                                        <option selected disabled>-- selecione --</option>
+                                        @foreach ($alunos as $a)
+                                            <option value="{{ $a->id }}">{{ $a->nome }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div> --}}
+
+                            {{-- Aba 2: Habilidades Técnicas --}}
+                            {{-- <div class="tab-pane fade" id="aba2" role="tabpanel">
+                                <div class="row g-3">
+                                    @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'] as $campo)
+                                        <div class="col-6">
+                                            <label for="{{ $campo }}" class="form-label">
+                                                {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
+                                            </label>
+                                            <input type="number" id="{{ $campo }}" name="{{ $campo }}"
+                                                class="form-control" value="" min="0" max="10"
+                                                step="1" readonly>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div> --}}
+
+                            {{-- Aba 3: Atributos Físicos --}}
+                            {{-- <div class="tab-pane fade" id="aba3" role="tabpanel">
+                                <div class="row g-3">
+                                    @foreach ([
+                                        'envergadura' => 'Envergadura (cm)',
+                                        'velocidade' => 'Velocidade (s)',
+                                        'agilidade' => 'Agilidade (s)',
+                                        'salto_horizontal' => 'Salto Horizontal (cm)',
+                                        'resistencia' => 'Resistência (%)',
+                                    ] as $campo => $label)
+                                        <div class="col-6">
+                                            <label for="{{ $campo }}" class="form-label">{{ $label }}</label>
+                                            <input type="number" id="{{ $campo }}" name="{{ $campo }}"
+                                                class="form-control" value="" min="0" step="any" readonly>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div> --}}
+
+                            {{-- Aba 4: Composição Corporal --}}
+                            {{-- <div class="tab-pane fade" id="aba4" role="tabpanel">
+                                <div class="row g-3">
+                                    @foreach ([
+                                        'massa_magra_kg' => 'Massa Magra (kg)',
+                                        'massa_adiposa_kg' => 'Massa Adiposa (kg)',
+                                        'massa_magra_pct' => 'Massa Magra (%)',
+                                        'massa_adiposa_pct' => 'Massa Adiposa (%)',
+                                        'peso_residual_kg' => 'Peso Residual (kg)',
+                                    ] as $campo => $label)
+                                        <div class="col-6">
+                                            <label for="{{ $campo }}"
+                                                class="form-label">{{ $label }}</label>
+                                            <input type="number" id="{{ $campo }}" name="{{ $campo }}"
+                                                class="form-control" value="" min="0" step="any" readonly>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div> --}}
+
+                            {{-- Aba 5: Perguntas --}}
+                            {{-- <div class="tab-pane fade" id="aba5" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-12 mt-2">
+                                        <h6 class="text-primary">Informações de Saúde</h6>
+                                    </div>
+
+                                    @php
+                                        $saudeCampos = [
+                                            'problema_saude' => 'Possui problema de saúde?',
+                                            'atestado_valido' => 'Está com atestado válido?',
+                                            'usa_medicacao' => 'Faz uso de medicação?',
+                                        ];
+                                    @endphp
+
+                                    @foreach ($saudeCampos as $campo => $label)
+                                        <div class="col-12 saude-item">
+                                            <label for="{{ $campo }}_sim">{{ $label }}</label>
+                                            <div class="saude-radios">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                        name="{{ $campo }}" id="{{ $campo }}_sim"
+                                                        value="1" disabled>
+                                                    <label class="form-check-label"
+                                                        for="{{ $campo }}_sim">Sim</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                        name="{{ $campo }}" id="{{ $campo }}_nao"
+                                                        value="0" disabled>
+                                                    <label class="form-check-label"
+                                                        for="{{ $campo }}_nao">Não</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div> --}}
+
+                        {{-- Botões --}}
+                        {{-- <div class="mt-4">
+                            <div class="d-grid d-md-flex justify-content-md-between actions-wrap">
+                                <button type="submit" class="btn btn-navbar-blue flex-md-grow-1">Atualizar
+                                    Atleta</button>
+                                <a href="{{ route('tecnico.dashboard') }}"
+                                    class="btn btn-secondary flex-md-grow-1">Cancelar</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+{{-- @endsection --}}
+
+{{-- @push('scripts')
     <script>
         // Injeta a rota com placeholder
         window.routes = {
@@ -352,4 +656,4 @@
             }
         });
     </script>
-@endpush
+@endpush  --}}
