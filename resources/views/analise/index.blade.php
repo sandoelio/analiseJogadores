@@ -293,6 +293,13 @@
     </style>
 @endpush
 
+<script>
+    // Base da aplicação gerada pelo Laravel; inclui /public se o ambiente estiver configurado assim
+    const APP_BASE = "{{ rtrim(url('/'), '/') }}";
+    const tplEventBase = `${APP_BASE}/analise/timeline/event`;
+    const tplTimelineBase = `${APP_BASE}/analise/timeline`; 
+</script>
+
 @section('content')
     @php
         $atletaInst = session('aluno_instituicao_id');
@@ -648,133 +655,147 @@
             let graficoClinicoInstance = null;
 
             window.carregarGraficosExtras = function(matricula) {
-                const baseURL = window.location.origin;
-                const url = `${baseURL}/analise/extras/${matricula}`;
+                if (!matricula) return;
 
-                fetch(url)
-                    .then(r => r.json())
+                // monta a URL usando a base gerada pelo Blade
+                const url = `${APP_BASE}/analise/extras/${encodeURIComponent(matricula)}`;
+                fetch(url, {
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.json();
+                    })
                     .then(data => {
-                        // Gráfico físico (comparativo)
-                        const ctxFisico = document.getElementById('graficoFisico').getContext('2d');
-                        if (graficoFisicoInstance) graficoFisicoInstance.destroy();
-                        graficoFisicoInstance = new Chart(ctxFisico, {
-                            type: 'bar',
-                            data: {
-                                labels: data.fisico.labels,
-                                datasets: [{
-                                        label: 'Anterior',
-                                        data: data.fisico.anterior,
-                                        backgroundColor: 'rgba(255,159,64,0.7)',
-                                        borderRadius: 4,
-                                        maxBarThickness: 50
-                                    },
-                                    {
-                                        label: 'Atual',
-                                        data: data.fisico.atual,
-                                        backgroundColor: 'rgba(75,192,192,0.8)',
-                                        borderRadius: 4,
-                                        maxBarThickness: 50
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            callback: value => Number.isInteger(value) ? value : ''
+                        // proteção caso a API retorne payload inesperado
+                        if (!data || !data.fisico || !data.clinico) {
+                            throw new Error('Payload inválido');
+                        }
 
+                        // Gráfico físico (comparativo)
+                        const ctxFisicoEl = document.getElementById('graficoFisico');
+                        if (ctxFisicoEl) {
+                            const ctxFisico = ctxFisicoEl.getContext('2d');
+                            if (graficoFisicoInstance) graficoFisicoInstance.destroy();
+                            graficoFisicoInstance = new Chart(ctxFisico, {
+                                type: 'bar',
+                                data: {
+                                    labels: data.fisico.labels,
+                                    datasets: [{
+                                            label: 'Anterior',
+                                            data: data.fisico.anterior,
+                                            backgroundColor: 'rgba(255,159,64,0.7)',
+                                            borderRadius: 4,
+                                            maxBarThickness: 50
+                                        },
+                                        {
+                                            label: 'Atual',
+                                            data: data.fisico.atual,
+                                            backgroundColor: 'rgba(75,192,192,0.8)',
+                                            borderRadius: 4,
+                                            maxBarThickness: 50
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                callback: value => Number.isInteger(value) ? value :
+                                                    ''
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        datalabels: {
+                                            anchor: 'end',
+                                            align: 'end',
+                                            color: '#444',
+                                            offset: 4,
+                                            formatter: v => v
+                                        },
+                                        legend: {
+                                            position: 'top'
                                         }
                                     }
                                 },
-                                plugins: {
-                                    datalabels: {
-                                        anchor: 'end',
-                                        align: 'end',
-                                        color: '#444',
-                                        offset: 4,
-                                        formatter: v => v
-                                    },
-                                    legend: {
-                                        position: 'top'
-                                    }
-                                }
-                            },
-                            plugins: [ChartDataLabels]
-                        });
+                                plugins: [ChartDataLabels]
+                            });
+                        }
 
                         // Gráfico clínico (comparativo)
-                        const ctxClinico = document.getElementById('graficoClinico').getContext('2d');
-                        if (graficoClinicoInstance) graficoClinicoInstance.destroy();
-                        graficoClinicoInstance = new Chart(ctxClinico, {
-                            type: 'bar',
-                            data: {
-                                labels: data.clinico.labels,
-                                datasets: [{
-                                        label: 'Anterior',
-                                        data: data.clinico.anterior,
-                                        backgroundColor: 'rgba(255,159,64,0.7)',
-                                        borderRadius: 4,
-                                        maxBarThickness: 50
+                        const ctxClinicoEl = document.getElementById('graficoClinico');
+                        if (ctxClinicoEl) {
+                            const ctxClinico = ctxClinicoEl.getContext('2d');
+                            if (graficoClinicoInstance) graficoClinicoInstance.destroy();
+                            graficoClinicoInstance = new Chart(ctxClinico, {
+                                type: 'bar',
+                                data: {
+                                    labels: data.clinico.labels,
+                                    datasets: [{
+                                            label: 'Anterior',
+                                            data: data.clinico.anterior,
+                                            backgroundColor: 'rgba(255,159,64,0.7)',
+                                            borderRadius: 4,
+                                            maxBarThickness: 50
+                                        },
+                                        {
+                                            label: 'Atual',
+                                            data: data.clinico.atual,
+                                            backgroundColor: 'rgba(75,192,192,0.8)',
+                                            borderRadius: 4,
+                                            maxBarThickness: 50
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                callback: value => Number.isInteger(value) ? value :
+                                                    ''
+                                            }
+                                        }
                                     },
-                                    {
-                                        label: 'Atual',
-                                        data: data.clinico.atual,
-                                        backgroundColor: 'rgba(75,192,192,0.8)',
-                                        borderRadius: 4,
-                                        maxBarThickness: 50
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            callback: value => Number.isInteger(value) ? value : ''
+                                    plugins: {
+                                        datalabels: {
+                                            anchor: 'end',
+                                            align: 'end',
+                                            color: '#444',
+                                            offset: 4,
+                                            formatter: v => v
+                                        },
+                                        legend: {
+                                            position: 'top'
                                         }
                                     }
                                 },
-                                plugins: {
-                                    datalabels: {
-                                        anchor: 'end',
-                                        align: 'end',
-                                        color: '#444',
-                                        offset: 4,
-                                        formatter: v => v
-                                    },
-                                    legend: {
-                                        position: 'top'
-                                    }
-                                }
-                            },
-                            plugins: [ChartDataLabels]
-                        });
+                                plugins: [ChartDataLabels]
+                            });
+                        }
 
                         // Classificação corporal
                         const classificacao = document.getElementById('classificacaoLabel');
-                        if (classificacao) {
+                        if (classificacao && data.classificacao !== undefined) {
                             classificacao.textContent = data.classificacao;
                             classificacao.classList.remove('d-none');
                         }
                     })
-                    .catch(() => {
+                    .catch(err => {
+                        console.error('Erro carregarGraficosExtras:', err);
                         alert('Erro ao carregar dados físicos e clínicos.');
                     });
             };
 
-
             // ------------------------------------------------
             // Linha do tempo
             // ------------------------------------------------
-
-            const baseURL = window.location.origin;
-            const tplTimelineBase = `${baseURL}/analise/timeline`; // /analise/timeline/{matricula}
-            const tplEventBase = `${baseURL}/analise/timeline/event`; // /analise/timeline/event/{id}
 
             // Formata data ISO para DD/MM/YYYY HH:mm:ss
             function formatDateBR(iso) {
@@ -787,27 +808,14 @@
             function labelEvento(evento, iso) {
                 const formatted = formatDateBR(iso);
 
-                // Criação do atleta
-                if (evento === 'created') {
-                    return `Criado - ${formatted}`;
-                }
+                if (evento === 'created') return `Criado - ${formatted}`;
+                if (evento === 'analise_created' || evento === 'analise_create') return `Atualizado - ${formatted}`;
 
-                // Criação de análise (novo conjunto de atributos)
-                if (evento === 'analise_created' || evento === 'analise_create') {
-                    return `Atualizado - ${formatted}`;
-                }
-
-                // Atualizações explícitas (ajuste conforme seus nomes reais no DB)
                 const updateEvents = ['updated', 'analise_updated', 'analise_update'];
-                if (updateEvents.includes(evento)) {
-                    return `Atualizado - ${formatted}`;
-                }
+                if (updateEvents.includes(evento)) return `Atualizado - ${formatted}`;
 
-                // Fallback: se o evento contiver 'update' ou 'alter' tratamos como atualizado
-                if (String(evento).toLowerCase().includes('update') || String(evento).toLowerCase().includes(
-                        'alter')) {
-                    return `Atualizado - ${formatted}`;
-                }
+                const evLower = String(evento).toLowerCase();
+                if (evLower.includes('update') || evLower.includes('alter')) return `Atualizado - ${formatted}`;
 
                 return `${evento} - ${formatted}`;
             }
@@ -819,28 +827,30 @@
                 const empty = document.getElementById('timeline-empty');
 
                 if (!matricula) {
-                    container.innerHTML = '';
-                    empty.classList.remove('d-none');
+                    if (container) container.innerHTML = '';
+                    if (empty) empty.classList.remove('d-none');
                     return;
                 }
 
-                overlay.classList.remove('d-none');
-                container.innerHTML = '';
-                empty.classList.add('d-none');
+                if (overlay) overlay.classList.remove('d-none');
+                if (container) container.innerHTML = '';
+                if (empty) empty.classList.add('d-none');
 
                 const url = `${tplTimelineBase}/${encodeURIComponent(matricula)}`;
 
-                fetch(url)
-                    .then(r => {
-                        if (!r.ok) throw new Error('Fetch error');
-                        return r.json();
+                fetch(url, {
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.json();
                     })
                     .then(json => {
-                        overlay.classList.add('d-none');
-                        const events = json.events || [];
+                        if (overlay) overlay.classList.add('d-none');
+                        const events = (json && Array.isArray(json.events)) ? json.events : [];
 
                         if (!events.length) {
-                            empty.classList.remove('d-none');
+                            if (empty) empty.classList.remove('d-none');
                             return;
                         }
 
@@ -852,8 +862,7 @@
                                 month: 'long',
                                 year: 'numeric'
                             });
-                            grouped[monthLabel] = grouped[monthLabel] || [];
-                            grouped[monthLabel].push(ev);
+                            (grouped[monthLabel] = grouped[monthLabel] || []).push(ev);
                         });
 
                         // renderizar timeline por mês
@@ -863,12 +872,11 @@
                                 '-01');
                             return toKey(b) - toKey(a);
                         }).forEach(monthLabel => {
-                            html +=
-                                `<h5 class="mt-3">${monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}</h5>`;
+                            const title = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+                            html += `<h5 class="mt-3">${title}</h5>`;
                             html += '<div class="timeline">';
 
-                            // itens do mês (mais recente primeiro)
-                            grouped[monthLabel].forEach((ev, idx) => {
+                            grouped[monthLabel].forEach(ev => {
                                 const timeLabel = labelEvento(ev.evento, ev.created_at);
                                 const user = ev.changed_by ?
                                     `<span class="timeline-user"> — por ${escapeHtml(ev.changed_by)}</span>` :
@@ -889,41 +897,44 @@
                                 const markerIcon = isCreated ? '★' : (hasDiff ? '✎' : '•');
 
                                 html += `
-                      <div class="timeline-item" data-event-id="${ev.id}" data-evento="${ev.evento}">
-                        <div class="timeline-marker ${markerClass}" aria-hidden="true"><i>${markerIcon}</i></div>
-                        <div class="timeline-content">
-                          <div class="timeline-header">
-                            <div class="timeline-time">${timeLabel}</div>
-                            ${user}
-                          </div>
-                          <div class="timeline-summary">${escapeHtml(resumoBreve)}</div>
-                        </div>
-                        <div class="timeline-actions">
-                          <button class="btn btn-sm btn-outline-secondary btn-detalhes">Detalhes</button>
-                        </div>
-                      </div>`;
+                                <div class="timeline-item" data-event-id="${ev.id}" data-evento="${ev.evento}">
+                                <div class="timeline-marker ${markerClass}" aria-hidden="true"><i>${markerIcon}</i></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                    <div class="timeline-time">${timeLabel}</div>
+                                    ${user}
+                                    </div>
+                                    <div class="timeline-summary">${escapeHtml(resumoBreve)}</div>
+                                </div>
+                                <div class="timeline-actions">
+                                    <button class="btn btn-sm btn-outline-secondary btn-detalhes">Detalhes</button>
+                                </div>
+                                </div>`;
                             });
 
                             html += '</div>'; // .timeline
                         });
 
-                        container.innerHTML = html;
+                        if (container) container.innerHTML = html;
 
                         // adicionar listeners aos botões Detalhes
-                        container.querySelectorAll('.timeline-item').forEach(item => {
-                            const btn = item.querySelector('.btn-detalhes');
-                            const id = item.dataset.eventId;
-                            const evento = item.dataset.evento;
-                            if (btn) {
-                                btn.addEventListener('click', () => window.verDetalhesEvento(id,
-                                    evento));
-                            }
-                        });
+                        if (container) {
+                            container.querySelectorAll('.timeline-item').forEach(item => {
+                                const btn = item.querySelector('.btn-detalhes');
+                                const id = item.dataset.eventId;
+                                const evento = item.dataset.evento;
+                                if (btn) {
+                                    btn.addEventListener('click', () => window.verDetalhesEvento(id,
+                                        evento));
+                                }
+                            });
+                        }
                     })
-                    .catch(() => {
-                        overlay.classList.add('d-none');
-                        container.innerHTML =
+                    .catch(err => {
+                        if (overlay) overlay.classList.add('d-none');
+                        if (container) container.innerHTML =
                             '<div class="alert alert-danger">Erro ao carregar a linha do tempo.</div>';
+                        console.error('carregarTimeline error:', err);
                     });
             };
 
@@ -933,39 +944,38 @@
                 const conteudo = document.getElementById('detalhes-conteudo');
                 const modalEl = new bootstrap.Modal(document.getElementById('modalEventoDetalhes'));
 
-                overlay.classList.remove('d-none');
-                conteudo.innerHTML = '';
+                if (overlay) overlay.classList.remove('d-none');
+                if (conteudo) conteudo.innerHTML = '';
 
-                fetch(`${tplEventBase}/${encodeURIComponent(id)}`)
-                    .then(r => {
-                        if (!r.ok) throw new Error('Fetch error');
-                        return r.json();
+                const url = `${tplEventBase}/${encodeURIComponent(id)}`;
+
+                fetch(url, {
+                        credentials: 'same-origin'
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.json();
                     })
                     .then(json => {
+                        if (overlay) overlay.classList.add('d-none');
 
-                        overlay.classList.add('d-none');
-
-                        // detectar se existe diff válido
                         const hasDiff = json && json.dados && json.dados.diff && typeof json.dados.diff ===
                             'object' && Object.keys(json.dados.diff).length > 0;
-
-                        // tratar analise_created com diff como 'updated' para exibir somente o diff
                         const effectiveEvento = (evento === 'analise_created' && hasDiff) ? 'updated' :
                             evento;
 
-                        // montar HTML com o evento efetivo
                         const html = buildDetalhesHtml(json, effectiveEvento);
-                        conteudo.innerHTML = html;
+                        if (conteudo) conteudo.innerHTML = html;
 
                         modalEl.show();
                     })
-                    .catch(() => {
-                        overlay.classList.add('d-none');
-                        conteudo.innerHTML =
+                    .catch(err => {
+                        if (overlay) overlay.classList.add('d-none');
+                        if (conteudo) conteudo.innerHTML =
                             '<div class="alert alert-danger">Erro ao carregar detalhes do evento.</div>';
+                        console.error('verDetalhesEvento error:', err);
                         modalEl.show();
                     });
-
             };
 
             // Constrói o HTML do modal com prioridade para dados.diff quando presente
