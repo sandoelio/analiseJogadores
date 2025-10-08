@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aluno;
+use App\Models\Analise;
 use Illuminate\Support\Str;
 use App\Models\AlunoHistory;
 use Illuminate\Http\Request;
+use App\Observers\AlunoObserver;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Middleware\CheckSession;
 
 class AlunoController extends Controller
 {
@@ -45,7 +49,7 @@ class AlunoController extends Controller
         // Total absoluto (query separada)
         $totalAlunos = $alunos->total();
 
-        return view('aluno.index', compact('alunos', 'totalAlunos')); 
+        return view('aluno.index', compact('alunos', 'totalAlunos'));
     }
 
     /**
@@ -53,7 +57,7 @@ class AlunoController extends Controller
      */
     public function create()
     {
-       return view('aluno.create');
+        return view('aluno.create');
     }
 
     /**
@@ -401,14 +405,26 @@ class AlunoController extends Controller
     {
         $this->authorize('delete', $aluno);
 
-        $aluno->delete();
+        DB::transaction(function () use ($aluno) {
+            // 1) registra histórico de exclusão antes de remover o aluno
+            AlunoHistory::create([
+                'aluno_id'   => $aluno->id,
+                'evento'     => 'deleted',
+                'dados'      => ['motivo' => 'exclusão manual'], // adapte conforme necessário
+                'changed_by' => Auth::id(),
+            ]);
+
+            // 2) apagar outras dependências manualmente caso não use ON DELETE CASCADE
+            \App\Models\Analise::where('aluno_id', $aluno->id)->delete();
+
+            // 3) por fim apaga o aluno (DELETE definitivo)
+            $aluno->delete();
+        });
 
         return redirect()
             ->route('aluno.index')
             ->with('success', "Aluno “{$aluno->nome}” excluído com sucesso.");
     }
-
-
     /**
      * Compara as duas últimas análises do aluno.
      */
