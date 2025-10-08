@@ -57,11 +57,6 @@ class AlunoObserver
         $this->createHistory($aluno, 'updated', $dados, null, $aluno->updated_at);
     }
 
-    public function deleted(Aluno $aluno)
-    {
-        $this->createHistory($aluno, 'deleted', null, null, now());
-    }
-
     /**
      * Registrar evento de análise (chamado manualmente onde a análise é criada)
      * $payload pode conter 'tecnicos', 'fisicos', 'composicao', 'saude', etc.
