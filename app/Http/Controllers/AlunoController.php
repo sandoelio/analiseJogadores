@@ -4,15 +4,12 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Aluno;
-use App\Models\Analise;
 use Illuminate\Support\Str;
 use App\Models\AlunoHistory;
 use Illuminate\Http\Request;
-use App\Observers\AlunoObserver;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Middleware\CheckSession;
 
 class AlunoController extends Controller
 {

@@ -120,17 +120,38 @@
                                     role="tab">Perguntas</a></li>
                         </ul>
 
+                        @php
+                            // Ordena em memória: usa coluna 'idade' quando existir, senão calcula por data_nascimento
+                            $alunosOrdenados = $alunos->sortByDesc(function ($a) {
+                                if (isset($a->idade) && $a->idade !== null) {
+                                    return $a->idade;
+                                }
+                                if (!empty($a->data_nascimento)) {
+                                    return \Carbon\Carbon::parse($a->data_nascimento)->age;
+                                }
+                                return -1; // coloca sem data/idade no final
+                            })->values();
+                        @endphp
                         <div class="tab-content mt-3">
                             {{-- Aba 1: Identificação --}}
                             <div class="tab-pane fade show active" id="aba1" role="tabpanel">
                                 <div class="mb-3">
-                                    <label for="aluno_select" class="form-label">Selecione o Atleta</label>
-                                    <select id="aluno_select" name="aluno_id" class="form-select" required>
-                                        <option selected disabled>-- selecione --</option>
-                                        @foreach ($alunos as $a)
-                                            <option value="{{ $a->id }}">{{ $a->nome }}</option>
-                                        @endforeach
-                                    </select>
+                                <label for="aluno_select" class="form-label">Selecione o Atleta</label>
+                                <select id="aluno_select" name="aluno_id" class="form-select" required>
+                                    <option value="" disabled {{ old('aluno_id') ? '' : 'selected' }}>-- selecione --</option>
+
+                                    @foreach ($alunosOrdenados as $a)
+                                    @php
+                                        // calcula idade para exibição
+                                        $idadeExib = $a->idade ?? ( !empty($a->data_nascimento) ? \Carbon\Carbon::parse($a->data_nascimento)->age : null );
+                                        $selected = (string) old('aluno_id') === (string) $a->id ? 'selected' : '';
+                                    @endphp
+
+                                    <option value="{{ $a->id }}" {{ $selected }}>
+                                        {{ $a->nome }}@if($idadeExib) ({{ $idadeExib }} anos)@endif
+                                    </option>
+                                    @endforeach
+                                </select>
                                 </div>
                             </div>
                             
@@ -393,267 +414,3 @@
         });
     </script>
 @endpush
-
-{{-- DESCOMENTAR CASO OS INPUTS E RADIOS NAO FUNCIONEM --}}
-{{-- @section('content')
-    <div class="row justify-content-center mt-4 mb-4">
-        <div class="col-12 col-md-10 col-lg-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-navbar-blue text-center">
-                    <h5 class="mb-0">Atualizar Atleta</h5>
-                </div>
-
-                <div class="card-body habilidade-card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
-
-                    <form action="{{ route('aluno.habilidade.update') }}" method="POST">
-                        @csrf
-
-                        {{-- Abas --}}
-                        {{-- <ul class="nav nav-tabs" role="tablist">
-                            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#aba1"
-                                    role="tab">Identificação</a></li>
-                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba2"
-                                    role="tab">Habilidades Técnicas</a></li>
-                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba3"
-                                    role="tab">Atributos Físicos</a></li>
-                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba4"
-                                    role="tab">Composição Corporal</a></li>
-                            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aba5"
-                                    role="tab">Perguntas</a></li>
-                        </ul> --}}
-
-                        {{-- <div class="tab-content mt-3"> --}}
-                            {{-- Aba 1: Identificação --}}
-                            {{-- <div class="tab-pane fade show active" id="aba1" role="tabpanel">
-                                <div class="mb-3">
-                                    <label for="aluno_select" class="form-label">Selecione o Atleta</label>
-                                    <select id="aluno_select" name="aluno_id" class="form-select" required>
-                                        <option selected disabled>-- selecione --</option>
-                                        @foreach ($alunos as $a)
-                                            <option value="{{ $a->id }}">{{ $a->nome }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div> --}}
-
-                            {{-- Aba 2: Habilidades Técnicas --}}
-                            {{-- <div class="tab-pane fade" id="aba2" role="tabpanel">
-                                <div class="row g-3">
-                                    @foreach (['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'] as $campo)
-                                        <div class="col-6">
-                                            <label for="{{ $campo }}" class="form-label">
-                                                {{ ucfirst($campo === 'dominio' ? 'Domínio de Bola' : $campo) }}
-                                            </label>
-                                            <input type="number" id="{{ $campo }}" name="{{ $campo }}"
-                                                class="form-control" value="" min="0" max="10"
-                                                step="1" readonly>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div> --}}
-
-                            {{-- Aba 3: Atributos Físicos --}}
-                            {{-- <div class="tab-pane fade" id="aba3" role="tabpanel">
-                                <div class="row g-3">
-                                    @foreach ([
-                                        'envergadura' => 'Envergadura (cm)',
-                                        'velocidade' => 'Velocidade (s)',
-                                        'agilidade' => 'Agilidade (s)',
-                                        'salto_horizontal' => 'Salto Horizontal (cm)',
-                                        'resistencia' => 'Resistência (%)',
-                                    ] as $campo => $label)
-                                        <div class="col-6">
-                                            <label for="{{ $campo }}" class="form-label">{{ $label }}</label>
-                                            <input type="number" id="{{ $campo }}" name="{{ $campo }}"
-                                                class="form-control" value="" min="0" step="any" readonly>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div> --}}
-
-                            {{-- Aba 4: Composição Corporal --}}
-                            {{-- <div class="tab-pane fade" id="aba4" role="tabpanel">
-                                <div class="row g-3">
-                                    @foreach ([
-                                        'massa_magra_kg' => 'Massa Magra (kg)',
-                                        'massa_adiposa_kg' => 'Massa Adiposa (kg)',
-                                        'massa_magra_pct' => 'Massa Magra (%)',
-                                        'massa_adiposa_pct' => 'Massa Adiposa (%)',
-                                        'peso_residual_kg' => 'Peso Residual (kg)',
-                                    ] as $campo => $label)
-                                        <div class="col-6">
-                                            <label for="{{ $campo }}"
-                                                class="form-label">{{ $label }}</label>
-                                            <input type="number" id="{{ $campo }}" name="{{ $campo }}"
-                                                class="form-control" value="" min="0" step="any" readonly>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div> --}}
-
-                            {{-- Aba 5: Perguntas --}}
-                            {{-- <div class="tab-pane fade" id="aba5" role="tabpanel">
-                                <div class="row g-3">
-                                    <div class="col-12 mt-2">
-                                        <h6 class="text-primary">Informações de Saúde</h6>
-                                    </div>
-
-                                    @php
-                                        $saudeCampos = [
-                                            'problema_saude' => 'Possui problema de saúde?',
-                                            'atestado_valido' => 'Está com atestado válido?',
-                                            'usa_medicacao' => 'Faz uso de medicação?',
-                                        ];
-                                    @endphp
-
-                                    @foreach ($saudeCampos as $campo => $label)
-                                        <div class="col-12 saude-item">
-                                            <label for="{{ $campo }}_sim">{{ $label }}</label>
-                                            <div class="saude-radios">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio"
-                                                        name="{{ $campo }}" id="{{ $campo }}_sim"
-                                                        value="1" disabled>
-                                                    <label class="form-check-label"
-                                                        for="{{ $campo }}_sim">Sim</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio"
-                                                        name="{{ $campo }}" id="{{ $campo }}_nao"
-                                                        value="0" disabled>
-                                                    <label class="form-check-label"
-                                                        for="{{ $campo }}_nao">Não</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div> --}}
-
-                        {{-- Botões --}}
-                        {{-- <div class="mt-4">
-                            <div class="d-grid d-md-flex justify-content-md-between actions-wrap">
-                                <button type="submit" class="btn btn-navbar-blue flex-md-grow-1">Atualizar
-                                    Atleta</button>
-                                <a href="{{ route('tecnico.dashboard') }}"
-                                    class="btn btn-secondary flex-md-grow-1">Cancelar</a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-{{-- @endsection --}}
-
-{{-- @push('scripts')
-    <script>
-        // Injeta a rota com placeholder
-        window.routes = {
-            lastAnalysis: "{{ route('aluno.lastAnalysis', ['aluno' => '__ID__']) }}"
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const select = document.getElementById('aluno_select');
-            if (!select) return;
-
-            const tecnicos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
-            const fisicos = ['envergadura', 'velocidade', 'agilidade', 'salto_horizontal', 'resistencia'];
-            const composicao = ['massa_magra_kg', 'massa_adiposa_kg', 'massa_magra_pct', 'massa_adiposa_pct',
-                'peso_residual_kg'
-            ];
-            const saude = ['problema_saude', 'atestado_valido', 'usa_medicacao'];
-
-            function setReadonly(ids, ro = true) {
-                ids.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        if (ro) el.setAttribute('readonly', 'readonly');
-                        else el.removeAttribute('readonly');
-                    }
-                });
-            }
-
-            function setDisabledRadios(names, dis = true) {
-                names.forEach(name => {
-                    const radios = document.querySelectorAll(`input[name="${name}"]`);
-                    radios.forEach(r => r.disabled = dis);
-                });
-            }
-
-            // Inicial: tudo bloqueado
-            setReadonly([...tecnicos, ...fisicos, ...composicao], true);
-            setDisabledRadios(saude, true);
-
-            select.addEventListener('change', () => {
-                const id = select.value;
-                if (!id) return;
-
-                fetch(window.routes.lastAnalysis.replace('__ID__', id))
-                    .then(res => res.json())
-                    .then(data => {
-                        // Preenche e libera técnicos
-                        tecnicos.forEach(campo => {
-                            const el = document.getElementById(campo);
-                            if (el) {
-                                el.value = data?.[campo] ?? '';
-                                el.removeAttribute('readonly');
-                            }
-                        });
-
-                        // Preenche e libera físicos
-                        fisicos.forEach(campo => {
-                            const el = document.getElementById(campo);
-                            if (el) {
-                                el.value = data?.[campo] ?? '';
-                                el.removeAttribute('readonly');
-                            }
-                        });
-
-                        // Preenche e libera composição
-                        composicao.forEach(campo => {
-                            const el = document.getElementById(campo);
-                            if (el) {
-                                el.value = data?.[campo] ?? '';
-                                el.removeAttribute('readonly');
-                            }
-                        });
-
-                        // Preenche e libera saúde (radios)
-                        setDisabledRadios(saude, false);
-                        saude.forEach(name => {
-                            const val = data?.[name];
-                            const sim = document.getElementById(`${name}_sim`);
-                            const nao = document.getElementById(`${name}_nao`);
-                            if (sim && nao) {
-                                if (val === 1 || val === '1' || val === true) {
-                                    sim.checked = true;
-                                    nao.checked = false;
-                                } else if (val === 0 || val === '0' || val === false) {
-                                    sim.checked = false;
-                                    nao.checked = true;
-                                } else {
-                                    sim.checked = false;
-                                    nao.checked = false;
-                                }
-                            }
-                        });
-                    })
-                    .catch(() => alert('Não foi possível carregar a última análise.'));
-            });
-            
-            // Auto-hide success alert
-            const alert = document.querySelector('.alert-success');
-            if (alert) {
-                setTimeout(() => {
-                    alert.classList.add('fade');
-                    alert.classList.remove('show');
-                }, 5000); // 5 segundos
-            }
-        });
-    </script>
-@endpush  --}}
