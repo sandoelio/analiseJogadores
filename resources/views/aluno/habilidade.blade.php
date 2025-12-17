@@ -133,27 +133,66 @@
                             })->values();
                         @endphp
                         <div class="tab-content mt-3">
-                            {{-- Aba 1: Identificação --}}
-                            <div class="tab-pane fade show active" id="aba1" role="tabpanel">
-                                <div class="mb-3">
-                                <label for="aluno_select" class="form-label">Selecione o Atleta</label>
-                                <select id="aluno_select" name="aluno_id" class="form-select" required>
-                                    <option value="" disabled {{ old('aluno_id') ? '' : 'selected' }}>-- selecione --</option>
+                                {{-- Aba 1: Identificação --}}
+                                <div class="tab-pane fade show active" id="aba1" role="tabpanel">
+                                    <div class="mb-3">
+                                        <label for="aluno_select" class="form-label">Selecione o Atleta</label>
+                                        <select id="aluno_select" name="aluno_id" class="form-select" required>
+                                        <option value="" disabled {{ old('aluno_id') ? '' : 'selected' }}>-- selecione --</option>
 
-                                    @foreach ($alunosOrdenados as $a)
-                                    @php
-                                        // calcula idade para exibição
-                                        $idadeExib = $a->idade ?? ( !empty($a->data_nascimento) ? \Carbon\Carbon::parse($a->data_nascimento)->age : null );
-                                        $selected = (string) old('aluno_id') === (string) $a->id ? 'selected' : '';
-                                    @endphp
+                                        @foreach ($alunosOrdenados as $a)
+                                            @php
+                                            $idadeExib = $a->idade ?? (!empty($a->data_nascimento) ? \Carbon\Carbon::parse($a->data_nascimento)->age : null);
+                                            $selected = (string) old('aluno_id') === (string) $a->id ? 'selected' : '';
+                                            $dataNasc = $a->data_nascimento ? $a->data_nascimento->toDateString() : '';
+                                            $sexoVal = $a->sexo ?? '';
+                                            $idadeVal = $a->idade ?? ($a->data_nascimento ? \Carbon\Carbon::parse($a->data_nascimento)->age : '');
+                                            @endphp
 
-                                    <option value="{{ $a->id }}" {{ $selected }}>
-                                        {{ $a->nome }}@if($idadeExib) ({{ $idadeExib }} anos)@endif
-                                    </option>
-                                    @endforeach
-                                </select>
+                                            <option
+                                            value="{{ $a->id }}"
+                                            data-datanascimento="{{ $dataNasc }}"
+                                            data-sexo="{{ $sexoVal }}"
+                                            data-idade="{{ $idadeVal }}"
+                                            {{ $selected }}
+                                            >
+                                            {{ $a->nome }}@if($idadeExib) ({{ $idadeExib }} anos)@endif
+                                            </option>
+                                        @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                                            <input
+                                                type="date"
+                                                id="data_nascimento"
+                                                name="data_nascimento"
+                                                class="form-control"
+                                                value="{{ old('data_nascimento') }}"
+                                            >
+                                        </div>
+
+                                        <div class="col-3">
+                                            <label class="form-label d-block">Sexo</label>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="sexo" id="sexo_m" value="Masculino">
+                                                <label class="form-check-label" for="sexo_m">Masculino</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="sexo" id="sexo_f" value="Feminino">
+                                                <label class="form-check-label" for="sexo_f">Feminino</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4">
+                                            <label class="form-label">Idade</label>
+                                            <input type="text" id="idade_display" class="form-control" value="{{ old('idade') }}" readonly>
+                                            <input type="hidden" id="idade" name="idade" value="{{ old('idade') }}">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
                             
                             {{-- Aba 2: Habilidades Técnicas --}}
                             <div class="tab-pane fade" id="aba2" role="tabpanel">
@@ -277,140 +316,272 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            const select = document.getElementById('aluno_select');
-            if (!select) return;
+        const select = document.getElementById('aluno_select');
+        if (!select) return;
 
-            const tecnicos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
-            const fisicos = ['envergadura', 'velocidade', 'agilidade', 'salto_horizontal', 'resistencia'];
-            const composicao = ['massa_magra_kg', 'massa_adiposa_kg', 'massa_magra_pct', 'massa_adiposa_pct',
-                'peso_residual_kg'
+        const tecnicos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
+        const fisicos = ['envergadura', 'velocidade', 'agilidade', 'salto_horizontal', 'resistencia'];
+        const composicao = ['massa_magra_kg', 'massa_adiposa_kg', 'massa_magra_pct', 'massa_adiposa_pct', 'peso_residual_kg'];
+        const saude = ['problema_saude', 'atestado_valido', 'usa_medicacao'];
+
+        // Identificação
+        const dataNascEl = document.getElementById('data_nascimento');
+        const sexoMEl = document.getElementById('sexo_m');
+        const sexoFEl = document.getElementById('sexo_f');
+        const idadeDisplayEl = document.getElementById('idade_display');
+        const idadeHiddenEl = document.getElementById('idade');
+        const nomeEl = document.getElementById('nome');
+
+        function setReadOnlyByIds(ids, ro = true) {
+            ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.readOnly = !!ro;
+            el.disabled = false;
+            });
+        }
+
+        function setDisabledRadiosByNames(names, dis = true) {
+            names.forEach(name => {
+            const radios = document.querySelectorAll(`input[name="${name}"]`);
+            radios.forEach(r => {
+                r.disabled = !!dis;
+                if (dis) r.checked = false;
+            });
+            });
+        }
+
+        // Inicial: bloqueia inputs de análise até seleção
+        setReadOnlyByIds([...tecnicos, ...fisicos, ...composicao], true);
+        setDisabledRadiosByNames(saude, true);
+
+        // Preenche identificação (nome, data, sexo, idade)
+        function preencherIdentificacao(idObj) {
+            const id = idObj || {};
+            if (nomeEl && (id.nome !== undefined)) {
+            nomeEl.value = id.nome ?? '';
+            nomeEl.readOnly = false;
+            nomeEl.disabled = false;
+            }
+            if (dataNascEl) dataNascEl.value = id.data_nascimento ?? '';
+            const sexoVal = (id.sexo ?? '').toString();
+            if (sexoMEl) sexoMEl.checked = (sexoVal === 'M' || sexoVal.toLowerCase() === 'masculino');
+            if (sexoFEl) sexoFEl.checked = (sexoVal === 'F' || sexoVal.toLowerCase() === 'feminino');
+            if (idadeDisplayEl) {
+            if (id.idade !== undefined && id.idade !== null && id.idade !== '') {
+                idadeDisplayEl.value = id.idade + ' anos';
+                if (idadeHiddenEl) idadeHiddenEl.value = id.idade;
+            } else {
+                idadeDisplayEl.value = '';
+                if (idadeHiddenEl) idadeHiddenEl.value = '';
+            }
+            }
+        }
+
+        // Normaliza payload de análise (aceita top-level ou grupos)
+        function normalizeAnalisePayload(payload) {
+            if (!payload) return {};
+
+            const allFields = [
+            'arremesso','passe','marcacao','bandeja','rebote','dominio',
+            'envergadura','velocidade','agilidade','salto_horizontal','resistencia',
+            'massa_magra_kg','massa_adiposa_kg','massa_magra_pct','massa_adiposa_pct','peso_residual_kg',
+            'problema_saude','atestado_valido','usa_medicacao'
             ];
-            const saude = ['problema_saude', 'atestado_valido', 'usa_medicacao'];
 
-            // Usa propriedades DOM em vez de atributos
-            function setReadOnlyByIds(ids, ro = true) {
-                ids.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (!el) return;
-                    el.readOnly = !!ro;
-                    el.disabled = false; // garantir que não esteja disabled (disabled impede envio)
-                });
+            // 1) grupos (se existirem)
+            const fromGroups = {};
+            if (payload.tecnicos || payload.fisicos || payload.composicao || payload.saude) {
+            Object.assign(fromGroups, payload.tecnicos || {}, payload.fisicos || {}, payload.composicao || {}, payload.saude || {});
             }
 
-            function setDisabledRadiosByNames(names, dis = true) {
-                names.forEach(name => {
-                    const radios = document.querySelectorAll(`input[name="${name}"]`);
-                    radios.forEach(r => {
-                        r.disabled = !!dis;
-                        if (dis) r.checked = false;
-                    });
-                });
-            }
-
-            // Inicial: tudo bloqueado (somente leitura)
-            setReadOnlyByIds([...tecnicos, ...fisicos, ...composicao], true);
-            setDisabledRadiosByNames(saude, true);
-
-            // preenche defaults para criação: valores fixos (por exemplo '1') e mantém readOnly
-            function fillDefaultsForCreate(defaultValue = 1) {
-                [...tecnicos, ...fisicos, ...composicao].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (!el) return;
-                    el.value = defaultValue;
-                    el.readOnly = true;
-                    el.disabled = false;
-                });
-                setDisabledRadiosByNames(saude, true);
-            }
-
-            // Se quiser distinguir modo create/edit no servidor, injete window.MODE = 'create' ou 'edit'
-            if ((window.MODE && window.MODE === 'create') || !window.MODE) {
-                // quando não informado, assumimos comportamento create no carregamento inicial
-                fillDefaultsForCreate(1);
-            }
-
-            select.addEventListener('change', () => {
-                const id = select.value;
-                if (!id) return;
-
-                const url = window.routes.lastAnalysis.replace('__ID__', encodeURIComponent(id));
-
-                fetch(url, {
-                        credentials: 'same-origin'
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('HTTP ' + response.status);
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Preenche Nome (se existir campo nome)
-                        const nomeEl = document.getElementById('nome');
-                        if (nomeEl) {
-                            nomeEl.value = (data && data.nome) ? data.nome : '';
-                            nomeEl.readOnly = false;
-                            nomeEl.disabled = false;
-                        }
-
-                        // Preenche e libera técnicos
-                        tecnicos.forEach(campo => {
-                            const el = document.getElementById(campo);
-                            if (!el) return;
-                            el.value = (data && data[campo] !== undefined && data[campo] !==
-                                null) ? data[campo] : '';
-                            el.readOnly = false;
-                            el.disabled = false;
-                        });
-
-                        // Preenche e libera físicos
-                        fisicos.forEach(campo => {
-                            const el = document.getElementById(campo);
-                            if (!el) return;
-                            el.value = (data && data[campo] !== undefined && data[campo] !==
-                                null) ? data[campo] : '';
-                            el.readOnly = false;
-                            el.disabled = false;
-                        });
-
-                        // Preenche e libera composição
-                        composicao.forEach(campo => {
-                            const el = document.getElementById(campo);
-                            if (!el) return;
-                            el.value = (data && data[campo] !== undefined && data[campo] !==
-                                null) ? data[campo] : '';
-                            el.readOnly = false;
-                            el.disabled = false;
-                        });
-
-                        // Preenche e libera saúde (radios)
-                        setDisabledRadiosByNames(saude, false);
-                        saude.forEach(name => {
-                            const val = data ? data[name] : undefined;
-                            const sim = document.getElementById(`${name}_sim`);
-                            const nao = document.getElementById(`${name}_nao`);
-                            const isTrue = val === 1 || val === '1' || val === true || val ===
-                                'true';
-                            const isFalse = val === 0 || val === '0' || val === false || val ===
-                                'false';
-                            if (sim && nao) {
-                                sim.checked = !!isTrue;
-                                nao.checked = !!isFalse;
-                            }
-                        });
-                    })
-                    .catch(err => {
-                        console.error('Erro ao carregar última análise:', err);
-                        alert('Não foi possível carregar a última análise.');
-                    });
+            // 2) campos no topo
+            const top = {};
+            allFields.forEach(k => {
+            if (payload[k] !== undefined) top[k] = payload[k];
             });
 
-            // Auto-hide success alert
-            const alert = document.querySelector('.alert-success');
-            if (alert) {
-                setTimeout(() => {
-                    alert.classList.add('fade');
-                    alert.classList.remove('show');
-                }, 5000);
+            // 3) prioridade: groups > top
+            return Object.assign({}, top, fromGroups);
+        }
+
+        // Preenche os campos de análise (mantém comportamento original)
+        function preencherAnalise(payload) {
+            const normalized = normalizeAnalisePayload(payload);
+
+            // técnicos
+            tecnicos.forEach(campo => {
+            const el = document.getElementById(campo);
+            if (!el) return;
+            el.value = (normalized[campo] !== undefined && normalized[campo] !== null) ? normalized[campo] : '';
+            el.readOnly = false;
+            el.disabled = false;
+            });
+
+            // físicos
+            fisicos.forEach(campo => {
+            const el = document.getElementById(campo);
+            if (!el) return;
+            el.value = (normalized[campo] !== undefined && normalized[campo] !== null) ? normalized[campo] : '';
+            el.readOnly = false;
+            el.disabled = false;
+            });
+
+            // composição
+            composicao.forEach(campo => {
+            const el = document.getElementById(campo);
+            if (!el) return;
+            el.value = (normalized[campo] !== undefined && normalized[campo] !== null) ? normalized[campo] : '';
+            el.readOnly = false;
+            el.disabled = false;
+            });
+
+            // saúde (radios)
+            setDisabledRadiosByNames(saude, false);
+            saude.forEach(name => {
+            const val = normalized[name];
+            const sim = document.getElementById(`${name}_sim`);
+            const nao = document.getElementById(`${name}_nao`);
+            const isTrue = val === 1 || val === '1' || val === true || val === 'true';
+            const isFalse = val === 0 || val === '0' || val === false || val === 'false';
+            if (sim && nao) {
+                sim.checked = !!isTrue;
+                nao.checked = !!isFalse;
             }
+            });
+        }
+
+        // Fallback: preenche a partir do dataset da option (quando fetch falhar)
+        function preencherFromOptionDataset(opt) {
+            if (!opt) return;
+            const ds = opt.dataset || {};
+            const id = {
+            nome: opt.textContent ? opt.textContent.trim() : (ds.nome || ''),
+            data_nascimento: ds.datanascimento || ds.dataNasc || ds.data_nascimento || '',
+            sexo: ds.sexo || '',
+            idade: ds.idade || ds.age || ''
+            };
+            preencherIdentificacao(id);
+        }
+
+        // Função principal: busca via fetch e preenche campos
+        async function carregarAnaliseDoAluno(alunoId) {
+            if (!alunoId) return;
+
+            const opt = select.options[select.selectedIndex];
+            if (opt && (opt.dataset && (opt.dataset.datanascimento || opt.dataset.sexo || opt.dataset.idade))) {
+            // se option já tem identificação, preenche rápido
+            preencherFromOptionDataset(opt);
+            } else {
+            // limpa identificação temporariamente
+            if (dataNascEl) dataNascEl.value = '';
+            if (sexoMEl) sexoMEl.checked = false;
+            if (sexoFEl) sexoFEl.checked = false;
+            if (idadeDisplayEl) idadeDisplayEl.value = '';
+            if (idadeHiddenEl) idadeHiddenEl.value = '';
+            }
+
+            const urlTemplate = window.routes && window.routes.lastAnalysis ? window.routes.lastAnalysis : null;
+            if (!urlTemplate) {
+            console.error('Rota lastAnalysis não definida em window.routes');
+            return;
+            }
+            const url = urlTemplate.replace('__ID__', encodeURIComponent(alunoId));
+
+            try {
+            const resp = await fetch(url, { credentials: 'same-origin' });
+
+            // tenta sempre ler JSON (mesmo em 404) para aproveitar identificação quando presente
+            let payload;
+            try {
+                payload = await resp.json();
+            } catch (e) {
+                console.error('Resposta não é JSON', e);
+                return;
+            }
+
+            // DEBUG mínimo (remova depois)
+            console.debug('lastAnalysis status', resp.status, 'payload keys', Object.keys(payload || {}));
+
+            // identificação: prioriza payload.identificacao, senão monta a partir do topo
+            const idObj = payload.identificacao ?? {
+                nome: payload.nome ?? null,
+                data_nascimento: payload.data_nascimento ?? null,
+                sexo: payload.sexo ?? null,
+                idade: payload.idade ?? null
+            };
+            preencherIdentificacao(idObj);
+
+            // preencher análise: normalizeAnalisePayload aceita topo ou grupos
+            preencherAnalise(payload);
+
+            // se a resposta for 404 e não houver campos de análise, apenas logamos (não interrompe)
+            if (!resp.ok && resp.status === 404) {
+                console.warn('fetch retornou 404 — identificação preenchida, análise ausente');
+            }
+            } catch (err) {
+            console.error('Erro ao carregar última análise:', err);
+            if (opt) preencherFromOptionDataset(opt);
+            }
+        }
+
+        // Listener de mudança no select (mesmo comportamento que você tinha)
+        select.addEventListener('change', () => {
+            const id = select.value;
+            if (!id) return;
+            carregarAnaliseDoAluno(id);
+        });
+
+        // Se já houver uma opção selecionada no carregamento (old value), disparamos a mudança para preencher campos
+        const initialOpt = select.options[select.selectedIndex];
+        if (initialOpt && initialOpt.value !== '') {
+            setTimeout(() => select.dispatchEvent(new Event('change', { bubbles: true })), 50);
+        }
+
+        // Atualiza idade automaticamente se o usuário editar a data de nascimento manualmente
+        if (dataNascEl) {
+            dataNascEl.addEventListener('change', () => {
+            const val = dataNascEl.value;
+            if (!val) {
+                if (idadeDisplayEl) idadeDisplayEl.value = '';
+                if (idadeHiddenEl) idadeHiddenEl.value = '';
+                return;
+            }
+            const hoje = new Date();
+            const nasc = new Date(val + 'T00:00:00');
+            let idadeCalc = hoje.getFullYear() - nasc.getFullYear();
+            const m = hoje.getMonth() - nasc.getMonth();
+            if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idadeCalc--;
+            if (idadeCalc >= 0) {
+                if (idadeDisplayEl) idadeDisplayEl.value = idadeCalc + ' anos';
+                if (idadeHiddenEl) idadeHiddenEl.value = idadeCalc;
+            } else {
+                if (idadeDisplayEl) idadeDisplayEl.value = '';
+                if (idadeHiddenEl) idadeHiddenEl.value = '';
+            }
+            });
+        }
+
+        // Auto-hide success alert (melhor comportamento: usa classes do Bootstrap se disponível)
+        const alert = document.querySelector('.alert-success');
+        if (alert) {
+            const TIMEOUT = 5000;
+            if (!alert.classList.contains('fade')) alert.classList.add('fade', 'show');
+            setTimeout(() => {
+            try {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                bsAlert.close();
+                return;
+                }
+            } catch (e) {}
+            alert.style.transition = 'opacity 0.5s ease';
+            alert.style.opacity = '0';
+            setTimeout(() => { if (alert.parentNode) alert.parentNode.removeChild(alert); }, 500);
+            }, TIMEOUT);
+        }
         });
     </script>
 @endpush
+
+

@@ -66,6 +66,10 @@ class AlunoController extends Controller
         $rules = [
             'aluno_id'           => 'required|exists:alunos,id',
 
+            'data_nascimento'    => 'sometimes|nullable|date',
+            'sexo'               => 'sometimes|nullable|in:Masculino,Feminino',
+            'idade'              => 'sometimes|nullable|integer|min:0',
+
             'arremesso'          => 'sometimes|nullable|integer|between:0,10',
             'passe'              => 'sometimes|nullable|integer|between:0,10',
             'marcacao'           => 'sometimes|nullable|integer|between:0,10',
@@ -93,6 +97,33 @@ class AlunoController extends Controller
         $data = $request->validate($rules);
 
         $aluno = Aluno::findOrFail($data['aluno_id']);
+
+        // Se vierem campos de identificação no request, atualiza o aluno 
+        $alunoUpdates = []; 
+        if (array_key_exists('data_nascimento', $data)) { 
+            $alunoUpdates['data_nascimento'] = $data['data_nascimento']; 
+        }
+
+        if (array_key_exists('sexo', $data)) { 
+            $sexo = $data['sexo'];
+
+            if (in_array($sexo, ['M', 'm', 'Masculino', 'masculino'], true)) {
+                $sexo = 'Masculino';
+            } elseif (in_array($sexo, ['F', 'f', 'Feminino', 'feminino'], true)) {
+                $sexo = 'Feminino';
+            } else {
+                $sexo = null;
+            } 
+            $alunoUpdates['sexo'] = $sexo; 
+        }
+            
+        if (array_key_exists('idade', $data)) { 
+            $alunoUpdates['idade'] = $data['idade']; 
+        } 
+        
+        if (!empty($alunoUpdates)) { 
+            $aluno->update($alunoUpdates);    
+        }
 
         // atributos completos que a tabela analises espera
         $allAttrs = [
@@ -142,6 +173,13 @@ class AlunoController extends Controller
 
         // montar payloadAtual organizado (como antes)
         $payloadAtual = [
+            'identificacao' => [
+                'aluno_id' => $aluno->id,
+                'nome' => $aluno->nome,
+                'data_nascimento' => $aluno->data_nascimento ? $aluno->data_nascimento->toDateString() : null,
+                'sexo' => $aluno->sexo ?? null,
+                'idade' => $aluno->idade ?? null,
+            ],
             'tecnicos' => [
                 'arremesso' => $analise->arremesso,
                 'passe' => $analise->passe,
@@ -240,42 +278,55 @@ class AlunoController extends Controller
             ->latest('created_at')
             ->first();
 
-        if (!$analise) {
-            return response()->json([
-                'error' => 'Nenhuma análise encontrada.'
-            ], 404);
-        }
-
-        return response()->json([
-            'nome'               => $aluno->nome,
-
-            // Habilidades Técnicas
-            'arremesso'          => $analise->arremesso,
-            'passe'              => $analise->passe,
-            'marcacao'           => $analise->marcacao,
-            'bandeja'            => $analise->bandeja,
-            'rebote'             => $analise->rebote,
-            'dominio'            => $analise->dominio,
-
-            // Atributos Físicos
-            'envergadura'        => $analise->envergadura,
-            'velocidade'         => $analise->velocidade,
-            'agilidade'          => $analise->agilidade,
-            'salto_horizontal'   => $analise->salto_horizontal,
-            'resistencia'        => $analise->resistencia,
-
-            // Composição Corporal
-            'massa_magra_kg'     => $analise->massa_magra_kg,
-            'massa_adiposa_kg'   => $analise->massa_adiposa_kg,
-            'massa_magra_pct'    => $analise->massa_magra_pct,
-            'massa_adiposa_pct'  => $analise->massa_adiposa_pct,
-            'peso_residual_kg'   => $analise->peso_residual_kg,
-
-            // Informações de Saúde
-            'problema_saude'     => $analise->problema_saude,
-            'atestado_valido'    => $analise->atestado_valido,
-            'usa_medicacao'      => $analise->usa_medicacao,
-        ]);
+        // Monta identificação a partir do aluno 
+        $dataNasc = $aluno->data_nascimento ? $aluno->data_nascimento->toDateString() : null; 
+        $idade = $aluno->idade ?? ($dataNasc ? \Carbon\Carbon::parse($dataNasc)->age : null); 
+        $identificacao = [ 
+            'aluno_id' => $aluno->id, 
+            'nome' => $aluno->nome, 
+            'data_nascimento' => $dataNasc, 
+            'sexo' => $aluno->sexo ?? null, 
+            'idade' => $idade, 
+        ]; 
+        if (!$analise) { 
+            // Retorna identificação mesmo quando não há análise (útil para preencher a aba 1)
+             return response()->json([ 
+                'identificacao' => $identificacao, 
+                'error' => 'Nenhuma análise encontrada.' ], 404); 
+            } 
+            // Resposta: inclui identificação (aninhada) e mantém os campos de análise no topo 
+            return response()->json(array_merge([ 
+                'identificacao' => $identificacao, 
+                // Mantém nome no topo para compatibilidade com clientes antigos 
+                'nome' => $aluno->nome, 
+            ], 
+            [ 
+                // Habilidades Técnicas 
+                'arremesso' => $analise->arremesso, 
+                'passe' => $analise->passe, 
+                'marcacao' => $analise->marcacao, 
+                'bandeja' => $analise->bandeja, 
+                'rebote' => $analise->rebote, 
+                'dominio' => $analise->dominio, 
+                // Atributos Físicos 
+                'envergadura' => $analise->envergadura, 
+                'velocidade' => $analise->velocidade, 
+                'agilidade' => $analise->agilidade, 
+                'salto_horizontal' => $analise->salto_horizontal, 
+                'resistencia' => $analise->resistencia, 
+                // Composição Corporal 
+                'massa_magra_kg' => $analise->massa_magra_kg, 
+                'massa_adiposa_kg' => $analise->massa_adiposa_kg, 
+                'massa_magra_pct' => $analise->massa_magra_pct, 
+                'massa_adiposa_pct' => $analise->massa_adiposa_pct, 
+                'peso_residual_kg' => $analise->peso_residual_kg, 
+                // Informações de Saúde 
+                'problema_saude' => $analise->problema_saude, 
+                'atestado_valido' => $analise->atestado_valido, 
+                'usa_medicacao' => $analise->usa_medicacao, 
+                // id da análise 
+                'analise_id' => $analise->id, 
+            ])); 
     }
 
     /**
