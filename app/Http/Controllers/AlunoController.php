@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Aluno;
 use App\Models\Analise;
 use Illuminate\Support\Str;
@@ -295,6 +296,8 @@ class AlunoController extends Controller
         // Validação completa
         $data = $request->validate([
             'nome'               => 'required|string|max:255',
+            'data_nascimento'    => 'nullable|date',
+            'sexo'               => 'nullable|in:Masculino,Feminino,M,F',
             'arremesso'          => 'required|integer|between:0,10',
             'passe'              => 'required|integer|between:0,10',
             'marcacao'           => 'required|integer|between:0,10',
@@ -315,11 +318,17 @@ class AlunoController extends Controller
             'massa_magra_pct'    => 'required|numeric|min:0',
             'massa_adiposa_pct'  => 'required|numeric|min:0',
             'peso_residual_kg'   => 'required|numeric|min:0',
-            'problema_saude'     => 'required|boolean',
-            'atestado_valido'    => 'required|boolean',
-            'usa_medicacao'      => 'required|boolean',
+            'problema_saude'     => 'nullable|boolean',
+            'atestado_valido'    => 'nullable|boolean',
+            'usa_medicacao'      => 'nullable|boolean',
 
         ]);
+
+        // Normaliza campos opcionais (evita Undefined array key) 
+        $data['problema_saude'] = $request->has('problema_saude') ? (int) $request->input('problema_saude') : null; 
+        $data['atestado_valido'] = $request->has('atestado_valido') ? (int) $request->input('atestado_valido') : null; 
+        $data['usa_medicacao'] = $request->has('usa_medicacao') ? (int) $request->input('usa_medicacao') : null;
+
         // Verifica se já existe
         $jaCadastrado = Aluno::where('nome', $data['nome'])
             ->where('user_id', $userId)
@@ -337,6 +346,30 @@ class AlunoController extends Controller
         $uid       = Str::random(7);
         $matricula = "{$sigla}-{$uid}";
 
+        // Normaliza sexo para 'M' ou 'F' (ou null) 
+        $sexo = null;
+        if (!empty($data['sexo'])) {
+            $s = $data['sexo'];
+            if (in_array($s, ['Masculino', 'M'], true)) {
+                $sexo = 'Masculino';
+            } elseif (in_array($s, ['Feminino', 'F'], true)) {
+                $sexo = 'Feminino';
+            }
+        }
+
+        // Calcula idade a partir da data de nascimento (se fornecida) 
+        $idade = null; if (!empty($data['data_nascimento'])) { 
+            try { 
+                $idade = Carbon::parse($data['data_nascimento'])->age; 
+                // garante valor não-negativo 
+                if ($idade < 0) { 
+                    $idade = null; 
+                } 
+            } catch (\Exception $e) {
+                $idade = null; 
+            } 
+        }
+
         // Cria aluno
         $aluno = Aluno::firstOrCreate(
             [
@@ -346,6 +379,10 @@ class AlunoController extends Controller
             ],
             [
                 'matricula'      => $matricula,
+                // preenche os novos campos (data_nascimento, sexo, idade) 
+                'data_nascimento'=> $data['data_nascimento'] ?? null, 
+                'sexo' => $sexo, 
+                'idade' => $idade,
             ]
         );
 
