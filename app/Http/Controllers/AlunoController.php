@@ -40,10 +40,8 @@ class AlunoController extends Controller
         $instituicaoId   = $user->instituicao_id;
 
         // Puxa todos os alunos da mesma instituição
-        $alunos = Aluno::where('instituicao_id', $instituicaoId)
-            ->orderBy('nome')
-            ->paginate(10);
-
+        $alunos = Aluno::where('instituicao_id', $instituicaoId)->orderByRaw('CASE WHEN idade IS NULL THEN 1 ELSE 0 END, idade ASC')->paginate(10);
+        
         // Total absoluto (query separada)
         $totalAlunos = $alunos->total();
 
