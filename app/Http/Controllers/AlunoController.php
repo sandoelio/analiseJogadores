@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Aluno;
-use App\Models\Analise;
 use Illuminate\Support\Str;
 use App\Models\AlunoHistory;
 use Illuminate\Http\Request;
-use App\Observers\AlunoObserver;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Middleware\CheckSession;
 
 class AlunoController extends Controller
 {
@@ -42,10 +40,8 @@ class AlunoController extends Controller
         $instituicaoId   = $user->instituicao_id;
 
         // Puxa todos os alunos da mesma instituição
-        $alunos = Aluno::where('instituicao_id', $instituicaoId)
-            ->orderBy('nome')
-            ->paginate(10);
-
+        $alunos = Aluno::where('instituicao_id', $instituicaoId)->orderByRaw('CASE WHEN idade IS NULL THEN 1 ELSE 0 END, idade ASC')->paginate(10);
+        
         // Total absoluto (query separada)
         $totalAlunos = $alunos->total();
 
@@ -69,6 +65,10 @@ class AlunoController extends Controller
         // validação permissiva: os campos podem ou não vir no request (só validar formato quando vierem)
         $rules = [
             'aluno_id'           => 'required|exists:alunos,id',
+
+            'data_nascimento'    => 'sometimes|nullable|date',
+            'sexo'               => 'sometimes|nullable|in:Masculino,Feminino',
+            'idade'              => 'sometimes|nullable|integer|min:0',
 
             'arremesso'          => 'sometimes|nullable|integer|between:0,10',
             'passe'              => 'sometimes|nullable|integer|between:0,10',
@@ -97,6 +97,33 @@ class AlunoController extends Controller
         $data = $request->validate($rules);
 
         $aluno = Aluno::findOrFail($data['aluno_id']);
+
+        // Se vierem campos de identificação no request, atualiza o aluno 
+        $alunoUpdates = []; 
+        if (array_key_exists('data_nascimento', $data)) { 
+            $alunoUpdates['data_nascimento'] = $data['data_nascimento']; 
+        }
+
+        if (array_key_exists('sexo', $data)) { 
+            $sexo = $data['sexo'];
+
+            if (in_array($sexo, ['M', 'm', 'Masculino', 'masculino'], true)) {
+                $sexo = 'Masculino';
+            } elseif (in_array($sexo, ['F', 'f', 'Feminino', 'feminino'], true)) {
+                $sexo = 'Feminino';
+            } else {
+                $sexo = null;
+            } 
+            $alunoUpdates['sexo'] = $sexo; 
+        }
+            
+        if (array_key_exists('idade', $data)) { 
+            $alunoUpdates['idade'] = $data['idade']; 
+        } 
+        
+        if (!empty($alunoUpdates)) { 
+            $aluno->update($alunoUpdates);    
+        }
 
         // atributos completos que a tabela analises espera
         $allAttrs = [
@@ -146,6 +173,13 @@ class AlunoController extends Controller
 
         // montar payloadAtual organizado (como antes)
         $payloadAtual = [
+            'identificacao' => [
+                'aluno_id' => $aluno->id,
+                'nome' => $aluno->nome,
+                'data_nascimento' => $aluno->data_nascimento ? $aluno->data_nascimento->toDateString() : null,
+                'sexo' => $aluno->sexo ?? null,
+                'idade' => $aluno->idade ?? null,
+            ],
             'tecnicos' => [
                 'arremesso' => $analise->arremesso,
                 'passe' => $analise->passe,
@@ -244,42 +278,55 @@ class AlunoController extends Controller
             ->latest('created_at')
             ->first();
 
-        if (!$analise) {
-            return response()->json([
-                'error' => 'Nenhuma análise encontrada.'
-            ], 404);
-        }
-
-        return response()->json([
-            'nome'               => $aluno->nome,
-
-            // Habilidades Técnicas
-            'arremesso'          => $analise->arremesso,
-            'passe'              => $analise->passe,
-            'marcacao'           => $analise->marcacao,
-            'bandeja'            => $analise->bandeja,
-            'rebote'             => $analise->rebote,
-            'dominio'            => $analise->dominio,
-
-            // Atributos Físicos
-            'envergadura'        => $analise->envergadura,
-            'velocidade'         => $analise->velocidade,
-            'agilidade'          => $analise->agilidade,
-            'salto_horizontal'   => $analise->salto_horizontal,
-            'resistencia'        => $analise->resistencia,
-
-            // Composição Corporal
-            'massa_magra_kg'     => $analise->massa_magra_kg,
-            'massa_adiposa_kg'   => $analise->massa_adiposa_kg,
-            'massa_magra_pct'    => $analise->massa_magra_pct,
-            'massa_adiposa_pct'  => $analise->massa_adiposa_pct,
-            'peso_residual_kg'   => $analise->peso_residual_kg,
-
-            // Informações de Saúde
-            'problema_saude'     => $analise->problema_saude,
-            'atestado_valido'    => $analise->atestado_valido,
-            'usa_medicacao'      => $analise->usa_medicacao,
-        ]);
+        // Monta identificação a partir do aluno 
+        $dataNasc = $aluno->data_nascimento ? $aluno->data_nascimento->toDateString() : null; 
+        $idade = $aluno->idade ?? ($dataNasc ? \Carbon\Carbon::parse($dataNasc)->age : null); 
+        $identificacao = [ 
+            'aluno_id' => $aluno->id, 
+            'nome' => $aluno->nome, 
+            'data_nascimento' => $dataNasc, 
+            'sexo' => $aluno->sexo ?? null, 
+            'idade' => $idade, 
+        ]; 
+        if (!$analise) { 
+            // Retorna identificação mesmo quando não há análise (útil para preencher a aba 1)
+             return response()->json([ 
+                'identificacao' => $identificacao, 
+                'error' => 'Nenhuma análise encontrada.' ], 404); 
+            } 
+            // Resposta: inclui identificação (aninhada) e mantém os campos de análise no topo 
+            return response()->json(array_merge([ 
+                'identificacao' => $identificacao, 
+                // Mantém nome no topo para compatibilidade com clientes antigos 
+                'nome' => $aluno->nome, 
+            ], 
+            [ 
+                // Habilidades Técnicas 
+                'arremesso' => $analise->arremesso, 
+                'passe' => $analise->passe, 
+                'marcacao' => $analise->marcacao, 
+                'bandeja' => $analise->bandeja, 
+                'rebote' => $analise->rebote, 
+                'dominio' => $analise->dominio, 
+                // Atributos Físicos 
+                'envergadura' => $analise->envergadura, 
+                'velocidade' => $analise->velocidade, 
+                'agilidade' => $analise->agilidade, 
+                'salto_horizontal' => $analise->salto_horizontal, 
+                'resistencia' => $analise->resistencia, 
+                // Composição Corporal 
+                'massa_magra_kg' => $analise->massa_magra_kg, 
+                'massa_adiposa_kg' => $analise->massa_adiposa_kg, 
+                'massa_magra_pct' => $analise->massa_magra_pct, 
+                'massa_adiposa_pct' => $analise->massa_adiposa_pct, 
+                'peso_residual_kg' => $analise->peso_residual_kg, 
+                // Informações de Saúde 
+                'problema_saude' => $analise->problema_saude, 
+                'atestado_valido' => $analise->atestado_valido, 
+                'usa_medicacao' => $analise->usa_medicacao, 
+                // id da análise 
+                'analise_id' => $analise->id, 
+            ])); 
     }
 
     /**
@@ -295,6 +342,8 @@ class AlunoController extends Controller
         // Validação completa
         $data = $request->validate([
             'nome'               => 'required|string|max:255',
+            'data_nascimento'    => 'nullable|date',
+            'sexo'               => 'nullable|in:Masculino,Feminino,M,F',
             'arremesso'          => 'required|integer|between:0,10',
             'passe'              => 'required|integer|between:0,10',
             'marcacao'           => 'required|integer|between:0,10',
@@ -315,11 +364,17 @@ class AlunoController extends Controller
             'massa_magra_pct'    => 'required|numeric|min:0',
             'massa_adiposa_pct'  => 'required|numeric|min:0',
             'peso_residual_kg'   => 'required|numeric|min:0',
-            'problema_saude'     => 'required|boolean',
-            'atestado_valido'    => 'required|boolean',
-            'usa_medicacao'      => 'required|boolean',
+            'problema_saude'     => 'nullable|boolean',
+            'atestado_valido'    => 'nullable|boolean',
+            'usa_medicacao'      => 'nullable|boolean',
 
         ]);
+
+        // Normaliza campos opcionais (evita Undefined array key) 
+        $data['problema_saude'] = $request->has('problema_saude') ? (int) $request->input('problema_saude') : null; 
+        $data['atestado_valido'] = $request->has('atestado_valido') ? (int) $request->input('atestado_valido') : null; 
+        $data['usa_medicacao'] = $request->has('usa_medicacao') ? (int) $request->input('usa_medicacao') : null;
+
         // Verifica se já existe
         $jaCadastrado = Aluno::where('nome', $data['nome'])
             ->where('user_id', $userId)
@@ -337,6 +392,30 @@ class AlunoController extends Controller
         $uid       = Str::random(7);
         $matricula = "{$sigla}-{$uid}";
 
+        // Normaliza sexo para 'M' ou 'F' (ou null) 
+        $sexo = null;
+        if (!empty($data['sexo'])) {
+            $s = $data['sexo'];
+            if (in_array($s, ['Masculino', 'M'], true)) {
+                $sexo = 'Masculino';
+            } elseif (in_array($s, ['Feminino', 'F'], true)) {
+                $sexo = 'Feminino';
+            }
+        }
+
+        // Calcula idade a partir da data de nascimento (se fornecida) 
+        $idade = null; if (!empty($data['data_nascimento'])) { 
+            try { 
+                $idade = Carbon::parse($data['data_nascimento'])->age; 
+                // garante valor não-negativo 
+                if ($idade < 0) { 
+                    $idade = null; 
+                } 
+            } catch (\Exception $e) {
+                $idade = null; 
+            } 
+        }
+
         // Cria aluno
         $aluno = Aluno::firstOrCreate(
             [
@@ -346,6 +425,10 @@ class AlunoController extends Controller
             ],
             [
                 'matricula'      => $matricula,
+                // preenche os novos campos (data_nascimento, sexo, idade) 
+                'data_nascimento'=> $data['data_nascimento'] ?? null, 
+                'sexo' => $sexo, 
+                'idade' => $idade,
             ]
         );
 

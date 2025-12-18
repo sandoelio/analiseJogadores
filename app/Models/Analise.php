@@ -45,6 +45,9 @@ class Analise extends Model
         'dominio'     => 'integer',
         'created_at'  => 'datetime',
         'updated_at'  => 'datetime',
+        'problema_saude' => 'boolean',
+        'atestado_valido' => 'boolean',
+        'usa_medicacao' => 'boolean',
     ];
 
     /**

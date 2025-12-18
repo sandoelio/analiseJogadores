@@ -17,10 +17,9 @@ class AlunoPublicoController extends Controller
     public function listarPorInstituicao($instituicaoId): JsonResponse
     {
         $alunos = Aluno::where('instituicao_id', $instituicaoId)
-                    ->select('nome', 'matricula')
-                    ->orderBy('nome')
+                    ->select('nome', 'matricula','idade')
+                    ->orderBy('idade', 'asc')
                     ->get();
-
         return response()->json($alunos);
     }
 

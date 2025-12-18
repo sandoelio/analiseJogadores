@@ -53,10 +53,13 @@
       </div>
 
       <div class="card-body">
-        @if(session('success'))
-          <div class="alert alert-success">{{ session('success') }}</div>
+        {{-- Mensagem de sucesso --}}
+        @if (session('success'))
+          <div id="success-message" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
         @endif
-
         <form action="{{ route('aluno.store') }}" method="POST">
           @csrf
 
@@ -71,25 +74,63 @@
 
           {{-- Conteúdo das abas --}}
           <div class="tab-content mt-3">
-            {{-- Aba 1: Nome --}}
-            <div class="tab-pane fade show active" id="aba1">
-              <div class="mb-3">
-                <label for="nome" class="form-label">Nome do Atleta</label>
-                <input
-                  type="text"
-                  id="nome"
-                  name="nome"
-                  placeholder="Nome e sobrenome"
-                  class="form-control @error('nome') is-invalid @enderror"
-                  value="{{ old('nome') }}"
-                  required
-                >
-                @error('nome')
-                  <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-              </div>
-            </div>
+            {{-- Aba 1: Nome e identificação --}}
+              <div class="tab-pane fade show active" id="aba1">
+                <div class="mb-3">
+                  <label for="nome" class="form-label">Nome do Atleta</label>
+                  <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    placeholder="Nome e sobrenome"
+                    class="form-control @error('nome') is-invalid @enderror"
+                    value="{{ old('nome') }}"
+                    required
+                  >
+                  @error('nome')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
+                </div>
 
+                <div class="row g-3">
+                  <div class="col-6">
+                    <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                    <input
+                      type="date"
+                      id="data_nascimento"
+                      name="data_nascimento"
+                      class="form-control @error('data_nascimento') is-invalid @enderror"
+                      value="{{ old('data_nascimento') }}"
+                      required
+                    >
+                    @error('data_nascimento')
+                      <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                  </div>
+
+                  <div class="col-3">
+                    <label class="form-label">Sexo</label>
+                    <div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="sexo" id="sexo_m" value="Masculino" {{ old('sexo')=='Masculino' ? 'checked' : '' }} required>
+                        <label class="form-check-label" for="sexo_m">Masculino</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="sexo" id="sexo_f" value="Feminino" {{ old('sexo')=='Feminino' ? 'checked' : '' }}>
+                        <label class="form-check-label" for="sexo_f">Feminino</label>
+                      </div>
+                    </div>
+                    @error('sexo')
+                      <div class="text-danger small">{{ $message }}</div>
+                    @enderror
+                  </div>
+                  <div class="col-4">
+                    <label class="form-label">Idade</label>
+                    <input type="text" id="idade_display" class="form-control" value="{{ old('idade') }}" readonly>
+                    <input type="hidden" id="idade" name="idade" value="{{ old('idade') }}">
+                  </div>
+                </div>
+              </div>
             {{-- Aba 2: Habilidades Técnicas --}}
             <div class="tab-pane fade" id="aba2">
               <div class="row g-3">
@@ -181,17 +222,16 @@
                     'usa_medicacao'   => 'Faz uso de medicação?'
                   ];
                 @endphp
-
                 @foreach ($saudeCampos as $campo => $label)
                   <div class="col-12 saude-item">
                     <label for="{{ $campo }}_sim">{{ $label }}</label>
                     <div class="saude-radios">
                       <div class="form-check">
-                        <input class="form-check-input" type="radio" name="{{ $campo }}" id="{{ $campo }}_sim" value="1" required>
+                        <input class="form-check-input" type="radio" name="{{ $campo }}" id="{{ $campo }}_sim" value="1" {{ old($campo) === '1' ? 'checked' : '' }}>
                         <label class="form-check-label" for="{{ $campo }}_sim">Sim</label>
                       </div>
                       <div class="form-check">
-                        <input class="form-check-input" type="radio" name="{{ $campo }}" id="{{ $campo }}_nao" value="0">
+                        <input class="form-check-input" type="radio" name="{{ $campo }}" id="{{ $campo }}_nao" value="0" {{ old($campo) === '0' ? 'checked' : '' }}>
                         <label class="form-check-label" for="{{ $campo }}_nao">Não</label>
                       </div>
                     </div>
@@ -200,7 +240,6 @@
               </div>
             </div>
           </div>
-
           {{-- Botões --}}
           <div class="mt-4 d-grid gap-2 d-md-flex justify-content-md-between">
             <button type="submit" class="btn btn-navbar-blue flex-md-grow-1">Salvar</button>
@@ -212,3 +251,69 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // --- Cálculo de idade ---
+      const dataInput = document.getElementById('data_nascimento');
+      const idadeDisplay = document.getElementById('idade_display');
+      const idadeHidden = document.getElementById('idade');
+
+      function calcularIdade(dataStr) {
+        if (!dataStr) return '';
+        const hoje = new Date();
+        const nasc = new Date(dataStr + 'T00:00:00');
+        let idade = hoje.getFullYear() - nasc.getFullYear();
+        const m = hoje.getMonth() - nasc.getMonth();
+        if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
+          idade--;
+        }
+        return idade >= 0 ? idade : '';
+      }
+
+      if (dataInput) {
+        const atualizar = function () {
+          const idade = calcularIdade(dataInput.value);
+          idadeDisplay.value = idade !== '' ? idade + ' anos' : '';
+          idadeHidden.value = idade !== '' ? idade : '';
+        };
+
+        dataInput.addEventListener('change', atualizar);
+        // cálculo inicial se já houver valor
+        if (dataInput.value) atualizar();
+      }
+
+      // --- Mensagem de sucesso: fecha automaticamente ---
+      const successMsg = document.getElementById('success-message');
+      if (successMsg) {
+        // tempo em ms até desaparecer
+        const TIMEOUT = 3000;
+
+        try {
+          if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+            successMsg.classList.add('fade', 'show');
+            setTimeout(() => {
+              const bsAlert = bootstrap.Alert.getOrCreateInstance(successMsg);
+              bsAlert.close();
+            }, TIMEOUT);
+            return;
+          }
+        } catch (e) {
+          
+        }
+
+        // Fallback: fade out manual e remover do DOM
+        successMsg.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+          successMsg.style.opacity = '0';
+          // remove após a transição
+          setTimeout(() => {
+            if (successMsg.parentNode) successMsg.parentNode.removeChild(successMsg);
+          }, 500);
+        }, TIMEOUT);
+      }
+    });
+  </script>
+@endpush
+

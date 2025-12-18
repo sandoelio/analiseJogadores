@@ -56,7 +56,7 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th class="text-center">Nome</th>
-                                            <th class="text-center">Matrícula</th>
+                                            <th class="text-center">Idade</th>
                                             <th class="text-center">Ações</th>
                                         </tr>
                                     </thead>
@@ -64,7 +64,8 @@
                                         @foreach ($alunos as $aluno)
                                             <tr>
                                                 <td class="text-center">{{ $aluno->nome }}</td>
-                                                <td class="text-center">{{ $aluno->matricula }}</td>
+                                                <td class="text-center">{{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}</td>
+                                                
                                                 <td class="text-center">
                                                     <a href="{{ route('aluno.edit', $aluno) }}"
                                                        class="btn btn-sm btn-outline-secondary action-btn"

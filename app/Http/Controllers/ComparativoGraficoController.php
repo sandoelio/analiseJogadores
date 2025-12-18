@@ -10,7 +10,10 @@ class ComparativoGraficoController extends Controller
 {
     public function index()
     {
-        $instituicoes = Instituicao::with('alunos')
+        $instituicoes = Instituicao::with(['alunos' => function ($q) {
+            $q->orderByRaw('idade IS NULL') 
+                ->orderBy('idade', 'asc');
+        }])
             ->orderBy('nome')
             ->get();
 

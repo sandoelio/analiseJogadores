@@ -4,90 +4,97 @@
 @section('title', 'Análise de Desempenhos')
 
 @push('styles')
-<style>
-  .central-column {
-    max-width: 500px;
-    width: 100%;
-    margin: 0 auto;
-    padding-bottom: 80px;        /* folga para não encostar no footer fixo */
-    overflow-x: hidden;          /* previne rolagem horizontal no mobile */
-  }
+    <style>
+        .central-column {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            padding-bottom: 80px;
+            /* folga para não encostar no footer fixo */
+            overflow-x: hidden;
+            /* previne rolagem horizontal no mobile */
+        }
 
-  .central-column .back-logograph {
-    display: block;
-    margin: 8px auto 1rem;
-    max-width: 200px;
-    width: 100%;
-    background: #28365F;
-    height: auto;
-  }
+        .central-column .back-logograph {
+            display: block;
+            margin: 8px auto 1rem;
+            max-width: 200px;
+            width: 100%;
+            background: #28365F;
+            height: auto;
+        }
 
-  .central-column .form-select {
-    width: 100%;
-    margin-bottom: 1rem;
-  }
+        .central-column .form-select {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
 
-  /* botões lado a lado sem estourar com o gap */
-  .central-column .d-flex {
-    gap: .5rem;
-  }
-  .central-column .d-flex .btn {
-    flex: 1 1 0;     /* divide igualmente a linha */
-    min-width: 0;    /* evita overflow por conteúdo longo */
-  }
+        /* botões lado a lado sem estourar com o gap */
+        .central-column .d-flex {
+            gap: .5rem;
+        }
 
-  .chart-wrapper {
-    position: relative;
-    margin-top: 1rem;
-    margin-bottom: 0;
-  }
+        .central-column .d-flex .btn {
+            flex: 1 1 0;
+            /* divide igualmente a linha */
+            min-width: 0;
+            /* evita overflow por conteúdo longo */
+        }
 
-  /* canvas 100% da coluna, sem exceder */
-  #comparativo-chart {
-    display: block;
-    width: 100% !important;
-    max-width: 100%;
-    height: auto !important;
-    min-height: 300px;
-  }
+        .chart-wrapper {
+            position: relative;
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
 
-  .overlay-spinner {
-    position: absolute;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-  }
-  .overlay-spinner .spinner-border {
-    width: 3rem;
-    height: 3rem;
-  }
+        /* canvas 100% da coluna, sem exceder */
+        #comparativo-chart {
+            display: block;
+            width: 100% !important;
+            max-width: 100%;
+            height: auto !important;
+            min-height: 300px;
+        }
 
-  @media (max-width: 576px) {
-    #comparativo-chart {
-      min-height: 240px;
-    }
-  }
+        .overlay-spinner {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
 
-  /* telas muito estreitas: bota os botões em duas linhas */
-  @media (max-width: 400px) {
-    .central-column .d-flex {
-      flex-wrap: wrap;
-    }
-    .central-column .d-flex .btn {
-      flex: 1 0 100%;
-    }
-  }
+        .overlay-spinner .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
 
-  /* segurança extra contra rolagem lateral em todo o documento */
-  html, body {
-    overflow-x: hidden;
-  }
-</style>
+        @media (max-width: 576px) {
+            #comparativo-chart {
+                min-height: 240px;
+            }
+        }
+
+        /* telas muito estreitas: bota os botões em duas linhas */
+        @media (max-width: 400px) {
+            .central-column .d-flex {
+                flex-wrap: wrap;
+            }
+
+            .central-column .d-flex .btn {
+                flex: 1 0 100%;
+            }
+        }
+
+        /* segurança extra contra rolagem lateral em todo o documento */
+        html,
+        body {
+            overflow-x: hidden;
+        }
+    </style>
 @endpush
-
 
 @section('content')
     @php
@@ -97,21 +104,24 @@
 
     <div class="container">
         <div class="central-column">
-            {{-- Logo --}}
-            {{-- <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" class="back-logograph" loading="lazy"> --}}
 
             {{-- Atleta 1 --}}
             <select id="aluno1" class="form-select mt-2">
                 <option value="">Selecione o primeiro atleta</option>
                 @if ($instLog)
                     @foreach ($instLog->alunos as $aluno)
-                        <option value="{{ $aluno->id }}">{{ $aluno->nome }}</option>
+                        <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}" data-idade="{{ $aluno->idade }}">
+                            {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
+                        </option>
                     @endforeach
                 @else
                     @foreach ($instituicoes as $inst)
                         <optgroup label="{{ $inst->nome }}">
                             @foreach ($inst->alunos as $aluno)
-                                <option value="{{ $aluno->id }}">{{ $aluno->nome }}</option>
+                                <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
+                                    data-idade="{{ $aluno->idade }}">
+                                    {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
+                                </option>
                             @endforeach
                         </optgroup>
                     @endforeach
@@ -123,13 +133,19 @@
                 <option value="">Selecione o segundo atleta</option>
                 @if ($instLog)
                     @foreach ($instLog->alunos as $aluno)
-                        <option value="{{ $aluno->id }}">{{ $aluno->nome }}</option>
+                        <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
+                            data-idade="{{ $aluno->idade }}">
+                            {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
+                        </option>
                     @endforeach
                 @else
                     @foreach ($instituicoes as $inst)
                         <optgroup label="{{ $inst->nome }}">
                             @foreach ($inst->alunos as $aluno)
-                                <option value="{{ $aluno->id }}">{{ $aluno->nome }}</option>
+                                <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
+                                    data-idade="{{ $aluno->idade }}">
+                                    {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
+                                </option>
                             @endforeach
                         </optgroup>
                     @endforeach
@@ -148,7 +164,6 @@
 
             {{-- Gráfico --}}
             <div>
-
                 <div id="chart-container" class="card shadow-sm d-none chart-wrapper">
                     <div id="overlay-chart" class="overlay-spinner d-none">
                         <div class="spinner-border text-primary" role="status"></div>
@@ -161,11 +176,11 @@
                         <canvas id="comparativo-chart"></canvas>
                     </div>
                 </div>
-
             </div>
 
         </div>
     </div>
+
 @endsection
 
 @push('scripts')
