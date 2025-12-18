@@ -306,10 +306,6 @@
     @endphp
 
     <div class="container-fluid">
-        {{-- Logo --}}
-        {{-- <div class="text-center back-logo">
-            <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" style="max-width:150px; width:80%;" loading="lazy">
-        </div> --}}
 
         {{-- Voltar --}}
         <div class="row justify-content-center mb-2 mt-2 volver-wrapper">
@@ -332,6 +328,9 @@
                         <div class="spinner-border text-primary" role="status"></div>
                     </div>
                 </div>
+                <small id="aluno_nome_display" class="d-block text-secondary"></small>
+                <small id="aluno_idade_display" class="d-block text-secondary"></small>
+               
             @else
                 {{-- Público/Admin/Técnico: escolhe instituição e depois atleta --}}
                 <div id="selecao-container" class="d-flex flex-column align-items-center mb-1"
@@ -356,6 +355,8 @@
                             <div class="spinner-border text-primary" role="status"></div>
                         </div>
                     </div>
+                    <small id="aluno_nome_display" class="d-block text-secondary"></small>
+                    <small id="aluno_idade_display" class="d-block text-secondary"></small>
                 </div>
             @endif
         </div>
@@ -547,7 +548,26 @@
                             document.getElementById('aluno-wrapper').classList.remove('d-none');
                             selectAluno.innerHTML =
                                 '<option selected disabled>Selecione o atleta</option>';
-                            alunos.forEach(a => selectAluno.append(new Option(a.nome, a.matricula)));
+
+                            // ordena: primeiro quem tem idade, depois os sem idade
+                            alunos.sort((a, b) => {
+                                if (a.idade == null && b.idade == null) return 0;
+                                if (a.idade == null) return 1;   // a sem idade → vai depois
+                                if (b.idade == null) return -1;  // b sem idade → vai depois
+                                return a.idade - b.idade;        // ordena crescente por idade
+                                // use return b.idade - a.idade; para decrescente
+                            });
+
+                            // cria options com nome + idade e dataset
+                            alunos.forEach(a => {
+                                const opt = document.createElement('option');
+                                opt.value = a.matricula;
+                                opt.textContent = `${a.nome} — ${a.idade !== null ? a.idade + ' anos' : '—'}`;
+                                opt.dataset.nome = a.nome;
+                                opt.dataset.idade = a.idade;
+                                selectAluno.append(opt);
+                            });
+
                             statsCont.classList.add('d-none');
                         })
                         .catch(() => {

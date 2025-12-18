@@ -57,7 +57,6 @@
                                         <tr>
                                             <th class="text-center">Nome</th>
                                             <th class="text-center">Idade</th>
-                                            {{-- <th class="text-center">Matrícula</th> --}}
                                             <th class="text-center">Ações</th>
                                         </tr>
                                     </thead>

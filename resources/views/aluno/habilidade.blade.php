@@ -82,7 +82,7 @@
             .habilidade-card-body input,
             .habilidade-card-body select,
             .habilidade-card-body .btn {
-                width: 100%;
+                /* width: 100%; */
                 box-sizing: border-box;
                 min-width: 0;
             }
