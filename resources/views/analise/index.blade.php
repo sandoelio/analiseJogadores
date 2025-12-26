@@ -308,7 +308,7 @@
     <div class="container-fluid">
 
         {{-- Voltar --}}
-        <div class="row justify-content-center mb-2 mt-2 volver-wrapper">
+        <div class="row justify-content-center mb-2 mt-0 volver-wrapper">
             <div class="col-12 col-md-6 text-center">
                 <a href="{{ route('public.dashboard') }}" class="btn btn-primary">
                     <i class="bi bi-house-door me-1"></i> Voltar
@@ -363,7 +363,7 @@
             <div class="card-header d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                     <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
-                    <h6 class="mb-0">Estatísticas do Atleta</h6>
+                    <h6 class="mb-0">Estatísticas</h6>
                 </div>
 
                 @php
