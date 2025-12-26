@@ -47,6 +47,17 @@
             gap: 1rem;
             flex-shrink: 0;
         }
+
+        @media (max-width: 576px) {
+
+            /* Alvo específico: a row que envolve o card */
+            .row.justify-content-center.mt-4.mb-4 {
+                margin-top: -1px !important;
+                /* diminui espaço superior */
+                margin-bottom: 5rem !important;
+                /* aumenta espaço inferior */
+            }
+        }
     </style>
 @endpush
 
@@ -125,7 +136,7 @@
                                     </div>
                                     <div class="col-4 d-flex align-items-center">
                                         <label for="idade_display" class="form-label me-2 mb-0">Idade</label>
-                                        <input type="text" id="idade_display" class="form-control"
+                                        <input type="text" id="idade_display" class="form-control "
                                             value="{{ old('idade') }}" readonly>
                                         <input type="hidden" id="idade" name="idade" value="{{ old('idade') }}">
                                     </div>
@@ -263,7 +274,7 @@
             if (dataInput) {
                 const atualizar = function() {
                     const idade = calcularIdade(dataInput.value);
-                    idadeDisplay.value = idade !== '' ? idade + ' anos' : '';
+                    idadeDisplay.value = idade !== '' ? idade + '' : '';
                     idadeHidden.value = idade !== '' ? idade : '';
                 };
 

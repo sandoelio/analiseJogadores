@@ -69,11 +69,6 @@
                 box-sizing: border-box;
             }
 
-            .habilidade-card-body .row.g-3 {
-                margin-left: 0;
-                margin-right: 0;
-            }
-
             .habilidade-card-body .row.g-3>[class*="col-"] {
                 padding-left: 0.5rem;
                 padding-right: 0.5rem;
@@ -85,6 +80,14 @@
                 /* width: 100%; */
                 box-sizing: border-box;
                 min-width: 0;
+            }
+
+             /* Alvo específico: a row que envolve o card */
+            .row.justify-content-center.mt-4.mb-4 {
+                margin-top: -1px !important;
+                /* diminui espaço superior */
+                margin-bottom: 5rem !important;
+                /* aumenta espaço inferior */
             }
         }
     </style>
@@ -386,7 +389,7 @@
                 if (sexoFEl) sexoFEl.checked = (sexoVal === 'F' || sexoVal.toLowerCase() === 'feminino');
                 if (idadeDisplayEl) {
                     if (id.idade !== undefined && id.idade !== null && id.idade !== '') {
-                        idadeDisplayEl.value = id.idade + ' anos';
+                        idadeDisplayEl.value = id.idade;
                         if (idadeHiddenEl) idadeHiddenEl.value = id.idade;
                     } else {
                         idadeDisplayEl.value = '';
