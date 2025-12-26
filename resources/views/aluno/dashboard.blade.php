@@ -77,6 +77,11 @@
                 width: 100%;
                 margin-top: 10px;
             }
+            .dashboard-buttons a {
+                background: transparent;
+                border: none;
+                color: #fff !important;
+            }
 
             .dashboard-btn {
                 padding: 0.8rem;
@@ -108,6 +113,11 @@
                 background: transparent;
                 border: none;
                 color: #28365F;
+            }
+
+              /* Ícones brancos no mobile */
+            .dashboard-btn i {
+                color: #fff !important;
             }
         }
     </style>

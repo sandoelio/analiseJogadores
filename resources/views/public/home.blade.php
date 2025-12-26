@@ -58,13 +58,18 @@
             .dashboard-buttons a {
                 background: transparent;
                 border: none;
-                color: #333;
+                color: #fff !important;
             }
 
             .dashboard-buttons a:hover {
                 background: transparent;
                 border: none;
                 color: #28365F;
+            }
+
+            /* Ícones brancos no mobile */
+            .dashboard-btn i {
+                color: #fff !important;
             }
         }
 
