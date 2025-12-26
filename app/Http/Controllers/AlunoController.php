@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Jenssegers\Agent\Agent;
 
 class AlunoController extends Controller
 {
@@ -36,14 +37,17 @@ class AlunoController extends Controller
      */
     public function index()
     {
-        $user            = Auth::user();
-        $instituicaoId   = $user->instituicao_id;
-
-        // Puxa todos os alunos da mesma instituição
-        $alunos = Aluno::where('instituicao_id', $instituicaoId)->orderByRaw('CASE WHEN idade IS NULL THEN 1 ELSE 0 END, idade ASC')->paginate(10);
+        $user = Auth::user();
+        $instituicaoId = $user->instituicao_id; 
         
-        // Total absoluto (query separada)
-        $totalAlunos = $alunos->total();
+        // Detecta dispositivo 
+        $agent = new Agent(); $perPage = $agent->isMobile() ? 6 : 10; 
+
+        // Puxa todos os alunos da mesma instituição com paginação dinâmica 
+        $alunos = Aluno::where('instituicao_id', $instituicaoId) ->orderByRaw('CASE WHEN idade IS NULL THEN 1 ELSE 0 END, idade ASC') ->paginate($perPage); 
+
+        // Total absoluto (query separada) 
+        $totalAlunos = $alunos->total(); 
 
         return view('aluno.index', compact('alunos', 'totalAlunos'));
     }

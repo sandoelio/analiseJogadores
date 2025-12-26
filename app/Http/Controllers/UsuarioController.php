@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Instituicao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Jenssegers\Agent\Agent;
 
 class UsuarioController extends Controller
 {
@@ -17,10 +18,9 @@ class UsuarioController extends Controller
 
     public function index()
     {
-        $usuarios = User::where('is_admin', false)
-            ->with('instituicao')
-            ->paginate(10);
-
+        $agent = new Agent();
+        $perPage = $agent->isMobile() ? 3 : 5;
+        $usuarios = User::where('is_admin', false)->with('instituicao')->paginate($perPage);
         return view('usuarios.index', compact('usuarios'));
     }
 

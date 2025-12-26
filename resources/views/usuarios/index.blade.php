@@ -48,17 +48,12 @@
      Ajustes só para desktop (md+)
   * ============================= */
   @media (min-width: 768px) {
-    /* impede qualquer scroll horizontal na página */
     html, body {
       overflow-x: hidden;
     }
-
-    /* remove scroll interno da tabela no desktop */
     .table-responsive {
       overflow-x: hidden;
     }
-
-    /* espaço entre o nav e o card de listagem */
     .d-none.d-md-block.card.shadow-sm {
       margin-top: 2rem;
     }
@@ -153,9 +148,9 @@
       @endforelse
     </div>
 
-    {{-- Footer de Paginação --}}
+    {{-- Paginação visível em ambos layouts --}}
     @if ($usuarios->hasPages())
-      <div class="card-footer bg-white border-0">
+      <div class="card-footer bg-white border-0 mt-3">
         <div class="d-flex justify-content-center">
           {{ $usuarios->links('pagination::bootstrap-5') }}
         </div>
