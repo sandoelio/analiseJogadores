@@ -69,6 +69,7 @@
             margin: 0 auto;
             display: block;
             background: #28365F;
+            margin-top: 5px;
         }
 
         /* canvas do Chart.js */

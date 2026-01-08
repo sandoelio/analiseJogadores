@@ -13,41 +13,59 @@ class Analise extends Model
 
     protected $fillable = [
         'aluno_id',
+        // Técnicos 
         'arremesso',
         'passe',
         'marcacao',
         'bandeja',
         'rebote',
         'dominio',
-        'envergadura',
-        'velocidade',
+        // Físicos (renomeados) 
+        'potencia_mmss',
         'agilidade',
-        'salto_horizontal',
-        'resistencia',
-        'massa_magra_kg',
-        'massa_adiposa_kg',
+        'capacidade_aerobica',
+        'flexibilidade',
+        'potencia_mmii',
+        // Corporal (renomeados) 
+        'massa_corporal_kg',
+        'gordura_pct',
         'massa_magra_pct',
-        'massa_adiposa_pct',
-        'peso_residual_kg',
+        'envergadura_cm',
+        'imc',
+        // Saúde 
         'problema_saude',
         'atestado_valido',
         'usa_medicacao',
         'created_at',
-        'updated_at',
+        'updated_at'
     ];
 
     protected $casts = [
-        'arremesso'   => 'integer',
-        'passe'       => 'integer',
-        'marcacao'    => 'integer',
-        'bandeja'     => 'integer',
-        'rebote'      => 'integer',
-        'dominio'     => 'integer',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
+        // Técnicos
+        'arremesso' => 'integer',
+        'passe' => 'integer',
+        'marcacao' => 'integer',
+        'bandeja' => 'integer',
+        'rebote' => 'integer',
+        'dominio' => 'integer',
+        // Físicos 
+        'potencia_mmss' => 'float',
+        'agilidade' => 'float',
+        'capacidade_aerobica' => 'float',
+        'flexibilidade' => 'float',
+        'potencia_mmii' => 'float',
+        // Corporal 
+        'massa_corporal_kg' => 'float',
+        'gordura_pct' => 'float',
+        'massa_magra_pct' => 'float',
+        'envergadura_cm' => 'float',
+        'imc' => 'float',
+        // Saúde 
         'problema_saude' => 'boolean',
         'atestado_valido' => 'boolean',
         'usa_medicacao' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -64,7 +82,7 @@ class Analise extends Model
     public function scopeUltimas(Builder $query, int $limit = 2): Builder
     {
         return $query->orderBy('created_at', 'desc')
-                     ->limit($limit);
+            ->limit($limit);
     }
 
     /**
@@ -73,6 +91,6 @@ class Analise extends Model
     public function scopeLatestByAluno(Builder $query, int $alunoId): Builder
     {
         return $query->where('aluno_id', $alunoId)
-                     ->orderBy('created_at', 'desc');
+            ->orderBy('created_at', 'desc');
     }
 }

@@ -157,17 +157,16 @@
                                     @endforeach
                                 </div>
                             </div>
-
                             {{-- Aba 3: Atributos Físicos --}}
                             <div class="tab-pane fade" id="aba3">
                                 <div class="row g-3">
                                     @foreach ([
-            'envergadura' => 'Envergadura (cm)',
-            'velocidade' => 'Velocidade (s)',
-            'agilidade' => 'Agilidade (s)',
-            'salto_horizontal' => 'Salto Horizontal (cm)',
-            'resistencia' => 'Resistência (%)',
-        ] as $campo => $label)
+                                        'potencia_mmss' => 'Potência MMSS',
+                                        'capacidade_aerobica' => 'Capacidade Aeróbica',
+                                        'agilidade' => 'Agilidade (s)',
+                                        'flexibilidade' => 'Flexibilidade',
+                                        'potencia_mmii' => 'Potência MMII',
+                                    ] as $campo => $label)
                                         <div class="col-6 col-md-6">
                                             <label for="{{ $campo }}"
                                                 class="form-label">{{ $label }}</label>
@@ -178,17 +177,16 @@
                                     @endforeach
                                 </div>
                             </div>
-
                             {{-- Aba 4: Composição Corporal --}}
                             <div class="tab-pane fade" id="aba4">
                                 <div class="row g-3">
                                     @foreach ([
-            'massa_magra_kg' => 'Massa Magra (kg)',
-            'massa_adiposa_kg' => 'Massa Adiposa (kg)',
-            'massa_magra_pct' => 'Massa Magra (%)',
-            'massa_adiposa_pct' => 'Massa Adiposa (%)',
-            'peso_residual_kg' => 'Peso Residual (kg)',
-        ] as $campo => $label)
+                                        'massa_corporal_kg' => 'Massa Corporal (kg)',
+                                        'gordura_pct' => 'Gordura (%)',
+                                        'massa_magra_pct' => 'Massa Magra (%)',
+                                        'envergadura_cm' => 'Envergadura (cm)',
+                                        'imc' => 'IMC',
+                                    ] as $campo => $label)
                                         <div class="col-6 col-md-6">
                                             <label for="{{ $campo }}"
                                                 class="form-label">{{ $label }}</label>

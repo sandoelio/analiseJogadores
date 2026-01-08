@@ -38,16 +38,17 @@ class AlunoController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $instituicaoId = $user->instituicao_id; 
-        
+        $instituicaoId = $user->instituicao_id;
+
         // Detecta dispositivo 
-        $agent = new Agent(); $perPage = $agent->isMobile() ? 6 : 10; 
+        $agent = new Agent();
+        $perPage = $agent->isMobile() ? 6 : 10;
 
         // Puxa todos os alunos da mesma instituição com paginação dinâmica 
-        $alunos = Aluno::where('instituicao_id', $instituicaoId) ->orderByRaw('CASE WHEN idade IS NULL THEN 1 ELSE 0 END, idade ASC') ->paginate($perPage); 
+        $alunos = Aluno::where('instituicao_id', $instituicaoId)->orderByRaw('CASE WHEN idade IS NULL THEN 1 ELSE 0 END, idade ASC')->paginate($perPage);
 
         // Total absoluto (query separada) 
-        $totalAlunos = $alunos->total(); 
+        $totalAlunos = $alunos->total();
 
         return view('aluno.index', compact('alunos', 'totalAlunos'));
     }
@@ -68,34 +69,33 @@ class AlunoController extends Controller
     {
         // validação permissiva: os campos podem ou não vir no request (só validar formato quando vierem)
         $rules = [
-            'aluno_id'           => 'required|exists:alunos,id',
-
-            'data_nascimento'    => 'sometimes|nullable|date',
-            'sexo'               => 'sometimes|nullable|in:Masculino,Feminino',
-            'idade'              => 'sometimes|nullable|integer|min:0',
-
-            'arremesso'          => 'sometimes|nullable|integer|between:0,10',
-            'passe'              => 'sometimes|nullable|integer|between:0,10',
-            'marcacao'           => 'sometimes|nullable|integer|between:0,10',
-            'bandeja'            => 'sometimes|nullable|integer|between:0,10',
-            'rebote'             => 'sometimes|nullable|integer|between:0,10',
-            'dominio'            => 'sometimes|nullable|integer|between:0,10',
-
-            'envergadura'        => 'sometimes|nullable|numeric|min:0',
-            'velocidade'         => 'sometimes|nullable|numeric|min:0',
-            'agilidade'          => 'sometimes|nullable|numeric|min:0',
-            'salto_horizontal'   => 'sometimes|nullable|numeric|min:0',
-            'resistencia'        => 'sometimes|nullable|numeric|min:0',
-
-            'massa_magra_kg'     => 'sometimes|nullable|numeric|min:0',
-            'massa_adiposa_kg'   => 'sometimes|nullable|numeric|min:0',
-            'massa_magra_pct'    => 'sometimes|nullable|numeric|min:0',
-            'massa_adiposa_pct'  => 'sometimes|nullable|numeric|min:0',
-            'peso_residual_kg'   => 'sometimes|nullable|numeric|min:0',
-
-            'problema_saude'     => 'sometimes|nullable|boolean',
-            'atestado_valido'    => 'sometimes|nullable|boolean',
-            'usa_medicacao'      => 'sometimes|nullable|boolean',
+            'aluno_id' => 'required|exists:alunos,id',
+            'data_nascimento' => 'sometimes|nullable|date',
+            'sexo' => 'sometimes|nullable|in:Masculino,Feminino',
+            'idade' => 'sometimes|nullable|integer|min:0',
+            // Técnicos 
+            'arremesso' => 'sometimes|nullable|integer|between:0,10',
+            'passe' => 'sometimes|nullable|integer|between:0,10',
+            'marcacao' => 'sometimes|nullable|integer|between:0,10',
+            'bandeja' => 'sometimes|nullable|integer|between:0,10',
+            'rebote' => 'sometimes|nullable|integer|between:0,10',
+            'dominio' => 'sometimes|nullable|integer|between:0,10',
+            // Físicos
+            'potencia_mmss' => 'sometimes|nullable|numeric|min:0',
+            'capacidade_aerobica' => 'sometimes|nullable|numeric|min:0',
+            'agilidade' => 'sometimes|nullable|numeric|min:0',
+            'flexibilidade' => 'sometimes|nullable|numeric|min:0',
+            'potencia_mmii' => 'sometimes|nullable|numeric|min:0',
+            // Corporal
+            'massa_corporal_kg' => 'sometimes|nullable|numeric|min:0',
+            'gordura_pct' => 'sometimes|nullable|numeric|min:0',
+            'massa_magra_pct' => 'sometimes|nullable|numeric|min:0',
+            'envergadura_cm' => 'sometimes|nullable|numeric|min:0',
+            'imc' => 'sometimes|nullable|numeric|min:0',
+            // Saúde 
+            'problema_saude' => 'sometimes|nullable|boolean',
+            'atestado_valido' => 'sometimes|nullable|boolean',
+            'usa_medicacao' => 'sometimes|nullable|boolean',
         ];
 
         $data = $request->validate($rules);
@@ -103,12 +103,12 @@ class AlunoController extends Controller
         $aluno = Aluno::findOrFail($data['aluno_id']);
 
         // Se vierem campos de identificação no request, atualiza o aluno 
-        $alunoUpdates = []; 
-        if (array_key_exists('data_nascimento', $data)) { 
-            $alunoUpdates['data_nascimento'] = $data['data_nascimento']; 
+        $alunoUpdates = [];
+        if (array_key_exists('data_nascimento', $data)) {
+            $alunoUpdates['data_nascimento'] = $data['data_nascimento'];
         }
 
-        if (array_key_exists('sexo', $data)) { 
+        if (array_key_exists('sexo', $data)) {
             $sexo = $data['sexo'];
 
             if (in_array($sexo, ['M', 'm', 'Masculino', 'masculino'], true)) {
@@ -117,40 +117,20 @@ class AlunoController extends Controller
                 $sexo = 'Feminino';
             } else {
                 $sexo = null;
-            } 
-            $alunoUpdates['sexo'] = $sexo; 
+            }
+            $alunoUpdates['sexo'] = $sexo;
         }
-            
-        if (array_key_exists('idade', $data)) { 
-            $alunoUpdates['idade'] = $data['idade']; 
-        } 
-        
-        if (!empty($alunoUpdates)) { 
-            $aluno->update($alunoUpdates);    
+
+        if (array_key_exists('idade', $data)) {
+            $alunoUpdates['idade'] = $data['idade'];
+        }
+
+        if (!empty($alunoUpdates)) {
+            $aluno->update($alunoUpdates);
         }
 
         // atributos completos que a tabela analises espera
-        $allAttrs = [
-            'arremesso',
-            'passe',
-            'marcacao',
-            'bandeja',
-            'rebote',
-            'dominio',
-            'envergadura',
-            'velocidade',
-            'agilidade',
-            'salto_horizontal',
-            'resistencia',
-            'massa_magra_kg',
-            'massa_adiposa_kg',
-            'massa_magra_pct',
-            'massa_adiposa_pct',
-            'peso_residual_kg',
-            'problema_saude',
-            'atestado_valido',
-            'usa_medicacao',
-        ];
+        $allAttrs = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio', 'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii', 'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc', 'problema_saude', 'atestado_valido', 'usa_medicacao',];
 
         // buscar ultima analise existente (para usar como base)
         $ultima = $aluno->analises()->orderBy('created_at', 'desc')->first();
@@ -193,18 +173,18 @@ class AlunoController extends Controller
                 'dominio' => $analise->dominio,
             ],
             'fisicos' => [
-                'envergadura' => $analise->envergadura,
-                'velocidade' => $analise->velocidade,
+                'potencia_mmss' => $analise->potencia_mmss,
+                'capacidade_aerobica' => $analise->capacidade_aerobica,
                 'agilidade' => $analise->agilidade,
-                'salto_horizontal' => $analise->salto_horizontal,
-                'resistencia' => $analise->resistencia,
+                'flexibilidade' => $analise->flexibilidade,
+                'potencia_mmii' => $analise->potencia_mmii,
             ],
             'composicao' => [
-                'massa_magra_kg' => $analise->massa_magra_kg,
-                'massa_adiposa_kg' => $analise->massa_adiposa_kg,
+                'massa_corporal_kg' => $analise->massa_corporal_kg,
+                'gordura_pct' => $analise->gordura_pct,
                 'massa_magra_pct' => $analise->massa_magra_pct,
-                'massa_adiposa_pct' => $analise->massa_adiposa_pct,
-                'peso_residual_kg' => $analise->peso_residual_kg,
+                'envergadura_cm' => $analise->envergadura_cm,
+                'imc' => $analise->imc,
             ],
             'saude' => [
                 'problema_saude' => $analise->problema_saude,
@@ -213,14 +193,13 @@ class AlunoController extends Controller
             ],
             'analise_id' => $analise->id,
         ];
-
         // calcular diff comparando com última análise (se existir)
         $diff = [];
         if ($ultima) {
             $groups = [
                 'tecnicos' => ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'],
-                'fisicos' => ['envergadura', 'velocidade', 'agilidade', 'salto_horizontal', 'resistencia'],
-                'composicao' => ['massa_magra_kg', 'massa_adiposa_kg', 'massa_magra_pct', 'massa_adiposa_pct', 'peso_residual_kg'],
+                'fisicos' => ['potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii'],
+                'composicao' => ['massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc'],
                 'saude' => ['problema_saude', 'atestado_valido', 'usa_medicacao'],
             ];
 
@@ -283,54 +262,59 @@ class AlunoController extends Controller
             ->first();
 
         // Monta identificação a partir do aluno 
-        $dataNasc = $aluno->data_nascimento ? $aluno->data_nascimento->toDateString() : null; 
-        $idade = $aluno->idade ?? ($dataNasc ? \Carbon\Carbon::parse($dataNasc)->age : null); 
-        $identificacao = [ 
-            'aluno_id' => $aluno->id, 
-            'nome' => $aluno->nome, 
-            'data_nascimento' => $dataNasc, 
-            'sexo' => $aluno->sexo ?? null, 
-            'idade' => $idade, 
-        ]; 
-        if (!$analise) { 
+        $dataNasc = $aluno->data_nascimento ? $aluno->data_nascimento->toDateString() : null;
+        $idade = $aluno->idade ?? ($dataNasc ? \Carbon\Carbon::parse($dataNasc)->age : null);
+        $identificacao = [
+            'aluno_id' => $aluno->id,
+            'nome' => $aluno->nome,
+            'data_nascimento' => $dataNasc,
+            'sexo' => $aluno->sexo ?? null,
+            'idade' => $idade,
+        ];
+        if (!$analise) {
             // Retorna identificação mesmo quando não há análise (útil para preencher a aba 1)
-             return response()->json([ 
-                'identificacao' => $identificacao, 
-                'error' => 'Nenhuma análise encontrada.' ], 404); 
-            } 
-            // Resposta: inclui identificação (aninhada) e mantém os campos de análise no topo 
-            return response()->json(array_merge([ 
-                'identificacao' => $identificacao, 
-                // Mantém nome no topo para compatibilidade com clientes antigos 
-                'nome' => $aluno->nome, 
-            ], 
-            [ 
-                // Habilidades Técnicas 
-                'arremesso' => $analise->arremesso, 
-                'passe' => $analise->passe, 
-                'marcacao' => $analise->marcacao, 
-                'bandeja' => $analise->bandeja, 
-                'rebote' => $analise->rebote, 
-                'dominio' => $analise->dominio, 
+            return response()->json([
+                'identificacao' => $identificacao,
+                'error' => 'Nenhuma análise encontrada.'
+            ], 404);
+        }
+        // Resposta: inclui identificação (aninhada) e mantém os campos de análise no topo 
+        return response()->json(array_merge(
+            [
+                'identificacao' => $identificacao,
+                'nome' => $aluno->nome,
+            ],
+            [ // Habilidades Técnicas 
+                'arremesso' => $analise->arremesso,
+                'passe' => $analise->passe,
+                'marcacao' => $analise->marcacao,
+                'bandeja' => $analise->bandeja,
+                'rebote' => $analise->rebote,
+                'dominio' => $analise->dominio,
+
                 // Atributos Físicos 
-                'envergadura' => $analise->envergadura, 
-                'velocidade' => $analise->velocidade, 
-                'agilidade' => $analise->agilidade, 
-                'salto_horizontal' => $analise->salto_horizontal, 
-                'resistencia' => $analise->resistencia, 
+                'potencia_mmss' => $analise->potencia_mmss,
+                'capacidade_aerobica' => $analise->capacidade_aerobica,
+                'agilidade' => $analise->agilidade,
+                'flexibilidade' => $analise->flexibilidade,
+                'potencia_mmii' => $analise->potencia_mmii,
+
                 // Composição Corporal 
-                'massa_magra_kg' => $analise->massa_magra_kg, 
-                'massa_adiposa_kg' => $analise->massa_adiposa_kg, 
-                'massa_magra_pct' => $analise->massa_magra_pct, 
-                'massa_adiposa_pct' => $analise->massa_adiposa_pct, 
-                'peso_residual_kg' => $analise->peso_residual_kg, 
+                'massa_corporal_kg' => $analise->massa_corporal_kg,
+                'gordura_pct' => $analise->gordura_pct,
+                'massa_magra_pct' => $analise->massa_magra_pct,
+                'envergadura_cm' => $analise->envergadura_cm,
+                'imc' => $analise->imc,
+
                 // Informações de Saúde 
-                'problema_saude' => $analise->problema_saude, 
-                'atestado_valido' => $analise->atestado_valido, 
-                'usa_medicacao' => $analise->usa_medicacao, 
+                'problema_saude' => $analise->problema_saude,
+                'atestado_valido' => $analise->atestado_valido,
+                'usa_medicacao' => $analise->usa_medicacao,
+
                 // id da análise 
-                'analise_id' => $analise->id, 
-            ])); 
+                'analise_id' => $analise->id,
+            ]
+        ));
     }
 
     /**
@@ -345,38 +329,38 @@ class AlunoController extends Controller
 
         // Validação completa
         $data = $request->validate([
-            'nome'               => 'required|string|max:255',
-            'data_nascimento'    => 'nullable|date',
-            'sexo'               => 'nullable|in:Masculino,Feminino,M,F',
-            'arremesso'          => 'required|integer|between:0,10',
-            'passe'              => 'required|integer|between:0,10',
-            'marcacao'           => 'required|integer|between:0,10',
-            'bandeja'            => 'required|integer|between:0,10',
-            'rebote'             => 'required|integer|between:0,10',
-            'dominio'            => 'required|integer|between:0,10',
 
-            // Atributos físicos (float → numeric)
-            'envergadura'        => 'required|numeric|min:0',
-            'velocidade'         => 'required|numeric|min:0',
-            'agilidade'          => 'required|numeric|min:0',
-            'salto_horizontal'   => 'required|numeric|min:0',
-            'resistencia'        => 'required|numeric|min:0',
-
-            // Composição corporal (float → numeric)
-            'massa_magra_kg'     => 'required|numeric|min:0',
-            'massa_adiposa_kg'   => 'required|numeric|min:0',
-            'massa_magra_pct'    => 'required|numeric|min:0',
-            'massa_adiposa_pct'  => 'required|numeric|min:0',
-            'peso_residual_kg'   => 'required|numeric|min:0',
-            'problema_saude'     => 'nullable|boolean',
-            'atestado_valido'    => 'nullable|boolean',
-            'usa_medicacao'      => 'nullable|boolean',
-
+            'nome' => 'required|string|max:255',
+            'data_nascimento' => 'nullable|date',
+            'sexo' => 'nullable|in:Masculino,Feminino,M,F',
+            // Técnicos 
+            'arremesso' => 'required|integer|between:0,10',
+            'passe' => 'required|integer|between:0,10',
+            'marcacao' => 'required|integer|between:0,10',
+            'bandeja' => 'required|integer|between:0,10',
+            'rebote' => 'required|integer|between:0,10',
+            'dominio' => 'required|integer|between:0,10',
+            // Atributos físicos 
+            'potencia_mmss' => 'required|numeric|min:0',
+            'capacidade_aerobica' => 'required|numeric|min:0',
+            'agilidade' => 'required|numeric|min:0',
+            'flexibilidade' => 'required|numeric|min:0',
+            'potencia_mmii' => 'required|numeric|min:0',
+            // Composição corporal 
+            'massa_corporal_kg' => 'required|numeric|min:0',
+            'gordura_pct' => 'required|numeric|min:0',
+            'massa_magra_pct' => 'required|numeric|min:0',
+            'envergadura_cm' => 'required|numeric|min:0',
+            'imc' => 'required|numeric|min:0',
+            // Saúde 
+            'problema_saude' => 'nullable|boolean',
+            'atestado_valido' => 'nullable|boolean',
+            'usa_medicacao' => 'nullable|boolean',
         ]);
 
         // Normaliza campos opcionais (evita Undefined array key) 
-        $data['problema_saude'] = $request->has('problema_saude') ? (int) $request->input('problema_saude') : null; 
-        $data['atestado_valido'] = $request->has('atestado_valido') ? (int) $request->input('atestado_valido') : null; 
+        $data['problema_saude'] = $request->has('problema_saude') ? (int) $request->input('problema_saude') : null;
+        $data['atestado_valido'] = $request->has('atestado_valido') ? (int) $request->input('atestado_valido') : null;
         $data['usa_medicacao'] = $request->has('usa_medicacao') ? (int) $request->input('usa_medicacao') : null;
 
         // Verifica se já existe
@@ -408,16 +392,17 @@ class AlunoController extends Controller
         }
 
         // Calcula idade a partir da data de nascimento (se fornecida) 
-        $idade = null; if (!empty($data['data_nascimento'])) { 
-            try { 
-                $idade = Carbon::parse($data['data_nascimento'])->age; 
+        $idade = null;
+        if (!empty($data['data_nascimento'])) {
+            try {
+                $idade = Carbon::parse($data['data_nascimento'])->age;
                 // garante valor não-negativo 
-                if ($idade < 0) { 
-                    $idade = null; 
-                } 
+                if ($idade < 0) {
+                    $idade = null;
+                }
             } catch (\Exception $e) {
-                $idade = null; 
-            } 
+                $idade = null;
+            }
         }
 
         // Cria aluno
@@ -430,33 +415,34 @@ class AlunoController extends Controller
             [
                 'matricula'      => $matricula,
                 // preenche os novos campos (data_nascimento, sexo, idade) 
-                'data_nascimento'=> $data['data_nascimento'] ?? null, 
-                'sexo' => $sexo, 
+                'data_nascimento' => $data['data_nascimento'] ?? null,
+                'sexo' => $sexo,
                 'idade' => $idade,
             ]
         );
 
         // Registra análise completa
         $aluno->analises()->create([
-            'arremesso'          => $data['arremesso'],
-            'passe'              => $data['passe'],
-            'marcacao'           => $data['marcacao'],
-            'bandeja'            => $data['bandeja'],
-            'rebote'             => $data['rebote'],
-            'dominio'            => $data['dominio'],
-            'envergadura'        => $data['envergadura'],
-            'velocidade'         => $data['velocidade'],
-            'agilidade'          => $data['agilidade'],
-            'salto_horizontal'   => $data['salto_horizontal'],
-            'resistencia'        => $data['resistencia'],
-            'massa_magra_kg'     => $data['massa_magra_kg'],
-            'massa_adiposa_kg'   => $data['massa_adiposa_kg'],
-            'massa_magra_pct'    => $data['massa_magra_pct'],
-            'massa_adiposa_pct'  => $data['massa_adiposa_pct'],
-            'peso_residual_kg'   => $data['peso_residual_kg'],
-            'problema_saude'     => $data['problema_saude'],
-            'atestado_valido'    => $data['atestado_valido'],
-            'usa_medicacao'      => $data['usa_medicacao'],
+
+            'arremesso' => $data['arremesso'],
+            'passe' => $data['passe'],
+            'marcacao' => $data['marcacao'],
+            'bandeja' => $data['bandeja'],
+            'rebote' => $data['rebote'],
+            'dominio' => $data['dominio'],
+            'potencia_mmss' => $data['potencia_mmss'],
+            'capacidade_aerobica' => $data['capacidade_aerobica'],
+            'agilidade' => $data['agilidade'],
+            'flexibilidade' => $data['flexibilidade'],
+            'potencia_mmii' => $data['potencia_mmii'],
+            'massa_corporal_kg' => $data['massa_corporal_kg'],
+            'gordura_pct' => $data['gordura_pct'],
+            'massa_magra_pct' => $data['massa_magra_pct'],
+            'envergadura_cm' => $data['envergadura_cm'],
+            'imc' => $data['imc'],
+            'problema_saude' => $data['problema_saude'],
+            'atestado_valido' => $data['atestado_valido'],
+            'usa_medicacao' => $data['usa_medicacao'],
         ]);
 
         return redirect()
@@ -554,55 +540,51 @@ class AlunoController extends Controller
         return response()->json([
             'fisico' => [
                 'labels' => [
-                    'Envergadura',
-                    'Velocidade',
-                    'Agilidade',
-                    'Salto Horizontal',
-                    'Resistência'
-                ],
+                    'Potência MMSS', 'Capacidade Aeróbica', 'Agilidade', 'Flexibilidade', 'Potência MMII'
+                ], 
                 'anterior' => [
-                    $analiseAnterior?->envergadura,
-                    $analiseAnterior?->velocidade,
-                    $analiseAnterior?->agilidade,
-                    $analiseAnterior?->salto_horizontal,
-                    $analiseAnterior?->resistencia
-                ],
+                    $analiseAnterior?->potencia_mmss, 
+                    $analiseAnterior?->capacidade_aerobica, 
+                    $analiseAnterior?->agilidade, 
+                    $analiseAnterior?->flexibilidade, 
+                    $analiseAnterior?->potencia_mmii
+                ], 
                 'atual' => [
-                    $analiseAtual->envergadura,
-                    $analiseAtual->velocidade,
-                    $analiseAtual->agilidade,
-                    $analiseAtual->salto_horizontal,
-                    $analiseAtual->resistencia
+                    $analiseAtual->potencia_mmss, 
+                    $analiseAtual->capacidade_aerobica, 
+                    $analiseAtual->agilidade, 
+                    $analiseAtual->flexibilidade, 
+                    $analiseAtual->potencia_mmii
                 ]
             ],
             'clinico' => [
                 'labels' => [
-                    'Massa Magra (kg)',
-                    'Massa Adiposa (kg)',
-                    'Massa Magra (%)',
-                    'Massa Adiposa (%)',
-                    'Peso Residual (kg)'
-                ],
+                    'Massa Corporal (kg)', 
+                    'Envergadura (cm)', 
+                    'Massa Magra (%)', 
+                    'Gordura (%)', 
+                    'IMC'
+                ], 
                 'anterior' => [
-                    $analiseAnterior?->massa_magra_kg,
-                    $analiseAnterior?->massa_adiposa_kg,
-                    $analiseAnterior?->massa_magra_pct,
-                    $analiseAnterior?->massa_adiposa_pct,
-                    $analiseAnterior?->peso_residual_kg
-                ],
+                    $analiseAnterior?->massa_corporal_kg, 
+                    $analiseAnterior?->envergadura_cm, 
+                    $analiseAnterior?->massa_magra_pct, 
+                    $analiseAnterior?->gordura_pct, 
+                    $analiseAnterior?->imc
+                ], 
                 'atual' => [
-                    $analiseAtual->massa_magra_kg,
-                    $analiseAtual->massa_adiposa_kg,
-                    $analiseAtual->massa_magra_pct,
-                    $analiseAtual->massa_adiposa_pct,
-                    $analiseAtual->peso_residual_kg
+                    $analiseAtual->massa_corporal_kg, 
+                    $analiseAtual->envergadura_cm, 
+                    $analiseAtual->massa_magra_pct, 
+                    $analiseAtual->gordura_pct, 
+                    $analiseAtual->imc
                 ]
             ],
             'classificacao' => match (true) {
-                $analiseAtual->massa_adiposa_pct < 5  => 'Muito Baixo',
-                $analiseAtual->massa_adiposa_pct < 10 => 'Baixo',
-                $analiseAtual->massa_adiposa_pct < 16 => 'Ideal',
-                default                                => 'Acima do Ideal',
+                $analiseAtual->gordura_pct < 5 => 'Muito Baixo',
+                $analiseAtual->gordura_pct < 10 => 'Baixo',
+                $analiseAtual->gordura_pct < 16 => 'Ideal',
+                default => 'Acima do Ideal',
             }
         ]);
     }
