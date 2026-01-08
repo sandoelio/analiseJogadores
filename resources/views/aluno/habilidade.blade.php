@@ -82,7 +82,7 @@
                 min-width: 0;
             }
 
-             /* Alvo específico: a row que envolve o card */
+            /* Alvo específico: a row que envolve o card */
             .row.justify-content-center.mt-4.mb-4 {
                 margin-top: -1px !important;
                 /* diminui espaço superior */
@@ -229,11 +229,11 @@
                             <div class="tab-pane fade" id="aba3" role="tabpanel">
                                 <div class="row g-3">
                                     @foreach ([
-            'envergadura' => 'Envergadura (cm)',
-            'velocidade' => 'Velocidade (s)',
+            'potencia_mmss' => 'Potência MMSS',
+            'capacidade_aerobica' => 'Capacidade Aeróbica',
             'agilidade' => 'Agilidade (s)',
-            'salto_horizontal' => 'Salto Horizontal (cm)',
-            'resistencia' => 'Resistência (%)',
+            'flexibilidade' => 'Flexibilidade',
+            'potencia_mmii' => 'Potência MMII',
         ] as $campo => $label)
                                         <div class="col-6">
                                             <label for="{{ $campo }}"
@@ -250,12 +250,12 @@
                             <div class="tab-pane fade" id="aba4" role="tabpanel">
                                 <div class="row g-3">
                                     @foreach ([
-            'massa_magra_kg' => 'Massa Magra (kg)',
-            'massa_adiposa_kg' => 'Massa Adiposa (kg)',
-            'massa_magra_pct' => 'Massa Magra (%)',
-            'massa_adiposa_pct' => 'Massa Adiposa (%)',
-            'peso_residual_kg' => 'Peso Residual (kg)',
-        ] as $campo => $label)
+                                        'massa_corporal_kg' => 'Massa Corporal (kg)',
+                                        'gordura_pct' => 'Gordura (%)',
+                                        'massa_magra_pct' => 'Massa Magra (%)',
+                                        'envergadura_cm' => 'Envergadura (cm)',
+                                        'imc' => 'IMC',
+                                    ] as $campo => $label)
                                         <div class="col-6">
                                             <label for="{{ $campo }}"
                                                 class="form-label">{{ $label }}</label>
@@ -338,10 +338,8 @@
             if (!select) return;
 
             const tecnicos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
-            const fisicos = ['envergadura', 'velocidade', 'agilidade', 'salto_horizontal', 'resistencia'];
-            const composicao = ['massa_magra_kg', 'massa_adiposa_kg', 'massa_magra_pct', 'massa_adiposa_pct',
-                'peso_residual_kg'
-            ];
+            const fisicos = [ 'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii' ];
+            const composicao = [ 'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc' ];
             const saude = ['problema_saude', 'atestado_valido', 'usa_medicacao'];
 
             // Identificação
@@ -403,10 +401,13 @@
                 if (!payload) return {};
 
                 const allFields = [
-                    'arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio',
-                    'envergadura', 'velocidade', 'agilidade', 'salto_horizontal', 'resistencia',
-                    'massa_magra_kg', 'massa_adiposa_kg', 'massa_magra_pct', 'massa_adiposa_pct',
-                    'peso_residual_kg',
+                    // Técnicos 
+                    'arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio', 
+                    // Físicos 
+                    'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii', 
+                    // Corporal 
+                    'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc', 
+                    // Saúde 
                     'problema_saude', 'atestado_valido', 'usa_medicacao'
                 ];
 
