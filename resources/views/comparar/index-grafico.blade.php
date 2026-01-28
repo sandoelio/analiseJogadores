@@ -98,8 +98,16 @@
 
 @section('content')
     @php
-        $instId = session('aluno_instituicao_id');
-        $instLog = $instId ? $instituicoes->firstWhere('id', $instId) : null;
+        $user = auth()->user();
+
+        $isAdmin = auth()->check() && (int) ($user->is_admin ?? 0) === 1;
+
+        // Instituição efetiva:
+        // - atleta: session('aluno_instituicao_id')
+        // - técnico: auth()->user()->instituicao_id
+        // - admin: null (admin vê todas)
+        $instIdEfetiva = session('aluno_instituicao_id') ?? (auth()->check() ? $user->instituicao_id ?? null : null);
+        $instLog = !$isAdmin && $instIdEfetiva ? $instituicoes->firstWhere('id', $instIdEfetiva) : null;
     @endphp
 
     <div class="container">
@@ -109,12 +117,14 @@
             <select id="aluno1" class="form-select mt-2">
                 <option value="">Selecione o primeiro atleta</option>
                 @if ($instLog)
+                {{-- ATLETA/TÉCNICO: só atletas da instituição efetiva --}}
                     @foreach ($instLog->alunos as $aluno)
                         <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}" data-idade="{{ $aluno->idade }}">
                             {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
                         </option>
                     @endforeach
                 @else
+                 {{-- ADMIN (ou público sem instituição): todas --}}
                     @foreach ($instituicoes as $inst)
                         <optgroup label="{{ $inst->nome }}">
                             @foreach ($inst->alunos as $aluno)
@@ -132,6 +142,7 @@
             <select id="aluno2" class="form-select" disabled>
                 <option value="">Selecione o segundo atleta</option>
                 @if ($instLog)
+                {{-- ATLETA/TÉCNICO --}}
                     @foreach ($instLog->alunos as $aluno)
                         <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
                             data-idade="{{ $aluno->idade }}">
@@ -139,6 +150,7 @@
                         </option>
                     @endforeach
                 @else
+                {{-- ADMIN --}}
                     @foreach ($instituicoes as $inst)
                         <optgroup label="{{ $inst->nome }}">
                             @foreach ($inst->alunos as $aluno)
