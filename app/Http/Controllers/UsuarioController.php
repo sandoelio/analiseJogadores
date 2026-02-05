@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Instituicao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Jenssegers\Agent\Agent;
 
 class UsuarioController extends Controller
@@ -103,10 +104,16 @@ class UsuarioController extends Controller
 
     public function destroy(User $usuario)
     {
-        //    opcional: se desejar remover a instituição
-        // $usuario->instituicao()->delete();
+        DB::transaction(function () use ($usuario) {
+            $instituicao = $usuario->instituicao;
 
-        $usuario->delete();
+            if ($instituicao) {
+                $instituicao->delete();
+                return;
+            }
+
+            $usuario->delete();
+        });
 
         return redirect()
             ->route('usuarios.index')
