@@ -67,12 +67,18 @@ class AlunoController extends Controller
      */
     public function updateHabilidade(Request $request)
     {
+        // Salva apenas os digitos para manter o valor consistente no banco.
+        $telefone = preg_replace('/\D+/', '', (string) $request->input('telefone', ''));
+        $request->merge([
+            'telefone' => $telefone !== '' ? $telefone : null,
+        ]);
         // validação permissiva: os campos podem ou não vir no request (só validar formato quando vierem)
         $rules = [
             'aluno_id' => 'required|exists:alunos,id',
             'data_nascimento' => 'sometimes|nullable|date',
             'sexo' => 'sometimes|nullable|in:Masculino,Feminino',
             'idade' => 'sometimes|nullable|integer|min:0',
+            'telefone' => 'sometimes|nullable|digits_between:10,11',
             // Técnicos 
             'arremesso' => 'sometimes|nullable|integer|between:0,10',
             'passe' => 'sometimes|nullable|integer|between:0,10',
@@ -125,6 +131,10 @@ class AlunoController extends Controller
             $alunoUpdates['idade'] = $data['idade'];
         }
 
+        if (array_key_exists('telefone', $data)) {
+            $alunoUpdates['telefone'] = $data['telefone'];
+        }
+
         if (!empty($alunoUpdates)) {
             $aluno->update($alunoUpdates);
         }
@@ -163,6 +173,7 @@ class AlunoController extends Controller
                 'data_nascimento' => $aluno->data_nascimento ? $aluno->data_nascimento->toDateString() : null,
                 'sexo' => $aluno->sexo ?? null,
                 'idade' => $aluno->idade ?? null,
+                'telefone' => $aluno->telefone ?? null,
             ],
             'tecnicos' => [
                 'arremesso' => $analise->arremesso,
@@ -270,6 +281,7 @@ class AlunoController extends Controller
             'data_nascimento' => $dataNasc,
             'sexo' => $aluno->sexo ?? null,
             'idade' => $idade,
+            'telefone' => $aluno->telefone ?? null,
         ];
         if (!$analise) {
             // Retorna identificação mesmo quando não há análise (útil para preencher a aba 1)
