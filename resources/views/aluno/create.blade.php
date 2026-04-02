@@ -104,8 +104,8 @@
                                     @enderror
                                 </div>
 
-                                <div class="row g-3">
-                                    <div class="col-6">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-12 col-lg-4">
                                         <label for="data_nascimento" class="form-label">Data de Nascimento</label>
                                         <input type="date" id="data_nascimento" name="data_nascimento"
                                             class="form-control @error('data_nascimento') is-invalid @enderror"
@@ -115,7 +115,7 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-3">
+                                    <div class="col-12 col-md-6 col-lg-3">
                                         <label class="form-label">Sexo</label>
                                         <div class="d-flex">
                                             <div class="form-check form-check-inline">
@@ -134,11 +134,21 @@
                                             <div class="text-danger small">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                    <div class="col-4 d-flex align-items-center">
-                                        <label for="idade_display" class="form-label me-2 mb-0">Idade</label>
-                                        <input type="text" id="idade_display" class="form-control "
+                                    <div class="col-12 col-md-6 col-lg-2">
+                                        <label for="idade_display" class="form-label">Idade</label>
+                                        <input type="text" id="idade_display" class="form-control"
                                             value="{{ old('idade') }}" readonly>
                                         <input type="hidden" id="idade" name="idade" value="{{ old('idade') }}">
+                                    </div>
+                                    <div class="col-12 col-lg-3">
+                                        <label for="telefone" class="form-label">Telefone</label>
+                                        <input type="text" id="telefone" name="telefone"
+                                            placeholder="(00) 00000-0000"
+                                            class="form-control @error('telefone') is-invalid @enderror"
+                                            value="{{ old('telefone') }}" inputmode="numeric" maxlength="15">
+                                        @error('telefone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -256,6 +266,7 @@
             const dataInput = document.getElementById('data_nascimento');
             const idadeDisplay = document.getElementById('idade_display');
             const idadeHidden = document.getElementById('idade');
+            const telefoneInput = document.getElementById('telefone');
 
             function calcularIdade(dataStr) {
                 if (!dataStr) return '';
@@ -279,6 +290,40 @@
                 dataInput.addEventListener('change', atualizar);
                 // cálculo inicial se já houver valor
                 if (dataInput.value) atualizar();
+            }
+
+            function aplicarMascaraTelefone(valor) {
+                const digitos = valor.replace(/\D/g, '').slice(0, 11);
+
+                if (digitos.length <= 2) {
+                    return digitos;
+                }
+
+                const padrao = digitos.length > 10 ? /(\d{2})(\d{0,5})(\d{0,4})/ : /(\d{2})(\d{0,4})(\d{0,4})/;
+
+                return digitos.replace(padrao, function(_, ddd, parte1, parte2) {
+                    let telefone = '(' + ddd + ')';
+
+                    if (parte1) {
+                        telefone += ' ' + parte1;
+                    }
+
+                    if (parte2) {
+                        telefone += '-' + parte2;
+                    }
+
+                    return telefone;
+                });
+            }
+
+            if (telefoneInput) {
+                telefoneInput.addEventListener('input', function() {
+                    telefoneInput.value = aplicarMascaraTelefone(telefoneInput.value);
+                });
+
+                if (telefoneInput.value) {
+                    telefoneInput.value = aplicarMascaraTelefone(telefoneInput.value);
+                }
             }
 
             // --- Mensagem de sucesso: fecha automaticamente ---

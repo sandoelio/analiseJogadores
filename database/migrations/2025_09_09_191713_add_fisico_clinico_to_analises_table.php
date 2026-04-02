@@ -26,8 +26,8 @@ return new class extends Migration
             $table->boolean('problema_saude')->nullable();
             $table->boolean('atestado_valido')->nullable();
             $table->boolean('usa_medicacao')->nullable();
-            $table->timestamp('created_at')->nullable();
-            $table->timestamp('updated_at')->nullable();
+            // $table->timestamp('created_at')->nullable();
+            // $table->timestamp('updated_at')->nullable();
         });
     }
 
