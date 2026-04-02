@@ -159,6 +159,7 @@
                                                     ? $a->data_nascimento->toDateString()
                                                     : '';
                                                 $sexoVal = $a->sexo ?? '';
+                                                $telefoneVal = $a->telefone ?? '';
                                                 $idadeVal =
                                                     $a->idade ??
                                                     ($a->data_nascimento
@@ -168,6 +169,7 @@
 
                                             <option value="{{ $a->id }}" data-datanascimento="{{ $dataNasc }}"
                                                 data-sexo="{{ $sexoVal }}" data-idade="{{ $idadeVal }}"
+                                                data-telefone="{{ $telefoneVal }}"
                                                 {{ $selected }}>
                                                 {{ $a->nome }}@if ($idadeExib)
                                                     ({{ $idadeExib }} anos)
@@ -177,36 +179,48 @@
                                     </select>
                                 </div>
 
-                                <div class="row g-3">
-                                    <div class="col-6">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-12 col-lg-4">
                                         <label for="data_nascimento" class="form-label">Data de Nascimento</label>
                                         <input type="date" id="data_nascimento" name="data_nascimento"
                                             class="form-control" value="{{ old('data_nascimento') }}">
                                     </div>
 
-                                    <div class="col-3 d-flex align-items-center">
-                                        <label class="form-label mb-0 me-2">Sexo</label>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="sexo" id="sexo_m"
-                                                value="Masculino" {{ old('sexo') == 'Masculino' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="sexo_m">M</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="sexo" id="sexo_f"
-                                                value="Feminino" {{ old('sexo') == 'Feminino' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="sexo_f">F</label>
+                                    <div class="col-12 col-md-6 col-lg-3">
+                                        <label class="form-label">Sexo</label>
+                                        <div class="d-flex">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="sexo" id="sexo_m"
+                                                    value="Masculino" {{ old('sexo') == 'Masculino' ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="sexo_m">M</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="sexo" id="sexo_f"
+                                                    value="Feminino" {{ old('sexo') == 'Feminino' ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="sexo_f">F</label>
+                                            </div>
                                         </div>
                                     </div>
-                                    @error('sexo')
-                                        <div class="text-danger small">{{ $message }}</div>
-                                    @enderror
+                                    <div class="col-12 col-md-6 col-lg-2">
+                                        <label for="idade_display" class="form-label">Idade</label>
+                                        <input type="text" id="idade_display" class="form-control"
+                                            value="{{ old('idade') }}" readonly>
+                                        <input type="hidden" id="idade" name="idade" value="{{ old('idade') }}">
+                                    </div>
+                                    <div class="col-12 col-lg-3">
+                                        <label for="telefone" class="form-label">Telefone</label>
+                                        <input type="text" id="telefone" name="telefone"
+                                            placeholder="(00) 00000-0000"
+                                            class="form-control @error('telefone') is-invalid @enderror"
+                                            value="{{ old('telefone') }}" inputmode="numeric" maxlength="15">
+                                        @error('telefone')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                                <div class="col-4 d-flex align-items-center mt-2">
-                                    <label for="idade_display" class="form-label me-2 mb-0">Idade</label>
-                                    <input type="text" id="idade_display" class="form-control"
-                                        value="{{ old('idade') }}" readonly>
-                                    <input type="hidden" id="idade" name="idade" value="{{ old('idade') }}">
-                                </div>
+                                @error('sexo')
+                                    <div class="text-danger small mt-2">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             {{-- Aba 2: Habilidades Técnicas --}}
@@ -348,6 +362,7 @@
             const sexoFEl = document.getElementById('sexo_f');
             const idadeDisplayEl = document.getElementById('idade_display');
             const idadeHiddenEl = document.getElementById('idade');
+            const telefoneEl = document.getElementById('telefone');
             const nomeEl = document.getElementById('nome');
 
             function setReadOnlyByIds(ids, ro = true) {
@@ -374,6 +389,30 @@
             setDisabledRadiosByNames(saude, true);
 
             // Preenche identificação (nome, data, sexo, idade)
+            function aplicarMascaraTelefone(valor) {
+                const digitos = (valor || '').replace(/\D/g, '').slice(0, 11);
+
+                if (digitos.length <= 2) {
+                    return digitos;
+                }
+
+                const padrao = digitos.length > 10 ? /(\d{2})(\d{0,5})(\d{0,4})/ : /(\d{2})(\d{0,4})(\d{0,4})/;
+
+                return digitos.replace(padrao, function(_, ddd, parte1, parte2) {
+                    let telefone = '(' + ddd + ')';
+
+                    if (parte1) {
+                        telefone += ' ' + parte1;
+                    }
+
+                    if (parte2) {
+                        telefone += '-' + parte2;
+                    }
+
+                    return telefone;
+                });
+            }
+
             function preencherIdentificacao(idObj) {
                 const id = idObj || {};
                 if (nomeEl && (id.nome !== undefined)) {
@@ -393,6 +432,10 @@
                         idadeDisplayEl.value = '';
                         if (idadeHiddenEl) idadeHiddenEl.value = '';
                     }
+                }
+
+                if (telefoneEl) {
+                    telefoneEl.value = aplicarMascaraTelefone(id.telefone ?? '');
                 }
             }
 
@@ -485,7 +528,8 @@
                     nome: opt.textContent ? opt.textContent.trim() : (ds.nome || ''),
                     data_nascimento: ds.datanascimento || ds.dataNasc || ds.data_nascimento || '',
                     sexo: ds.sexo || '',
-                    idade: ds.idade || ds.age || ''
+                    idade: ds.idade || ds.age || '',
+                    telefone: ds.telefone || ''
                 };
                 preencherIdentificacao(id);
             }
@@ -496,7 +540,7 @@
 
                 const opt = select.options[select.selectedIndex];
                 if (opt && (opt.dataset && (opt.dataset.datanascimento || opt.dataset.sexo || opt.dataset
-                        .idade))) {
+                        .idade || opt.dataset.telefone))) {
                     // se option já tem identificação, preenche rápido
                     preencherFromOptionDataset(opt);
                 } else {
@@ -506,6 +550,7 @@
                     if (sexoFEl) sexoFEl.checked = false;
                     if (idadeDisplayEl) idadeDisplayEl.value = '';
                     if (idadeHiddenEl) idadeHiddenEl.value = '';
+                    if (telefoneEl) telefoneEl.value = '';
                 }
 
                 const urlTemplate = window.routes && window.routes.lastAnalysis ? window.routes.lastAnalysis :
@@ -539,7 +584,8 @@
                         nome: payload.nome ?? null,
                         data_nascimento: payload.data_nascimento ?? null,
                         sexo: payload.sexo ?? null,
-                        idade: payload.idade ?? null
+                        idade: payload.idade ?? null,
+                        telefone: payload.telefone ?? null
                     };
                     preencherIdentificacao(idObj);
 
@@ -596,6 +642,16 @@
             }
 
             // Auto-hide success alert (melhor comportamento: usa classes do Bootstrap se disponível)
+            if (telefoneEl) {
+                telefoneEl.addEventListener('input', () => {
+                    telefoneEl.value = aplicarMascaraTelefone(telefoneEl.value);
+                });
+
+                if (telefoneEl.value) {
+                    telefoneEl.value = aplicarMascaraTelefone(telefoneEl.value);
+                }
+            }
+
             const alert = document.querySelector('.alert-success');
             if (alert) {
                 const TIMEOUT = 5000;
