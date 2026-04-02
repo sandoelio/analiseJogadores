@@ -327,12 +327,19 @@ class AlunoController extends Controller
         $userId        = $user->id;
         $instituicaoId = $user->instituicao_id;
 
+        // Salva apenas os digitos para manter o valor consistente no banco.
+        $telefone = preg_replace('/\D+/', '', (string) $request->input('telefone', ''));
+        $request->merge([
+            'telefone' => $telefone !== '' ? $telefone : null,
+        ]);
+
         // Validação completa
         $data = $request->validate([
 
             'nome' => 'required|string|max:255',
             'data_nascimento' => 'nullable|date',
             'sexo' => 'nullable|in:Masculino,Feminino,M,F',
+            'telefone' => 'nullable|digits_between:10,11',
             // Técnicos 
             'arremesso' => 'required|integer|between:0,10',
             'passe' => 'required|integer|between:0,10',
@@ -418,6 +425,7 @@ class AlunoController extends Controller
                 'data_nascimento' => $data['data_nascimento'] ?? null,
                 'sexo' => $sexo,
                 'idade' => $idade,
+                'telefone' => $data['telefone'] ?? null,
             ]
         );
 

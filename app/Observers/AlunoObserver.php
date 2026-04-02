@@ -23,7 +23,16 @@ class AlunoObserver
     // chamado automaticamente pelo Eloquent quando o aluno é criado
     public function created(Aluno $aluno)
     {
-        $dados = $aluno->only(['nome', 'matricula', 'instituicao_id', 'user_id']);
+        $dados = $aluno->only([
+            'nome',
+            'matricula',
+            'instituicao_id',
+            'user_id',
+            'data_nascimento',
+            'idade',
+            'sexo',
+            'telefone',
+        ]);
         $this->createHistory($aluno, 'created', $dados, null, $aluno->created_at);
     }
 
