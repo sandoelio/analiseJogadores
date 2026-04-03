@@ -1,11 +1,10 @@
-{{-- resources/views/public/dashboard.blade.php --}}
+{{-- resources/views/public/home.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Análise de Desempenhos')
+@section('title', 'Analise de Desempenhos')
 
 @push('styles')
     <style>
-        /* 1) Sem scroll horizontal em toda a página */
         html,
         body {
             margin: 0;
@@ -13,138 +12,236 @@
             overflow-x: hidden !important;
         }
 
-        /* 2) Container centralizado, sem overflow */
-        .dashboard-container {
-            min-height: calc(100vh - 16rem);
-            /* header ativo */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+        .site-navbar-toggler,
+        .site-navbar-menu {
+            display: none !important;
         }
 
-        /* 3) Grid de botões fixa em 2 colunas, com gap */
-        .dashboard-buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            max-width: 500px;
+        .home-shell {
+            max-width: 940px;
             width: 100%;
             margin: 0 auto;
+            padding: 0.95rem 0 1rem;
         }
 
-        /* 4) Em mobile, muda para 1 coluna */
-        @media (max-width: 576px) {
-            .dashboard-buttons {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-
-            /* Oculta logo no mobile e remove cor de fundo */
-            .dashboard-buttons .logo-wrapper {
-                display: none;
-                background: transparent !important;
-                border-color: transparent !important;
-                color: inherit !important;
-            }
-
-            /* Remove cor de fundo dos botões no mobile */
-            .dashboard-buttons>* {
-                background: transparent;
-                border: none;
-                padding: 1rem;
-            }
-
-            .dashboard-buttons a {
-                background: transparent;
-                border: none;
-                color: #fff !important;
-            }
-
-            .dashboard-buttons a:hover {
-                background: transparent;
-                border: none;
-                color: #28365F;
-            }
-
-            /* Ícones brancos no mobile */
-            .dashboard-btn i {
-                color: #fff !important;
-            }
+        .home-hero {
+            margin-bottom: 0.9rem;
+            padding: 1.05rem 1.15rem;
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(26, 42, 80, 0.08);
         }
 
-        /* 5) Estilo unificado para logo e botões */
-        .dashboard-buttons>* {
+        .home-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.55rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 999px;
+            background: #eef3fb;
+            color: #28365F;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .home-title {
+            margin: 0;
+            color: #1f2d4f;
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .home-text {
+            margin: 0.35rem 0 0;
+            color: #5f6b85;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            max-width: 760px;
+        }
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .home-card {
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            gap: 0.85rem;
+            min-height: 168px;
+            padding: 1rem;
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(26, 42, 80, 0.08);
+            text-decoration: none;
+            color: #1f2d4f;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .home-card:hover {
+            transform: translateY(-2px);
+            border-color: #9fb2d7;
+            color: #1f2d4f;
+            box-shadow: 0 10px 24px rgba(26, 42, 80, 0.12);
+        }
+
+        .home-card-destaque {
+            background: linear-gradient(135deg, #fff 0%, #f6f9ff 100%);
+            border-color: #bfd0ee;
+        }
+
+        .home-card-icon {
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-            background: #fff;
-            border: 2px solid #ddd;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            color: #333;
-            font-weight: 600;
-            transition: background 0.2s, border-color 0.2s, color 0.2s;
-        }
-
-        /* 6) Hover idem para botões (logo não ficará “clicável”) */
-        .dashboard-buttons a:hover {
-            background: #f8f9fa;
-            border-color: #28365F;
+            border-radius: 0.9rem;
+            background: #eef3fb;
             color: #28365F;
+            font-size: 1.3rem;
         }
 
-        .dashboard-buttons .logo-wrapper {
+        .home-card-destaque .home-card-icon {
             background: #28365F;
-            border-color: #28365F;
             color: #fff;
         }
 
-        /* 7) Logo com tamanho máximo e responsivo */
-        .dashboard-buttons .logo-wrapper img {
-            max-width: 150px;
-            width: 100%;
-            height: auto;
-
+        .home-card-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.3;
         }
 
-        /* 8) Ícones dos botões */
-        .dashboard-btn i {
-            font-size: 2.5rem;
-            margin-bottom: 0.75rem;
+        .home-card-text {
+            margin: 0.35rem 0 0;
+            color: #5f6b85;
+            font-size: 0.87rem;
+            line-height: 1.45;
+        }
+
+        .home-card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: #28365F;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        @media (min-width: 577px) and (max-width: 991.98px) {
+            .home-shell {
+                max-width: 760px;
+            }
+
+            .home-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .home-card-destaque {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .home-shell {
+                max-width: 500px;
+                padding-top: 0.45rem;
+            }
+
+            .home-hero {
+                padding: 0.9rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .home-title {
+                font-size: 1.2rem;
+            }
+
+            .home-text {
+                font-size: 0.86rem;
+            }
+
+            .home-grid {
+                grid-template-columns: 1fr;
+                gap: 0.55rem;
+            }
+
+            .home-card {
+                min-height: auto;
+                padding: 0.9rem;
+            }
         }
     </style>
 @endpush
 
 @section('content')
-    <div class="container-fluid dashboard-container">
-        <div class="dashboard-buttons">
+    <div class="home-shell">
+        <div class="home-hero">
+            <span class="home-chip">
+                <i class="bi bi-door-open-fill"></i>
+                Entrada do Sistema
+            </span>
+            <h1 class="home-title">Escolha o perfil de acesso</h1>
+        </div>
 
-            {{-- Logo no grid (sem hover/link) --}}
-            <div class="logo-wrapper">
-                <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" loading="lazy">
-            </div>
-
-            {{-- 1) Análise Individual --}}
-            <a href="{{ route('login') }}" class="dashboard-btn">
-                <i class="bi bi-person-fill-gear"></i>
-                Acesso Administrativo
+        <div class="home-grid">
+            <a href="{{ route('aluno.login') }}" class="home-card home-card-destaque">
+                <div>
+                    <span class="home-card-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </span>
+                    <h2 class="home-card-title mt-3">Acesso Atleta</h2>
+                    <p class="home-card-text">
+                        Entre para consultar desempenho, histórico e comparações disponíveis para o seu perfil.
+                    </p>
+                </div>
+                <span class="home-card-link">
+                    Entrar como atleta
+                    <i class="bi bi-arrow-right"></i>
+                </span>
             </a>
 
-            {{-- 2) 1×1 Narrativo --}}
-            <a href="{{ route('aluno.login') }}" class="dashboard-btn">
-                <i class="bi bi-people-fill"></i>
-                Acesso Atleta
+            <a href="{{ route('login') }}" class="home-card">
+                <div>
+                    <span class="home-card-icon">
+                        <i class="bi bi-person-video2"></i>
+                    </span>
+                    <h2 class="home-card-title mt-3">Acesso Técnico</h2>
+                    <p class="home-card-text">
+                        Cadastre atletas, atualize avaliações e consulte os relatórios da instituição vinculada.
+                    </p>
+                </div>
+                <span class="home-card-link">
+                    Entrar como técnico
+                    <i class="bi bi-arrow-right"></i>
+                </span>
             </a>
 
-            {{-- 3) 1×1 Gráfico --}}
-            <a href="{{ route('login') }}" class="dashboard-btn">
-                <i class="bi bi-person-video2"></i>
-                Acesso Técnico
+            <a href="{{ route('login') }}" class="home-card">
+                <div>
+                    <span class="home-card-icon">
+                        <i class="bi bi-person-fill-gear"></i>
+                    </span>
+                    <h2 class="home-card-title mt-3">Acesso Administrativo</h2>
+                    <p class="home-card-text">
+                        Gerencie usuários, instituições e acompanhe os relatórios gerais do sistema.
+                    </p>
+                </div>
+                <span class="home-card-link">
+                    Entrar como administrador
+                    <i class="bi bi-arrow-right"></i>
+                </span>
             </a>
-
         </div>
     </div>
 @endsection
