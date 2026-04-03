@@ -12,6 +12,7 @@ use App\Http\Controllers\AlunoAuthController;
 use App\Http\Controllers\AlunoHistoryController;
 use App\Http\Controllers\AlunoPublicoController;
 use App\Http\Controllers\PublicDashboardController;
+use App\Http\Controllers\RelatorioAdminController;
 use App\Http\Controllers\RelatorioTecnicoController;
 use App\Http\Controllers\ComparativoGraficoController;
 use App\Http\Controllers\ComparativoPublicoController;
@@ -124,6 +125,8 @@ Route::middleware([ CheckSession::class ])->group(function () {
 Route::middleware([ CheckSession::class, CheckAdmin::class ])->group(function () {
 
     Route::get('/admin/dashboard', fn() => view('admin.dashboard'))->name('admin.dashboard');
+
+    Route::get('/admin/relatorios', [RelatorioAdminController::class, 'index'])->name('admin.relatorios');
 
     Route::resource('usuarios', UsuarioController::class)->except(['show']);
 });
