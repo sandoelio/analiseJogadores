@@ -5,15 +5,12 @@
 
 @push('styles')
     <style>
-        #graficoFisico {
-            min-height: 290px;
-        }
-
+        #graficoFisico,
         #graficoClinico {
             width: 100% !important;
-            max-width: 600px;
-            min-height: 290px;
-            height: auto !important;
+            height: 100% !important;
+            min-height: 0;
+            max-width: 100%;
             display: block;
             margin: 0 auto;
         }
@@ -36,43 +33,149 @@
             height: 3rem;
         }
 
+        .analise-shell {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 0.75rem 0 1rem;
+        }
+
+        .analise-topbar {
+            margin-bottom: 0.7rem;
+        }
+
+        .analise-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.9rem;
+            padding: 0.85rem 1rem;
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(26, 42, 80, 0.08);
+        }
+
+        .analise-heading-content {
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        .analise-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.55rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 999px;
+            background: #eef3fb;
+            color: #28365F;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .analise-title {
+            margin: 0;
+            color: #1f2d4f;
+            font-size: 1.45rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .analise-subtitle {
+            margin: 0.28rem 0 0;
+            color: #5f6b85;
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+
+        .analise-filtros {
+            margin-bottom: 0.75rem;
+            padding: 0.8rem;
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(26, 42, 80, 0.08);
+        }
+
         .field-wrapper,
         .chart-wrapper {
             position: relative;
         }
 
-        .back-logo {
-            background: #28365F;
-            display: block;
-            margin: 0 auto 0.4rem;
-            max-width: 200px;
-            width: 100%;
-            height: auto;
-        }
-
         .field-wrapper .form-select {
             display: block;
             margin: 0 auto;
-            max-width: 600px;
+            max-width: none;
             width: 100%;
+            min-height: 48px;
+            border-radius: 0.8rem;
+            border-color: #dbe1ec;
+            box-shadow: none;
+        }
+
+        .field-wrapper .form-select:focus {
+            border-color: #8ea3ce;
+            box-shadow: 0 0 0 0.2rem rgba(40, 54, 95, 0.12);
         }
 
         .volver-wrapper .btn {
-            max-width: 200px;
-            width: 100%;
-            margin: 0 auto;
-            display: block;
+            min-width: 130px;
+            width: auto;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background: #28365F;
-            margin-top: 5px;
+            padding: 0.62rem 0.9rem;
+            border-radius: 0.85rem;
+        }
+
+        .estatisticas-chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            max-height: 320px;
+            overflow: hidden;
         }
 
         #estatisticas-chart {
             width: 100% !important;
-            height: auto !important;
-            max-width: 600px;
-            min-height: 300px;
+            height: 100% !important;
+            max-width: 100%;
+            min-height: 0;
             display: block;
             margin: 0 auto;
+        }
+
+        .chart-modal-body {
+            height: 280px;
+            max-height: 280px;
+            padding: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow: hidden;
+        }
+
+        .chart-modal-body canvas {
+            flex: 1 1 auto;
+        }
+
+        #modalAnaliseFisica .modal-dialog,
+        #modalSaudeAtleta .modal-dialog {
+            max-width: min(920px, calc(100vw - 1rem));
+        }
+
+        #modalAnaliseFisica .modal-body,
+        #modalSaudeAtleta .modal-body {
+            padding: 0.85rem;
+        }
+
+        #modalAnaliseFisica .modal-content,
+        #modalSaudeAtleta .modal-content {
+            overflow: hidden;
         }
 
         /* Timeline vertical base */
@@ -175,6 +278,57 @@
             align-items: center;
             flex-wrap: wrap;
             justify-content: flex-end;
+        }
+
+        .action-buttons .btn {
+            width: 46px;
+            height: 46px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.85rem;
+        }
+
+        .action-buttons .btn i {
+            font-size: 1.1rem;
+        }
+
+        #selecao-container {
+            --bs-gutter-x: 0.85rem;
+            --bs-gutter-y: 0.75rem;
+            margin-bottom: 0 !important;
+        }
+
+        .chart-wrapper {
+            max-width: 1080px;
+            margin: 0 auto 0.85rem;
+        }
+
+        #estatisticas-container.card {
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(26, 42, 80, 0.08);
+        }
+
+        #estatisticas-container .card-header {
+            gap: 1rem;
+            padding: 0.85rem 1rem;
+            background: #fff;
+            border-bottom: 1px solid #edf2f8;
+        }
+
+        .estatisticas-titulo {
+            display: flex;
+            align-items: center;
+            color: #1f2d4f;
+        }
+
+        .estatisticas-subtitulo {
+            margin: 0.2rem 0 0;
+            color: #5f6b85;
+            font-size: 0.84rem;
         }
 
         #modalCvEsportivo .modal-content {
@@ -294,6 +448,35 @@
         }
 
         @media (max-width: 576px) {
+            .analise-shell {
+                padding-top: 0.45rem;
+            }
+
+            .analise-topbar {
+                margin-bottom: 0.75rem;
+            }
+
+            .analise-heading {
+                flex-direction: column;
+                padding: 0.85rem;
+            }
+
+            .analise-title {
+                font-size: 1.18rem;
+            }
+
+            .analise-subtitle {
+                font-size: 0.86rem;
+            }
+
+            .analise-filtros {
+                padding: 0.75rem;
+            }
+
+            .volver-wrapper .btn {
+                width: 100%;
+            }
+
             .timeline {
                 padding-left: 28px;
             }
@@ -307,12 +490,16 @@
             }
 
             .action-buttons {
-                gap: 0.75rem;
-                justify-content: center;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.55rem;
+                justify-content: stretch;
+                width: 100%;
             }
 
             .action-buttons .btn {
-                margin-bottom: 0.5rem;
+                width: 100%;
+                margin-bottom: 0;
             }
 
             .action-buttons.stack-mobile .btn {
@@ -331,33 +518,31 @@
             .cv-esportivo-valor {
                 text-align: left;
             }
+
+            .chart-modal-body {
+                height: 220px;
+                max-height: 220px;
+                padding: 0.65rem;
+            }
+
+            #estatisticas-container .card-header {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            #estatisticas-chart {
+                min-height: 0;
+            }
+
+            .estatisticas-chart-wrap {
+                height: 220px;
+                max-height: 220px;
+            }
         }
 
         @media (min-width: 768px) {
-
-            html,
-            body {
-                overflow-x: hidden;
-            }
-
-            .back-logo {
-                margin-top: 1rem;
-                margin-bottom: 1.0rem;
-            }
-
-            #selecao-container {
-                --bs-gutter-y: .5rem;
-                margin-bottom: 0.1rem !important;
-            }
-
-            #selecao-container .field-wrapper {
-                width: 100% !important;
-                /* max-width: 600px; */
-            }
-
             .chart-wrapper {
-                max-width: 600px;
-                margin: 0.5rem auto 2rem;
+                margin-bottom: 1.15rem;
             }
         }
     </style>
@@ -383,18 +568,35 @@
         $isPrivilegiado = auth()->check() && !session()->has('aluno_instituicao_id');
     @endphp
 
-    <div class="container-fluid">
+    <div class="container-fluid analise-shell">
 
-        {{-- Voltar --}}
-        <div class="row justify-content-center mb-2 mt-0 volver-wrapper">
-            <div class="col-12 col-md-6 text-center">
-                <a href="{{ route('public.dashboard') }}" class="btn btn-primary">
-                    <i class="bi bi-house-door me-1"></i> Voltar
-                </a>
+        <div class="analise-topbar">
+            <div class="analise-heading">
+                <div class="analise-heading-content">
+                    <span class="analise-chip">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        Consulta
+                    </span>
+                    <h1 class="analise-title">Analise de desempenho</h1>
+                    <p class="analise-subtitle">
+                        @if ($isAdmin)
+                            Selecione a instituicao e depois o atleta para visualizar a evolucao tecnica e os detalhes complementares.
+                        @else
+                            Selecione o atleta para visualizar a evolucao tecnica e os detalhes complementares.
+                        @endif
+                    </p>
+                </div>
+
+                <div class="volver-wrapper">
+                    <a href="{{ route('public.dashboard') }}" class="btn btn-primary">
+                        <i class="bi bi-house-door me-1"></i> Voltar
+                    </a>
+                </div>
             </div>
         </div>
 
         {{-- SELEÇÃO --}}
+        <div class="analise-filtros">
         <div id="selecao-container" class="row gx-1 gy-1 justify-content-center mb-0">
 
             @if ($isAdmin)
@@ -419,8 +621,6 @@
                         <div class="spinner-border text-primary" role="status"></div>
                     </div>
 
-                    <small id="aluno_nome_display" class="d-block text-secondary"></small>
-                    <small id="aluno_idade_display" class="d-block text-secondary"></small>
                 </div>
             @else
                 {{-- ATLETA/TÉCNICO: apenas atletas da própria instituição --}}
@@ -433,18 +633,21 @@
                         <div class="spinner-border text-primary" role="status"></div>
                     </div>
 
-                    <small id="aluno_nome_display" class="d-block text-secondary"></small>
-                    <small id="aluno_idade_display" class="d-block text-secondary"></small>
                 </div>
             @endif
         </div>
 
         {{-- GRÁFICO --}}
+        </div>
+
         <div id="estatisticas-container" class="card shadow-sm d-none chart-wrapper">
             <div class="card-header d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
-                    <h6 class="mb-0">Estatísticas</h6>
+                <div>
+                    <div class="estatisticas-titulo">
+                        <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
+                        <h6 class="mb-0">Estatisticas</h6>
+                    </div>
+                    <p class="estatisticas-subtitulo">Comparativo da analise atual com a referencia anterior do atleta.</p>
                 </div>
 
                 @if ($isPrivilegiado)
@@ -476,23 +679,25 @@
                 @endif
             </div>
 
-            <div class="card-body p-3 d-flex justify-content-center" style="min-height:320px;position:relative;">
+            <div class="card-body p-3" style="position:relative;">
                 <div id="overlay-chart" class="overlay-spinner d-none">
                     <div class="spinner-border text-primary" role="status"></div>
                 </div>
-                <canvas id="estatisticas-chart"></canvas>
+                <div class="estatisticas-chart-wrap">
+                    <canvas id="estatisticas-chart"></canvas>
+                </div>
             </div>
         </div>
 
         {{-- Modal: Análise Física --}}
         <div class="modal fade" id="modalAnaliseFisica" tabindex="-1">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Atributos Físicos</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body chart-modal-body">
                         <canvas id="graficoFisico"></canvas>
                     </div>
                 </div>
@@ -501,14 +706,14 @@
 
         {{-- Modal: Saúde do Atleta --}}
         <div class="modal fade" id="modalSaudeAtleta" tabindex="-1">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Classificação Corporal</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <canvas id="graficoClinico" style="max-height:350px;"></canvas>
+                    <div class="modal-body chart-modal-body">
+                        <canvas id="graficoClinico"></canvas>
                         <div class="mt-3 text-center">
                             <strong>Classificação:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
                         </div>
@@ -631,8 +836,6 @@
                         const opt = document.createElement('option');
                         opt.value = a.matricula;
                         opt.textContent = `${a.nome} — ${a.idade !== null ? a.idade + ' anos' : '—'}`;
-                        opt.dataset.nome = a.nome;
-                        opt.dataset.idade = a.idade;
                         selectAluno.append(opt);
                     });
                 }
