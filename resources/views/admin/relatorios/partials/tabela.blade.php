@@ -5,11 +5,14 @@
         <table class="relatorio-tabela">
             <thead>
                 <tr>
-                    <th class="coluna-projeto">Projeto</th>
+                    <th class="coluna-projeto" rowspan="2">Projeto</th>
+                    <th colspan="{{ $idades->count() }}">Idade</th>
+                    <th rowspan="2">Total</th>
+                </tr>
+                <tr>
                     @foreach ($idades as $idade)
                         <th>{{ $idade }}</th>
                     @endforeach
-                    <th>Total</th>
                 </tr>
             </thead>
 

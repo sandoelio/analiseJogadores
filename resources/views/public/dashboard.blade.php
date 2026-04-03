@@ -162,43 +162,49 @@
 
             .dashboard-grid {
                 grid-template-columns: 1fr;
-                gap: 0.5rem;
+                gap: 0.55rem;
             }
 
             .dashboard-card,
             .dashboard-card-primary {
-                min-height: auto;
-                padding: 0.8rem;
-                background: transparent;
-                border: none;
-                box-shadow: none;
+                min-height: 108px;
+                padding: 0.8rem 0.9rem;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(210, 227, 255, 0.08) 100%);
+                border: 1px solid rgba(255, 255, 255, 0.22);
+                box-shadow: 0 10px 20px rgba(15, 24, 44, 0.14);
                 align-items: center;
                 text-align: center;
                 color: #fff !important;
+                border-radius: 1rem;
             }
 
             .dashboard-card:hover {
                 transform: none;
-                border: none;
-                box-shadow: none;
-                color: #28365F !important;
+                border-color: rgba(255, 255, 255, 0.18);
+                box-shadow: 0 8px 18px rgba(15, 24, 44, 0.12);
+                color: #fff !important;
             }
 
             .dashboard-card-icon {
-                width: auto;
-                height: auto;
-                background: transparent !important;
+                width: 42px;
+                height: 42px;
+                background: rgba(255, 255, 255, 0.14) !important;
                 color: #fff !important;
-                font-size: 1.6rem;
+                font-size: 1.2rem;
+                border-radius: 0.85rem;
             }
 
             .dashboard-card-title {
-                font-size: 1rem;
+                margin-top: 0.35rem !important;
+                font-size: 0.98rem;
             }
 
             .dashboard-card-text {
-                font-size: 0.82rem;
-                color: rgba(255, 255, 255, 0.85);
+                display: block;
+                margin-top: 0.25rem;
+                font-size: 0.76rem;
+                line-height: 1.35;
+                color: rgba(255, 255, 255, 0.84);
             }
 
             .dashboard-card-link {

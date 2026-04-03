@@ -1,7 +1,7 @@
-{{-- resources/views/analise/index.blade.php --}}
+﻿{{-- resources/views/analise/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Análise de Desempenhos')
+@section('title', 'AnÃ¡lise de Desempenhos')
 
 @push('styles')
     <style>
@@ -447,6 +447,81 @@
             border-bottom: 1px solid rgba(0, 0, 0, 0.04);
         }
 
+        .evento-detalhes-meta {
+            margin-bottom: 0.9rem;
+            padding: 0.8rem 0.9rem;
+            border: 1px solid #e4eaf3;
+            border-radius: 0.85rem;
+            background: #fff;
+            color: #44506b;
+        }
+
+        .evento-detalhes-grid {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .evento-detalhes-bloco {
+            border: 1px solid #e4eaf3;
+            border-radius: 0.85rem;
+            background: #fffdf9;
+            padding: 0.85rem 0.9rem;
+        }
+
+        .evento-detalhes-titulo {
+            margin: 0 0 0.65rem;
+            color: #28365F;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .evento-detalhes-lista {
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .evento-detalhes-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            padding-bottom: 0.45rem;
+            border-bottom: 1px solid #edf2f8;
+        }
+
+        .evento-detalhes-item:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .evento-detalhes-label {
+            color: #5f6b85;
+            font-weight: 600;
+        }
+
+        .evento-detalhes-valor {
+            color: #1f2d4f;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .evento-detalhes-diff {
+            display: grid;
+            gap: 0.18rem;
+            text-align: right;
+        }
+
+        .evento-detalhes-antes {
+            color: #8a6670;
+            font-size: 0.85rem;
+        }
+
+        .evento-detalhes-depois {
+            color: #1f2d4f;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
         @media (max-width: 576px) {
             .analise-shell {
                 padding-top: 0.45rem;
@@ -519,6 +594,16 @@
                 text-align: left;
             }
 
+            .evento-detalhes-item {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .evento-detalhes-valor,
+            .evento-detalhes-diff {
+                text-align: left;
+            }
+
             .chart-modal-body {
                 height: 220px;
                 max-height: 220px;
@@ -559,12 +644,12 @@
         $user = auth()->user();
         $isAdmin = auth()->check() && (int) ($user->is_admin ?? 0) === 1;
 
-        // Para não-admin: instituição efetiva (sessão do atleta ou instituição do técnico)
+        // Para nÃ£o-admin: instituiÃ§Ã£o efetiva (sessÃ£o do atleta ou instituiÃ§Ã£o do tÃ©cnico)
         $instituicaoId = $isAdmin
             ? null
             : session('aluno_instituicao_id') ?? (auth()->check() ? $user->instituicao_id ?? null : null);
 
-        // Privilegiado = técnico/admin (atleta não)
+        // Privilegiado = tÃ©cnico/admin (atleta nÃ£o)
         $isPrivilegiado = auth()->check() && !session()->has('aluno_instituicao_id');
     @endphp
 
@@ -595,15 +680,15 @@
             </div>
         </div>
 
-        {{-- SELEÇÃO --}}
+        {{-- SELEÃ‡ÃƒO --}}
         <div class="analise-filtros">
         <div id="selecao-container" class="row gx-1 gy-1 justify-content-center mb-0">
 
             @if ($isAdmin)
-                {{-- ADMIN: Instituição + Atleta --}}
+                {{-- ADMIN: InstituiÃ§Ã£o + Atleta --}}
                 <div class="col-12 col-md-12 position-relative field-wrapper admin-stack">
                     <select id="instituicao" class="form-select">
-                        <option selected disabled>Selecione a instituição</option>
+                        <option selected disabled>Selecione a instituiÃ§Ã£o</option>
                         @foreach ($instituicoes as $inst)
                             <option value="{{ $inst->id }}">{{ $inst->nome }}</option>
                         @endforeach
@@ -623,10 +708,10 @@
 
                 </div>
             @else
-                {{-- ATLETA/TÉCNICO: apenas atletas da própria instituição --}}
+                {{-- ATLETA/TÃ‰CNICO: apenas atletas da prÃ³pria instituiÃ§Ã£o --}}
                 <div class="col-12 col-md-12 position-relative field-wrapper">
                     <select id="aluno" class="form-select">
-                        <option selected disabled>Carregando atletas…</option>
+                        <option selected disabled>Carregando atletasâ€¦</option>
                     </select>
 
                     <div id="overlay-aluno" class="overlay-spinner d-none">
@@ -637,7 +722,7 @@
             @endif
         </div>
 
-        {{-- GRÁFICO --}}
+        {{-- GRÃFICO --}}
         </div>
 
         <div id="estatisticas-container" class="card shadow-sm d-none chart-wrapper">
@@ -689,12 +774,12 @@
             </div>
         </div>
 
-        {{-- Modal: Análise Física --}}
+        {{-- Modal: AnÃ¡lise FÃ­sica --}}
         <div class="modal fade" id="modalAnaliseFisica" tabindex="-1">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Atributos Físicos</h5>
+                        <h5 class="modal-title">Atributos FÃ­sicos</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body chart-modal-body">
@@ -704,18 +789,18 @@
             </div>
         </div>
 
-        {{-- Modal: Saúde do Atleta --}}
+        {{-- Modal: SaÃºde do Atleta --}}
         <div class="modal fade" id="modalSaudeAtleta" tabindex="-1">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Classificação Corporal</h5>
+                        <h5 class="modal-title">ClassificaÃ§Ã£o Corporal</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body chart-modal-body">
                         <canvas id="graficoClinico"></canvas>
                         <div class="mt-3 text-center">
-                            <strong>Classificação:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
+                            <strong>ClassificaÃ§Ã£o:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
                         </div>
                     </div>
                 </div>
@@ -801,7 +886,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 // ------------------------------------------------
-                // Referências de elementos
+                // ReferÃªncias de elementos
                 // ------------------------------------------------
                 const selectInst = document.getElementById('instituicao'); // existe apenas pro admin
                 const overlayInst = document.getElementById('overlay-instituicao'); // existe apenas pro admin
@@ -835,7 +920,7 @@
                     alunos.forEach(a => {
                         const opt = document.createElement('option');
                         opt.value = a.matricula;
-                        opt.textContent = `${a.nome} — ${a.idade !== null ? a.idade + ' anos' : '—'}`;
+                        opt.textContent = `${a.nome} â€” ${a.idade !== null ? a.idade + ' anos' : 'â€”'}`;
                         selectAluno.append(opt);
                     });
                 }
@@ -846,7 +931,7 @@
                     if (mostrarOverlay) overlayAluno?.classList.remove('d-none');
 
                     selectAluno.disabled = true;
-                    selectAluno.innerHTML = '<option selected disabled>Carregando atletas…</option>';
+                    selectAluno.innerHTML = '<option selected disabled>Carregando atletasâ€¦</option>';
 
                     return fetch(url, {
                             credentials: 'same-origin'
@@ -870,7 +955,7 @@
                 }
 
                 // ------------------------------------------------
-                // Modo ADMIN: escolhe instituição primeiro
+                // Modo ADMIN: escolhe instituiÃ§Ã£o primeiro
                 // ------------------------------------------------
                 if (window.IS_ADMIN && selectInst) {
                     selectInst.addEventListener('change', () => {
@@ -879,9 +964,9 @@
 
                         overlayInst?.classList.remove('d-none');
 
-                        // reset aluno e gráfico
+                        // reset aluno e grÃ¡fico
                         selectAluno.disabled = true;
-                        selectAluno.innerHTML = '<option selected disabled>Carregando atletas…</option>';
+                        selectAluno.innerHTML = '<option selected disabled>Carregando atletasâ€¦</option>';
                         statsCont?.classList.add('d-none');
 
                         carregarAlunosDaInstituicao(selectInst.value, true)
@@ -890,7 +975,7 @@
                 }
 
                 // ------------------------------------------------
-                // Modo TÉCNICO/ATLETA: carrega automático pela instituição efetiva
+                // Modo TÃ‰CNICO/ATLETA: carrega automÃ¡tico pela instituiÃ§Ã£o efetiva
                 // ------------------------------------------------
                 else {
                     if (window.INSTITUICAO_ID) {
@@ -899,12 +984,12 @@
                         overlayAluno?.classList.add('d-none');
                         selectAluno.disabled = true;
                         selectAluno.innerHTML =
-                            '<option selected disabled>Nenhuma instituição vinculada ao usuário</option>';
+                            '<option selected disabled>Nenhuma instituiÃ§Ã£o vinculada ao usuÃ¡rio</option>';
                     }
                 }
 
                 // ------------------------------------------------
-                // Escolheu atleta → mostra gráfico principal
+                // Escolheu atleta â†’ mostra grÃ¡fico principal
                 // ------------------------------------------------
                 if (selectAluno) {
                     selectAluno.addEventListener('change', () => {
@@ -998,13 +1083,13 @@
                             .catch(() => {
                                 overlayAluno?.classList.add('d-none');
                                 overlayChart?.classList.add('d-none');
-                                alert('Não foi possível carregar o gráfico.');
+                                alert('NÃ£o foi possÃ­vel carregar o grÃ¡fico.');
                             });
                     });
                 }
 
                 // ------------------------------------------------
-                // Gráficos extras (modais)
+                // GrÃ¡ficos extras (modais)
                 // ------------------------------------------------
                 let graficoFisicoInstance = null;
                 let graficoClinicoInstance = null;
@@ -1021,7 +1106,7 @@
                             return response.json();
                         })
                         .then(data => {
-                            if (!data || !data.fisico || !data.clinico) throw new Error('Payload inválido');
+                            if (!data || !data.fisico || !data.clinico) throw new Error('Payload invÃ¡lido');
 
                             const ctxFisicoEl = document.getElementById('graficoFisico');
                             if (ctxFisicoEl) {
@@ -1134,7 +1219,7 @@
                             }
                         })
                         .catch(() => {
-                            alert('Erro ao carregar dados físicos e clínicos.');
+                            alert('Erro ao carregar dados fÃ­sicos e clÃ­nicos.');
                         });
                 };
 
@@ -1252,7 +1337,7 @@
                                 grouped[monthLabel].forEach(ev => {
                                     const timeLabel = labelEvento(ev.evento, ev.created_at);
                                     const user = ev.changed_by ?
-                                        `<span class="timeline-user"> — por ${escapeHtml(ev.changed_by)}</span>` :
+                                        `<span class="timeline-user"> â€” por ${escapeHtml(ev.changed_by)}</span>` :
                                         '';
                                     const resumoBreve = ev.evento === 'analise_created' ?
                                         'Atleta Atualizado' :
@@ -1268,7 +1353,7 @@
 
                                     const markerClass = isCreated ? 'marker-created' : (
                                         hasDiff ? 'marker-updated' : 'marker-other');
-                                    const markerIcon = isCreated ? '★' : (hasDiff ? '✎' : '•');
+                                    const markerIcon = isCreated ? 'â˜…' : (hasDiff ? 'âœŽ' : 'â€¢');
 
                                     html += `
                                     <div class="timeline-item" data-event-id="${ev.id}" data-evento="${ev.evento}">
@@ -1347,19 +1432,166 @@
                 };
 
                 function buildDetalhesHtml(json, evento) {
-                    const createdInfo =
-                        `<div class="mb-2"><strong>Data:</strong> ${formatDateBR(json.created_at)} ${json.changed_by ? ' — por ' + escapeHtml(json.changed_by) : ''}</div>`;
-                    let html = createdInfo;
-
                     const d = json.dados || {};
+                    const meta =
+                        `<div class="evento-detalhes-meta"><strong>Data:</strong> ${formatDateBR(json.created_at)}${json.changed_by ? ' - por ' + escapeHtml(json.changed_by) : ''}</div>`;
+
                     if (!d || typeof d !== 'object') {
-                        html += '<div class="text-muted">Nenhum dado disponível.</div>';
-                        return html;
+                        return meta + '<div class="text-muted">Nenhum dado disponivel.</div>';
                     }
 
-                    // fallback simples (mantém compatibilidade)
-                    html += '<pre class="small bg-light p-2">' + escapeHtml(JSON.stringify(d, null, 2)) + '</pre>';
-                    return html;
+                    let blocos = [];
+
+                    if (evento === 'created') {
+                        const criado = Object.assign({}, json.aluno || {}, d || {});
+                        const blocoCriacao = buildDetalhesBloco('Cadastro do atleta', criado);
+
+                        if (blocoCriacao) {
+                            blocos.push(blocoCriacao);
+                        }
+                    }
+
+                    if (d.diff && typeof d.diff === 'object') {
+                        const diff = d.diff;
+                        const ehDiffSimples = Object.values(diff).some(item =>
+                            item &&
+                            typeof item === 'object' &&
+                            (
+                                Object.prototype.hasOwnProperty.call(item, 'antes') ||
+                                Object.prototype.hasOwnProperty.call(item, 'depois')
+                            )
+                        );
+
+                        if (ehDiffSimples) {
+                            const blocoSimples = buildDiffBloco('Campos alterados', diff);
+
+                            if (blocoSimples) {
+                                blocos.push(blocoSimples);
+                            }
+                        } else {
+                            const mapaTitulos = {
+                                tecnicos: 'Habilidades tecnicas alteradas',
+                                fisicos: 'Atributos fisicos alterados',
+                                composicao: 'Composicao corporal alterada',
+                                saude: 'Informacoes de saude alteradas'
+                            };
+
+                            Object.entries(diff).forEach(([grupo, dadosGrupo]) => {
+                                const blocoGrupo = buildDiffBloco(
+                                    mapaTitulos[grupo] || formatCvLabel(grupo),
+                                    dadosGrupo
+                                );
+
+                                if (blocoGrupo) {
+                                    blocos.push(blocoGrupo);
+                                }
+                            });
+                        }
+                    } else {
+                        const grupos = {
+                            tecnicos: d.tecnicos || null,
+                            fisicos: d.fisicos || null,
+                            composicao: d.composicao || null,
+                            saude: d.saude || null,
+                        };
+
+                        const possuiGrupos = Object.values(grupos).some(grupo =>
+                            grupo &&
+                            typeof grupo === 'object' &&
+                            Object.keys(grupo).length
+                        );
+
+                        if (possuiGrupos) {
+                            const mapaTitulos = {
+                                tecnicos: 'Habilidades tecnicas',
+                                fisicos: 'Atributos fisicos',
+                                composicao: 'Composicao corporal',
+                                saude: 'Informacoes de saude'
+                            };
+
+                            Object.entries(grupos).forEach(([grupo, dadosGrupo]) => {
+                                const blocoGrupo = buildDetalhesBloco(
+                                    mapaTitulos[grupo],
+                                    dadosGrupo || {}
+                                );
+
+                                if (blocoGrupo) {
+                                    blocos.push(blocoGrupo);
+                                }
+                            });
+
+                            if (d.analise_id) {
+                                const blocoAnalise = buildDetalhesBloco('Analise registrada', {
+                                    analise_id: d.analise_id
+                                });
+
+                                if (blocoAnalise) {
+                                    blocos.push(blocoAnalise);
+                                }
+                            }
+                        } else {
+                            const blocoGenerico = buildDetalhesBloco('Detalhes do evento', d);
+
+                            if (blocoGenerico) {
+                                blocos.push(blocoGenerico);
+                            }
+                        }
+                    }
+
+                    if (!blocos.length) {
+                        return meta + '<div class="text-muted">Nenhum dado disponivel.</div>';
+                    }
+
+                    return meta + `<div class="evento-detalhes-grid">${blocos.join('')}</div>`;
+                }
+
+                function buildDetalhesBloco(titulo, dados) {
+                    const itens = Object.entries(dados || {})
+                        .filter(([, valor]) => valor !== null && valor !== undefined && valor !== '')
+                        .map(([label, valor]) => `
+                            <div class="evento-detalhes-item">
+                                <span class="evento-detalhes-label">${escapeHtml(formatCvLabel(label))}</span>
+                                <span class="evento-detalhes-valor">${escapeHtml(formatCvValor(label, valor))}</span>
+                            </div>
+                        `)
+                        .join('');
+
+                    if (!itens) {
+                        return '';
+                    }
+
+                    return `
+                        <section class="evento-detalhes-bloco">
+                            <h6 class="evento-detalhes-titulo">${escapeHtml(titulo)}</h6>
+                            <div class="evento-detalhes-lista">${itens}</div>
+                        </section>
+                    `;
+                }
+
+                function buildDiffBloco(titulo, diff) {
+                    const itens = Object.entries(diff || {})
+                        .filter(([, valor]) => valor && typeof valor === 'object')
+                        .map(([label, valor]) => `
+                            <div class="evento-detalhes-item">
+                                <span class="evento-detalhes-label">${escapeHtml(formatCvLabel(label))}</span>
+                                <div class="evento-detalhes-diff">
+                                    <span class="evento-detalhes-antes">Antes: ${escapeHtml(formatCvValor(label, valor.antes ?? 'Nao informado'))}</span>
+                                    <span class="evento-detalhes-depois">Depois: ${escapeHtml(formatCvValor(label, valor.depois ?? 'Nao informado'))}</span>
+                                </div>
+                            </div>
+                        `)
+                        .join('');
+
+                    if (!itens) {
+                        return '';
+                    }
+
+                    return `
+                        <section class="evento-detalhes-bloco">
+                            <h6 class="evento-detalhes-titulo">${escapeHtml(titulo)}</h6>
+                            <div class="evento-detalhes-lista">${itens}</div>
+                        </section>
+                    `;
                 }
 
                 function buildCvEsportivoHtml(data) {
@@ -1455,7 +1687,7 @@
                 }
 
                 function escapeHtml(s) {
-                    if (s === null || s === undefined) return '—';
+                    if (s === null || s === undefined) return 'â€”';
                     if (typeof s !== 'string') return String(s);
                     return s.replace(/[&<>"'`=\/]/g, function(c) {
                 return {
@@ -1501,12 +1733,12 @@
                         }
                     });
                 });
-                // ✅ Anti-fantasma: overlay nunca aparece por foco/click
+                // âœ… Anti-fantasma: overlay nunca aparece por foco/click
                 function hideAllOverlays() {
                     document.querySelectorAll('.overlay-spinner').forEach(el => el.classList.add('d-none'));
                 }
 
-                // ao clicar/focar em qualquer select, garanta que overlay está escondido
+                // ao clicar/focar em qualquer select, garanta que overlay estÃ¡ escondido
                 document.querySelectorAll('select.form-select').forEach(sel => {
                     sel.addEventListener('focus', hideAllOverlays);
                     sel.addEventListener('click', hideAllOverlays);
@@ -1515,3 +1747,4 @@
             });
         </script>
     @endpush
+
