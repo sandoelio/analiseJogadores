@@ -70,6 +70,8 @@ Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function (
 
     Route::get('/analise/aluno/{matricula}', [AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar')->middleware('throttle:60,1');
 
+    Route::get('/analise/cv/{matricula}', [AlunoPublicoController::class, 'cvEsportivo'])->name('analise.cv')->middleware('throttle:60,1');
+
     // Comparativos
     Route::get('/comparar', [ComparativoPublicoController::class, 'index'])->name('comparar.index');
 

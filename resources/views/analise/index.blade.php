@@ -173,6 +173,102 @@
             display: flex;
             gap: 0.5rem;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        #modalCvEsportivo .modal-content {
+            background: linear-gradient(180deg, #f7f9fc 0%, #ffffff 100%);
+            color: #1e2b4f;
+            border: 1px solid rgba(30, 43, 79, 0.08);
+            box-shadow: 0 10px 28px rgba(30, 43, 79, 0.10);
+        }
+
+        #modalCvEsportivo .modal-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .cv-esportivo-card {
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .cv-esportivo-topo {
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #28365F 0%, #40548c 100%);
+            color: #fff;
+        }
+
+        .cv-esportivo-topo h4 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .cv-esportivo-subtitulo {
+            margin-top: 0.35rem;
+            opacity: 0.92;
+        }
+
+        .cv-esportivo-corpo {
+            padding: 1rem;
+        }
+
+        .cv-esportivo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0.9rem;
+        }
+
+        .cv-esportivo-bloco {
+            border: 1px solid #e4eaf3;
+            border-radius: 0.85rem;
+            padding: 0.9rem;
+            background: #fbfcfe;
+        }
+
+        .cv-esportivo-bloco-identificacao {
+            background: #f5f8fd;
+        }
+
+        .cv-esportivo-bloco-titulo {
+            margin: 0 0 0.7rem;
+            font-size: 0.96rem;
+            font-weight: 700;
+            color: #28365F;
+        }
+
+        .cv-esportivo-lista {
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .cv-esportivo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            border-bottom: 1px solid #edf2f8;
+            padding-bottom: 0.45rem;
+        }
+
+        .cv-esportivo-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .cv-esportivo-label {
+            color: #5f6b85;
+            font-weight: 600;
+        }
+
+        .cv-esportivo-valor {
+            color: #1f2d4f;
+            text-align: right;
+            font-weight: 600;
         }
 
         /* Modal Timeline */
@@ -221,6 +317,19 @@
 
             .action-buttons.stack-mobile .btn {
                 width: 100%;
+            }
+
+            .cv-esportivo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cv-esportivo-item {
+                flex-direction: column;
+                gap: 0.2rem;
+            }
+
+            .cv-esportivo-valor {
+                text-align: left;
             }
         }
 
@@ -357,6 +466,12 @@
                             onclick="carregarTimeline(document.getElementById('aluno').value)">
                             <i class="bi bi-clock-history"></i>
                         </button>
+
+                        <button class="btn btn-lg btn-outline-success" data-bs-toggle="modal"
+                            data-bs-target="#modalCvEsportivo"
+                            onclick="carregarCvEsportivo(document.getElementById('aluno').value)">
+                            <i class="bi bi-person-vcard"></i>
+                        </button>
                     </div>
                 @endif
             </div>
@@ -397,6 +512,29 @@
                         <div class="mt-3 text-center">
                             <strong>Classificação:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal: CV Esportivo --}}
+        <div class="modal fade" id="modalCvEsportivo" tabindex="-1">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">CV Esportivo do Atleta</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body position-relative">
+                        <div id="overlay-cv" class="overlay-spinner d-none">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+
+                        <div id="cv-esportivo-vazio" class="text-center my-4 d-none">
+                            <p class="text-muted">Selecione um atleta para visualizar o CV esportivo.</p>
+                        </div>
+
+                        <div id="cv-esportivo-conteudo"></div>
                     </div>
                 </div>
             </div>
@@ -474,6 +612,7 @@
 
                 const tplAlunos = "{{ route('analise.alunos', ['instituicao' => 'INSTITUICAO_ID']) }}";
                 const tplShow = "{{ route('analise.mostrar', ['matricula' => 'MATRICULA_ID']) }}";
+                const tplCv = "{{ route('analise.cv', ['matricula' => 'MATRICULA_ID']) }}";
 
                 // ------------------------------------------------
                 // Helpers
@@ -796,6 +935,44 @@
                         });
                 };
 
+                window.carregarCvEsportivo = function(matricula) {
+                    const overlay = document.getElementById('overlay-cv');
+                    const conteudo = document.getElementById('cv-esportivo-conteudo');
+                    const vazio = document.getElementById('cv-esportivo-vazio');
+
+                    if (!matricula) {
+                        if (conteudo) conteudo.innerHTML = '';
+                        vazio?.classList.remove('d-none');
+                        return;
+                    }
+
+                    overlay?.classList.remove('d-none');
+                    vazio?.classList.add('d-none');
+                    if (conteudo) conteudo.innerHTML = '';
+
+                    fetch(tplCv.replace('MATRICULA_ID', encodeURIComponent(matricula)), {
+                            credentials: 'same-origin'
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('HTTP ' + response.status);
+                            return response.json();
+                        })
+                        .then(data => {
+                            overlay?.classList.add('d-none');
+
+                            if (conteudo) {
+                                conteudo.innerHTML = buildCvEsportivoHtml(data);
+                            }
+                        })
+                        .catch(() => {
+                            overlay?.classList.add('d-none');
+                            if (conteudo) {
+                                conteudo.innerHTML =
+                                    '<div class="alert alert-danger mb-0">Erro ao carregar o CV esportivo.</div>';
+                            }
+                        });
+                };
+
                 // ------------------------------------------------
                 // Timeline
                 // ------------------------------------------------
@@ -982,6 +1159,98 @@
                     return html;
                 }
 
+                function buildCvEsportivoHtml(data) {
+                    if (!data || !data.identificacao) {
+                        return '<div class="alert alert-warning mb-0">Nenhum dado disponivel para este atleta.</div>';
+                    }
+
+                    const topo = data.identificacao;
+                    const identificacaoResumo = {
+                        tecnico_responsavel: topo.tecnico_responsavel,
+                        telefone: topo.telefone,
+                        data_nascimento: topo.data_nascimento,
+                    };
+                    const subtitulo = [
+                        topo.projeto,
+                        topo.sexo,
+                        topo.idade !== null && topo.idade !== undefined ? `${topo.idade} anos` : null
+                    ].filter(Boolean).join(' | ');
+
+                    return `
+                        <div class="cv-esportivo-card">
+                            <div class="cv-esportivo-topo">
+                                <h4>${escapeHtml(topo.nome || 'Atleta')}</h4>
+                                <div class="cv-esportivo-subtitulo">${escapeHtml(subtitulo || 'Sem dados complementares')}</div>
+                            </div>
+                            <div class="cv-esportivo-corpo">
+                                <div class="cv-esportivo-grid">
+                                    ${buildCvBloco('Identificacao', identificacaoResumo, 'cv-esportivo-bloco-identificacao')}
+                                    ${buildCvBloco('Habilidades Tecnicas', data.tecnicos || {})}
+                                    ${buildCvBloco('Atributos Fisicos', data.fisicos || {})}
+                                    ${buildCvBloco('Composicao Corporal', data.composicao || {})}
+                                    ${buildCvBloco('Saude', data.saude || {})}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                function buildCvBloco(titulo, dados, classeExtra = '') {
+                    const itens = Object.entries(dados || {})
+                        .filter(([, valor]) => valor !== null && valor !== undefined && valor !== '')
+                        .map(([label, valor]) => `
+                            <div class="cv-esportivo-item">
+                                <span class="cv-esportivo-label">${escapeHtml(formatCvLabel(label))}</span>
+                                <span class="cv-esportivo-valor">${escapeHtml(formatCvValor(label, valor))}</span>
+                            </div>
+                        `)
+                        .join('');
+
+                    return `
+                        <section class="cv-esportivo-bloco ${classeExtra}">
+                            <h6 class="cv-esportivo-bloco-titulo">${escapeHtml(titulo)}</h6>
+                            <div class="cv-esportivo-lista">
+                                ${itens || '<div class="text-muted small">Sem dados informados.</div>'}
+                            </div>
+                        </section>
+                    `;
+                }
+
+                function formatCvLabel(label) {
+                    return String(label)
+                        .replaceAll('_', ' ')
+                        .replace(/\b\w/g, letra => letra.toUpperCase());
+                }
+
+                function formatCvValor(label, valor) {
+                    const camposBooleanos = ['problema_saude', 'atestado_valido', 'usa_medicacao',
+                        'Problema de Saude', 'Atestado Valido', 'Usa Medicacao'
+                    ];
+
+                    if (camposBooleanos.includes(label)) {
+                        if (valor === true || valor === 1 || valor === '1' || valor === 'true') {
+                            return 'Sim';
+                        }
+
+                        if (valor === false || valor === 0 || valor === '0' || valor === 'false') {
+                            return 'Nao';
+                        }
+                    }
+
+                    if (label === 'ultima_analise') {
+                        return formatDateBR(valor);
+                    }
+
+                    if (label === 'data_nascimento' || label === 'Data do Atestado') {
+                        const data = new Date(`${valor}T00:00:00`);
+                        if (!Number.isNaN(data.getTime())) {
+                            return data.toLocaleDateString('pt-BR');
+                        }
+                    }
+
+                    return String(valor);
+                }
+
                 function escapeHtml(s) {
                     if (s === null || s === undefined) return '—';
                     if (typeof s !== 'string') return String(s);
@@ -1003,6 +1272,13 @@
                     const conteudo = document.getElementById('detalhes-conteudo');
                     if (conteudo) conteudo.innerHTML = '';
                     document.getElementById('overlay-evento')?.classList.add('d-none');
+                });
+
+                document.getElementById('modalCvEsportivo')?.addEventListener('hidden.bs.modal', () => {
+                    const conteudo = document.getElementById('cv-esportivo-conteudo');
+                    if (conteudo) conteudo.innerHTML = '';
+                    document.getElementById('overlay-cv')?.classList.add('d-none');
+                    document.getElementById('cv-esportivo-vazio')?.classList.add('d-none');
                 });
 
                 document.querySelectorAll('.modal').forEach(modal => {
