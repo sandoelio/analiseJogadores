@@ -100,7 +100,9 @@ class AlunoController extends Controller
             'imc' => 'sometimes|nullable|numeric|min:0',
             // Saúde 
             'problema_saude' => 'sometimes|nullable|boolean',
+            'problema_saude_descricao' => 'sometimes|nullable|required_if:problema_saude,1|string|max:255',
             'atestado_valido' => 'sometimes|nullable|boolean',
+            'data_atestado' => 'sometimes|nullable|required_if:atestado_valido,1|date',
             'usa_medicacao' => 'sometimes|nullable|boolean',
         ];
 
@@ -139,8 +141,16 @@ class AlunoController extends Controller
             $aluno->update($alunoUpdates);
         }
 
+        if (($data['problema_saude'] ?? null) != 1) {
+            $data['problema_saude_descricao'] = null;
+        }
+
+        if (($data['atestado_valido'] ?? null) != 1) {
+            $data['data_atestado'] = null;
+        }
+
         // atributos completos que a tabela analises espera
-        $allAttrs = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio', 'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii', 'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc', 'problema_saude', 'atestado_valido', 'usa_medicacao',];
+        $allAttrs = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio', 'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii', 'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc', 'problema_saude', 'problema_saude_descricao', 'atestado_valido', 'data_atestado', 'usa_medicacao',];
 
         // buscar ultima analise existente (para usar como base)
         $ultima = $aluno->analises()->orderBy('created_at', 'desc')->first();
@@ -189,17 +199,19 @@ class AlunoController extends Controller
                 'agilidade' => $analise->agilidade,
                 'flexibilidade' => $analise->flexibilidade,
                 'potencia_mmii' => $analise->potencia_mmii,
+                'envergadura_cm' => $analise->envergadura_cm,
             ],
             'composicao' => [
                 'massa_corporal_kg' => $analise->massa_corporal_kg,
                 'gordura_pct' => $analise->gordura_pct,
                 'massa_magra_pct' => $analise->massa_magra_pct,
-                'envergadura_cm' => $analise->envergadura_cm,
                 'imc' => $analise->imc,
             ],
             'saude' => [
                 'problema_saude' => $analise->problema_saude,
+                'problema_saude_descricao' => $analise->problema_saude_descricao,
                 'atestado_valido' => $analise->atestado_valido,
+                'data_atestado' => $analise->data_atestado ? $analise->data_atestado->toDateString() : null,
                 'usa_medicacao' => $analise->usa_medicacao,
             ],
             'analise_id' => $analise->id,
@@ -209,9 +221,9 @@ class AlunoController extends Controller
         if ($ultima) {
             $groups = [
                 'tecnicos' => ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'],
-                'fisicos' => ['potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii'],
-                'composicao' => ['massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc'],
-                'saude' => ['problema_saude', 'atestado_valido', 'usa_medicacao'],
+                'fisicos' => ['potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii', 'envergadura_cm'],
+                'composicao' => ['massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'imc'],
+                'saude' => ['problema_saude', 'problema_saude_descricao', 'atestado_valido', 'data_atestado', 'usa_medicacao'],
             ];
 
             foreach ($groups as $g => $attrs) {
@@ -320,7 +332,9 @@ class AlunoController extends Controller
 
                 // Informações de Saúde 
                 'problema_saude' => $analise->problema_saude,
+                'problema_saude_descricao' => $analise->problema_saude_descricao,
                 'atestado_valido' => $analise->atestado_valido,
+                'data_atestado' => $analise->data_atestado ? $analise->data_atestado->toDateString() : null,
                 'usa_medicacao' => $analise->usa_medicacao,
 
                 // id da análise 
