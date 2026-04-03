@@ -5,6 +5,7 @@
         <table class="relatorio-tabela">
             <thead>
                 <tr>
+                    <th class="relatorio-th-fixo">Idade</th>
                     @foreach ($idades as $idade)
                         <th>{{ $idade }}</th>
                     @endforeach
@@ -14,6 +15,7 @@
 
             <tbody>
                 <tr>
+                    <td class="relatorio-td-fixo">Atletas</td>
                     @foreach ($idades as $idade)
                         <td>{{ $relatorio['idades'][$idade] ?? 0 }}</td>
                     @endforeach

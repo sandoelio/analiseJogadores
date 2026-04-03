@@ -255,8 +255,7 @@
                 </span>
                 <h1 class="dashboard-title">Acesso rápido às ações principais</h1>
                 <p class="dashboard-subtitle">
-                    Cadastre atletas, lance novas avaliações, consulte a base da instituição e acompanhe os relatórios
-                    em um fluxo mais direto para notebook e desktop.
+                    Cadastre atletas, lance novas avaliações e acompanhe os relatórios.
                 </p>
             </div>
         </div>

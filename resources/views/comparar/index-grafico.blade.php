@@ -1,65 +1,190 @@
-{{-- resources/views/comparar/grafico.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Análise de Desempenhos')
+@section('title', 'Analise de Desempenhos')
 
 @push('styles')
     <style>
-        .central-column {
-            max-width: 500px;
-            width: 100%;
+        .grafico-shell {
+            max-width: 1080px;
             margin: 0 auto;
-            padding-bottom: 80px;
-            /* folga para não encostar no footer fixo */
-            overflow-x: hidden;
-            /* previne rolagem horizontal no mobile */
+            padding: 1rem 0 1.15rem;
         }
 
-        .central-column .back-logograph {
-            display: block;
-            margin: 8px auto 1rem;
-            max-width: 200px;
-            width: 100%;
-            background: #28365F;
-            height: auto;
+        .grafico-topo {
+            margin-bottom: 0.95rem;
         }
 
-        .central-column .form-select {
-            width: 100%;
-            margin-bottom: 1rem;
+        .grafico-heading,
+        .grafico-card,
+        .grafico-chart-card {
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(26, 42, 80, 0.08);
         }
 
-        /* botões lado a lado sem estourar com o gap */
-        .central-column .d-flex {
-            gap: .5rem;
+        .grafico-heading {
+            padding: 1rem 1.1rem;
         }
 
-        .central-column .d-flex .btn {
-            flex: 1 1 0;
-            /* divide igualmente a linha */
-            min-width: 0;
-            /* evita overflow por conteúdo longo */
+        .grafico-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.55rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 999px;
+            background: #eef3fb;
+            color: #28365F;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
 
-        .chart-wrapper {
-            position: relative;
+        .grafico-title {
+            margin: 0;
+            color: #1f2d4f;
+            font-size: 1.45rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .grafico-text {
+            margin: 0.35rem 0 0;
+            color: #5f6b85;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .grafico-card {
+            overflow: hidden;
+        }
+
+        .grafico-card-header,
+        .grafico-chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.95rem 1.05rem;
+            border-bottom: 1px solid #edf2f8;
+        }
+
+        .grafico-card-title {
+            margin: 0;
+            color: #1f2d4f;
+            font-size: 1.04rem;
+            font-weight: 700;
+        }
+
+        .grafico-card-subtitle {
+            margin: 0.18rem 0 0;
+            color: #5f6b85;
+            font-size: 0.84rem;
+        }
+
+        .grafico-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            background: #f5f8fd;
+            border: 1px solid #dbe1ec;
+            color: #44506b;
+            font-size: 0.82rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .grafico-form-wrap {
+            padding: 1.05rem 1.1rem 1.1rem;
+        }
+
+        .grafico-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
+        }
+
+        .grafico-campo {
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        .grafico-label {
+            color: #33405f;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .grafico-select {
+            min-height: 48px;
+            border-radius: 0.85rem;
+            border-color: #dbe1ec;
+            box-shadow: none;
+        }
+
+        .grafico-select:focus {
+            border-color: #8ea3ce;
+            box-shadow: 0 0 0 0.2rem rgba(40, 54, 95, 0.12);
+        }
+
+        .grafico-acoes {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.75rem;
             margin-top: 1rem;
-            margin-bottom: 0;
         }
 
-        /* canvas 100% da coluna, sem exceder */
+        .grafico-btn {
+            min-height: 44px;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.85rem;
+            font-weight: 700;
+        }
+
+        .grafico-btn-principal {
+            background: #28365F;
+            border-color: #28365F;
+            color: #fff;
+        }
+
+        .grafico-btn-principal:hover,
+        .grafico-btn-principal:focus {
+            background: #1f2d4f;
+            border-color: #1f2d4f;
+            color: #fff;
+        }
+
+        .grafico-chart-card {
+            position: relative;
+            margin-top: 0.95rem;
+            overflow: hidden;
+        }
+
+        .grafico-chart-wrap {
+            position: relative;
+            height: 380px;
+            max-height: 380px;
+            padding: 0.95rem 1rem 1rem;
+            overflow: hidden;
+        }
+
         #comparativo-chart {
             display: block;
             width: 100% !important;
+            height: 100% !important;
             max-width: 100%;
-            height: auto !important;
-            min-height: 300px;
+            min-height: 0;
         }
 
         .overlay-spinner {
             position: absolute;
             inset: 0;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.82);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,31 +192,44 @@
         }
 
         .overlay-spinner .spinner-border {
-            width: 3rem;
-            height: 3rem;
+            width: 2.8rem;
+            height: 2.8rem;
         }
 
-        @media (max-width: 576px) {
-            #comparativo-chart {
-                min-height: 240px;
-            }
-        }
-
-        /* telas muito estreitas: bota os botões em duas linhas */
-        @media (max-width: 400px) {
-            .central-column .d-flex {
-                flex-wrap: wrap;
+        @media (max-width: 767.98px) {
+            .grafico-shell {
+                padding-top: 0.55rem;
             }
 
-            .central-column .d-flex .btn {
-                flex: 1 0 100%;
+            .grafico-title {
+                font-size: 1.22rem;
             }
-        }
 
-        /* segurança extra contra rolagem lateral em todo o documento */
-        html,
-        body {
-            overflow-x: hidden;
+            .grafico-card-header,
+            .grafico-chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.55rem;
+            }
+
+            .grafico-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .grafico-acoes {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .grafico-btn {
+                width: 100%;
+            }
+
+            .grafico-chart-wrap {
+                height: 260px;
+                max-height: 260px;
+                padding: 0.8rem 0.85rem 0.9rem;
+            }
         }
     </style>
 @endpush
@@ -99,100 +237,135 @@
 @section('content')
     @php
         $user = auth()->user();
-
         $isAdmin = auth()->check() && (int) ($user->is_admin ?? 0) === 1;
-
-        // Instituição efetiva:
-        // - atleta: session('aluno_instituicao_id')
-        // - técnico: auth()->user()->instituicao_id
-        // - admin: null (admin vê todas)
         $instIdEfetiva = session('aluno_instituicao_id') ?? (auth()->check() ? $user->instituicao_id ?? null : null);
         $instLog = !$isAdmin && $instIdEfetiva ? $instituicoes->firstWhere('id', $instIdEfetiva) : null;
     @endphp
 
-    <div class="container">
-        <div class="central-column">
+    <div class="container-fluid grafico-shell">
+        <div class="grafico-topo">
+            <div class="grafico-heading">
+                <span class="grafico-chip">
+                    <i class="bi bi-bar-chart-line"></i>
+                    Grafico
+                </span>
+                <h1 class="grafico-title">Comparacao visual entre atletas</h1>
+                <p class="grafico-text">
+                    @if ($isAdmin)
+                        Selecione dois atletas para gerar o comparativo em grafico, inclusive entre instituicoes diferentes.
+                    @else
+                        Selecione dois atletas disponiveis no seu acesso para comparar os dados da ultima analise.
+                    @endif
+                </p>
+            </div>
+        </div>
 
-            {{-- Atleta 1 --}}
-            <select id="aluno1" class="form-select mt-2">
-                <option value="">Selecione o primeiro atleta</option>
-                @if ($instLog)
-                {{-- ATLETA/TÉCNICO: só atletas da instituição efetiva --}}
-                    @foreach ($instLog->alunos as $aluno)
-                        <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}" data-idade="{{ $aluno->idade }}">
-                            {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
-                        </option>
-                    @endforeach
-                @else
-                 {{-- ADMIN (ou público sem instituição): todas --}}
-                    @foreach ($instituicoes as $inst)
-                        <optgroup label="{{ $inst->nome }}">
-                            @foreach ($inst->alunos as $aluno)
-                                <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
-                                    data-idade="{{ $aluno->idade }}">
-                                    {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
-                                </option>
-                            @endforeach
-                        </optgroup>
-                    @endforeach
-                @endif
-            </select>
+        <div class="grafico-card">
+            <div class="grafico-card-header">
+                <div>
+                    <h2 class="grafico-card-title">Selecao dos atletas</h2>
+                </div>
 
-            {{-- Atleta 2 --}}
-            <select id="aluno2" class="form-select" disabled>
-                <option value="">Selecione o segundo atleta</option>
-                @if ($instLog)
-                {{-- ATLETA/TÉCNICO --}}
-                    @foreach ($instLog->alunos as $aluno)
-                        <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
-                            data-idade="{{ $aluno->idade }}">
-                            {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
-                        </option>
-                    @endforeach
-                @else
-                {{-- ADMIN --}}
-                    @foreach ($instituicoes as $inst)
-                        <optgroup label="{{ $inst->nome }}">
-                            @foreach ($inst->alunos as $aluno)
-                                <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
-                                    data-idade="{{ $aluno->idade }}">
-                                    {{ $aluno->nome }} — {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '—' }}
-                                </option>
-                            @endforeach
-                        </optgroup>
-                    @endforeach
-                @endif
-            </select>
-
-            {{-- Botões lado a lado, metade cada --}}
-            <div class="d-flex gap-2 mb-3">
-                <button id="btn-gerar-grafico" class="btn btn-primary btn-lg flex-fill" disabled>
-                    Gerar Gráfico
-                </button>
-                <a href="{{ route('public.dashboard') }}" class="btn btn-secondary btn-lg flex-fill">
-                    <i class="bi bi-house-door me-1"></i> Voltar
-                </a>
+                <span class="grafico-badge">
+                    <i class="bi bi-graph-up-arrow me-1"></i>
+                    Comparativo visual
+                </span>
             </div>
 
-            {{-- Gráfico --}}
-            <div>
-                <div id="chart-container" class="card shadow-sm d-none chart-wrapper">
-                    <div id="overlay-chart" class="overlay-spinner d-none">
-                        <div class="spinner-border text-primary" role="status"></div>
+            <div class="grafico-form-wrap">
+                <div class="grafico-grid">
+                    <div class="grafico-campo">
+                        <label for="aluno1" class="grafico-label">Primeiro atleta</label>
+                        <select id="aluno1" class="form-select grafico-select">
+                            <option value="">Selecione o primeiro atleta</option>
+                            @if ($instLog)
+                                @foreach ($instLog->alunos as $aluno)
+                                    <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
+                                        data-idade="{{ $aluno->idade }}">
+                                        {{ $aluno->nome }} -
+                                        {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '--' }}
+                                    </option>
+                                @endforeach
+                            @else
+                                @foreach ($instituicoes as $inst)
+                                    <optgroup label="{{ $inst->nome }}">
+                                        @foreach ($inst->alunos as $aluno)
+                                            <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
+                                                data-idade="{{ $aluno->idade }}">
+                                                {{ $aluno->nome }} -
+                                                {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '--' }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
-                    <div class="card-header d-flex align-items-center">
-                        <i class="bi bi-bar-chart-fill fs-4 me-2"></i>
-                        <h5 class="mb-0">Gráfico</h5>
-                    </div>
-                    <div class="card-body d-flex justify-content-center">
-                        <canvas id="comparativo-chart"></canvas>
+
+                    <div class="grafico-campo">
+                        <label for="aluno2" class="grafico-label">Segundo atleta</label>
+                        <select id="aluno2" class="form-select grafico-select" disabled>
+                            <option value="">Selecione o segundo atleta</option>
+                            @if ($instLog)
+                                @foreach ($instLog->alunos as $aluno)
+                                    <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
+                                        data-idade="{{ $aluno->idade }}">
+                                        {{ $aluno->nome }} -
+                                        {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '--' }}
+                                    </option>
+                                @endforeach
+                            @else
+                                @foreach ($instituicoes as $inst)
+                                    <optgroup label="{{ $inst->nome }}">
+                                        @foreach ($inst->alunos as $aluno)
+                                            <option value="{{ $aluno->id }}" data-nome="{{ $aluno->nome }}"
+                                                data-idade="{{ $aluno->idade }}">
+                                                {{ $aluno->nome }} -
+                                                {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '--' }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
                 </div>
+
+                <div class="grafico-acoes">
+                    <a href="{{ route('public.dashboard') }}" class="btn btn-outline-secondary grafico-btn">
+                        <i class="bi bi-house-door me-1"></i>
+                        Voltar
+                    </a>
+
+                    <button id="btn-gerar-grafico" class="btn grafico-btn grafico-btn-principal" disabled>
+                        Gerar grafico
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="chart-container" class="grafico-chart-card d-none">
+            <div id="overlay-chart" class="overlay-spinner d-none">
+                <div class="spinner-border text-primary" role="status"></div>
             </div>
 
+            <div class="grafico-chart-header">
+                <div>
+                    <h2 class="grafico-card-title">Grafico comparativo</h2>
+                    <p class="grafico-card-subtitle">Leitura visual dos campos tecnicos da ultima analise de cada atleta.</p>
+                </div>
+
+                <span class="grafico-badge">
+                    <i class="bi bi-bar-chart-fill me-1"></i>
+                    Resultado
+                </span>
+            </div>
+
+            <div class="grafico-chart-wrap">
+                <canvas id="comparativo-chart"></canvas>
+            </div>
         </div>
     </div>
-
 @endsection
 
 @push('scripts')
@@ -242,13 +415,16 @@
                     .then(res => {
                         if (res.status === 429) {
                             const wait = res.headers.get('Retry-After') || 60;
-                            alert(`Você atingiu o limite de requisições. Aguarde ${wait}s.`);
+                            alert(`Voce atingiu o limite de requisicoes. Aguarde ${wait}s.`);
                             throw new Error('Too Many Requests');
                         }
                         return res.json();
                     })
                     .then(data => {
-                        if (chartInstance) chartInstance.destroy();
+                        if (chartInstance) {
+                            chartInstance.destroy();
+                        }
+
                         chartInstance = new Chart(ctx, {
                             type: 'bar',
                             data: {
@@ -322,7 +498,7 @@
                     .catch(err => {
                         console.error(err);
                         overlay.classList.add('d-none');
-                        alert('Não foi possível gerar o gráfico. Tente novamente.');
+                        alert('Nao foi possivel gerar o grafico. Tente novamente.');
                     });
             });
         });

@@ -168,7 +168,7 @@
             }
 
             .login-title {
-                font-size: 1.18rem;
+                font-size: 1.10rem;
             }
 
             .login-text {
@@ -201,10 +201,9 @@
                     <i class="bi bi-person-badge-fill"></i>
                     Acesso Atleta
                 </span>
-                <h1 class="login-title">Entrar para consultar seu desempenho</h1>
+                <h4>Entrar para consultar seu desempenho</h4>
                 <p class="login-text">
-                    Este acesso foi pensado para o atleta entrar de forma direta e consultar as informacoes liberadas pela
-                    instituicao.
+                    Este acesso foi pensado para o atleta entrar de forma direta e consultar as informacoes liberadas pela instituicao.
                 </p>
 
                 <div class="login-lista">
