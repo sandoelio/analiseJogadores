@@ -14,12 +14,14 @@
     <style>
         html,
         body {
-            height: 100vh;
+            min-height: 100vh;
+            height: auto;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
-            overflow: auto;
+            overflow-x: hidden;
+            overflow-y: auto;
             background: #f8f9fa;
             font-family: 'Segoe UI', sans-serif;
         }
@@ -111,7 +113,7 @@
         }
 
         main.site-main {
-            flex: 1;
+            flex: 1 0 auto;
             display: flex;
             flex-direction: column;
             align-items: stretch;
@@ -121,13 +123,14 @@
         }
 
         .content-box {
-            flex: 1;
+            flex: 1 0 auto;
             display: flex;
             flex-direction: column;
             padding: 0;
             background: #FF7209;
             box-sizing: border-box;
             width: 100%;
+            overflow: visible;
         }
 
         @media (max-width: 576px) {
@@ -137,7 +140,6 @@
 
             .content-box {
                 padding: 1rem;
-                max-height: calc(100vh - 160px);
                 -webkit-overflow-scrolling: touch;
             }
 
