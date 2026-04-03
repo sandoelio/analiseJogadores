@@ -155,12 +155,14 @@
         @media (max-width: 576px) {
             .home-shell {
                 max-width: 500px;
-                padding-top: 0.45rem;
+                padding-top: 0.4rem;
             }
 
             .home-hero {
                 padding: 0.9rem;
                 margin-bottom: 0.75rem;
+                border-radius: 0.95rem;
+                box-shadow: 0 8px 18px rgba(15, 24, 44, 0.12);
             }
 
             .home-title {
@@ -168,7 +170,7 @@
             }
 
             .home-text {
-                font-size: 0.86rem;
+                display: none;
             }
 
             .home-grid {
@@ -177,8 +179,50 @@
             }
 
             .home-card {
-                min-height: auto;
-                padding: 0.9rem;
+                min-height: 118px;
+                padding: 0.85rem 0.9rem;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(210, 227, 255, 0.08) 100%);
+                border-color: rgba(255, 255, 255, 0.22);
+                box-shadow: 0 10px 20px rgba(15, 24, 44, 0.14);
+                color: #fff !important;
+            }
+
+            .home-card:hover {
+                transform: none;
+                border-color: rgba(255, 255, 255, 0.18);
+                box-shadow: 0 8px 18px rgba(15, 24, 44, 0.12);
+                color: #fff !important;
+            }
+
+            .home-card-destaque {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(169, 199, 255, 0.12) 100%);
+                border-color: rgba(255, 255, 255, 0.26);
+            }
+
+            .home-card-icon {
+                width: 42px;
+                height: 42px;
+                background: rgba(255, 255, 255, 0.14) !important;
+                color: #fff !important;
+                border-radius: 0.85rem;
+                font-size: 1.15rem;
+            }
+
+            .home-card-title {
+                margin-top: 0.55rem !important;
+                font-size: 0.98rem;
+                color: #fff;
+            }
+
+            .home-card-text {
+                color: rgba(255, 255, 255, 0.84);
+                font-size: 0.77rem;
+                line-height: 1.35;
+            }
+
+            .home-card-link {
+                color: #fff;
+                font-size: 0.8rem;
             }
         }
     </style>

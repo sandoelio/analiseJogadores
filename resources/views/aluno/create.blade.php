@@ -243,15 +243,30 @@
             }
 
             .create-card .nav-tabs {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding-bottom: 0.15rem;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.35rem;
+                overflow: visible;
+                padding-bottom: 0;
+            }
+
+            .create-card .nav-tabs .nav-item {
+                width: 100%;
             }
 
             .create-card .nav-tabs .nav-link {
-                white-space: nowrap;
-                font-size: 0.86rem;
+                width: 100%;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.45rem 0.4rem;
+                white-space: normal;
+                text-align: center;
+                font-size: 0.8rem;
+                line-height: 1.2;
+                border-radius: 0.8rem;
+                border-bottom: 1px solid #dbe1ec;
             }
 
             .create-card .tab-pane {

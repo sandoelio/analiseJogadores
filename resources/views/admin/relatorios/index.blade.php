@@ -62,6 +62,19 @@
             padding: 1rem;
         }
 
+        .relatorios-painel-titulo {
+            margin: 0 0 0.85rem;
+            color: #1f2d4f;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .relatorios-painel-texto {
+            margin: 0 0 0.9rem;
+            color: #5f6b85;
+            font-size: 0.86rem;
+        }
+
         .relatorio-tabela-wrap {
             width: 100%;
             overflow-x: auto;
@@ -175,10 +188,6 @@
 @section('content')
     <div class="relatorios-shell">
         <div class="relatorios-topo">
-            <div>
-                <p class="relatorios-subtitulo">Relatorio geral por projetos</p>
-            </div>
-
             <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary relatorios-voltar">
                 Voltar
             </a>
@@ -202,6 +211,8 @@
 
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="relatorio-masculino" role="tabpanel">
+                    <h2 class="relatorios-painel-titulo">Atletas por projeto</h2>
+                    <p class="relatorios-painel-texto">Linhas por projeto e colunas agrupadas por idade.</p>
                     @include('admin.relatorios.partials.tabela', [
                         'idades' => $idadesMasculino,
                         'relatorio' => $relatorioMasculino,
@@ -209,6 +220,8 @@
                 </div>
 
                 <div class="tab-pane fade" id="relatorio-feminino" role="tabpanel">
+                    <h2 class="relatorios-painel-titulo">Atletas por projeto</h2>
+                    <p class="relatorios-painel-texto">Linhas por projeto e colunas agrupadas por idade.</p>
                     @include('admin.relatorios.partials.tabela', [
                         'idades' => $idadesFeminino,
                         'relatorio' => $relatorioFeminino,

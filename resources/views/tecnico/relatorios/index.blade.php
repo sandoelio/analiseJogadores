@@ -198,6 +198,10 @@
             padding: 0.4rem 0;
         }
 
+        .relatorio-mobile {
+            display: none;
+        }
+
         @media (max-width: 575.98px) {
             .relatorios-topo {
                 flex-direction: column;
@@ -217,14 +221,42 @@
                 padding: 0.8rem;
             }
 
-            .relatorio-tabela {
-                min-width: 640px;
+            .relatorio-desktop {
+                display: none;
             }
 
-            .relatorio-tabela thead th,
-            .relatorio-tabela tbody td {
-                padding: 0.6rem 0.7rem;
-                font-size: 0.88rem;
+            .relatorio-mobile {
+                display: block;
+            }
+
+            .relatorio-mobile-tabela {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+
+            .relatorio-mobile-tabela th {
+                background: #223154;
+                color: #fff;
+                font-size: 0.82rem;
+                font-weight: 700;
+                padding: 0.7rem 0.8rem;
+                border: 1px solid #d8dee9;
+                text-align: left;
+            }
+
+            .relatorio-mobile-tabela td {
+                background: #fff;
+                color: #263248;
+                font-size: 0.86rem;
+                padding: 0.7rem 0.8rem;
+                border: 1px solid #d8dee9;
+            }
+
+            .relatorio-mobile-tabela .relatorio-mobile-total td {
+                background: #eef2f7;
+                color: #1f2d4f;
+                font-weight: 700;
             }
         }
 

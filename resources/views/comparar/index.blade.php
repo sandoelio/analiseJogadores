@@ -181,30 +181,62 @@
 
         @media (max-width: 767.98px) {
             .comparar-shell {
-                padding-top: 0.55rem;
+                padding-top: 0.5rem;
             }
 
             .comparar-title {
-                font-size: 1.22rem;
+                font-size: 1.16rem;
+            }
+
+            .comparar-text {
+                display: none;
             }
 
             .comparar-card-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 0.55rem;
+                gap: 0.45rem;
             }
 
             .comparar-grid {
                 grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .comparar-form-wrap {
+                padding: 0.9rem;
+            }
+
+            .comparar-card-title {
+                font-size: 0.98rem;
+            }
+
+            .comparar-label {
+                font-size: 0.8rem;
+            }
+
+            .comparar-select {
+                min-height: 44px;
+                font-size: 0.92rem;
             }
 
             .comparar-acoes {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 0.5rem;
+                margin-top: 0.85rem;
             }
 
             .comparar-btn {
                 width: 100%;
+                min-height: 42px;
+                padding: 0.55rem 1rem;
+            }
+
+            .comparar-badge {
+                min-height: 30px;
+                padding: 0.28rem 0.65rem;
+                font-size: 0.76rem;
             }
         }
     </style>

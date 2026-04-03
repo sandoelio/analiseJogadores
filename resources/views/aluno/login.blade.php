@@ -151,37 +151,49 @@
 
         @media (max-width: 576px) {
             .login-shell {
-                padding-top: 0.5rem;
+                max-width: 420px;
+                padding-top: 0.4rem;
             }
 
             .login-grid {
-                gap: 0.65rem;
+                gap: 0;
             }
 
             .login-panel {
-                padding: 0.85rem 0.9rem;
-            }
-
-            .login-chip {
-                margin-bottom: 0.45rem;
-                font-size: 0.72rem;
-            }
-
-            .login-title {
-                font-size: 1.10rem;
-            }
-
-            .login-text {
-                font-size: 0.84rem;
-                line-height: 1.4;
-            }
-
-            .login-lista {
                 display: none;
             }
 
+            .login-card-header {
+                padding: 0.9rem 1rem;
+            }
+
+            .login-card-header h2 {
+                font-size: 1rem;
+                text-align: center;
+            }
+
             .login-card-body {
-                padding: 0.95rem;
+                padding: 0.9rem;
+            }
+
+            .login-card-subtitle {
+                margin-bottom: 0.85rem;
+                font-size: 0.82rem;
+                text-align: center;
+            }
+
+            .login-form .form-label {
+                font-size: 0.9rem;
+            }
+
+            .login-form .form-control {
+                min-height: 44px;
+                font-size: 0.92rem;
+            }
+
+            .login-btn,
+            .login-btn-secondary {
+                min-height: 44px;
             }
         }
 

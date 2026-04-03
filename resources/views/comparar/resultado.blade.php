@@ -58,11 +58,15 @@
         }
 
         .resultado-confronto {
+            margin-top: 0.95rem;
+        }
+
+        .resultado-confronto-linha {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
             gap: 0.6rem;
-            margin-top: 0.95rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
         }
 
         .resultado-time {
@@ -230,6 +234,21 @@
                 gap: 0.55rem;
             }
 
+            .resultado-confronto-linha {
+                gap: 0.4rem;
+            }
+
+            .resultado-time {
+                min-height: 36px;
+                padding: 0.38rem 0.65rem;
+                font-size: 0.82rem;
+                white-space: nowrap;
+            }
+
+            .resultado-vs {
+                white-space: nowrap;
+            }
+
             .resultado-grid {
                 grid-template-columns: 1fr;
                 gap: 0.75rem;
@@ -263,13 +282,15 @@
                 </span>
                 <div class="resultado-confronto">
                     <h1 class="resultado-title">Resultado do duelo</h1>
-                    <span class="resultado-time">
-                        {{ $aluno1->nome }}
-                    </span>
-                    <span class="resultado-vs">vs</span>
-                    <span class="resultado-time">
-                        {{ $aluno2->nome }}
-                    </span>
+                    <div class="resultado-confronto-linha">
+                        <span class="resultado-time">
+                            {{ $aluno1->nome }}
+                        </span>
+                        <span class="resultado-vs">vs</span>
+                        <span class="resultado-time">
+                            {{ $aluno2->nome }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

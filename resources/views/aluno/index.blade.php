@@ -147,6 +147,20 @@
             overflow-x: auto;
         }
 
+        .alunos-lista-scroll.scroll-ativo {
+            overflow-y: auto;
+        }
+
+        .alunos-desktop .alunos-lista-scroll.scroll-ativo {
+            max-height: 320px;
+        }
+
+        .alunos-desktop .alunos-lista-scroll.scroll-ativo .alunos-tabela thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
         .alunos-tabela {
             width: 100%;
             margin: 0;
@@ -294,21 +308,40 @@
 
             .alunos-mobile {
                 display: block;
+                padding: 0.7rem;
+            }
+
+            .alunos-mobile.alunos-lista-scroll.scroll-ativo {
+                max-height: 360px;
             }
 
             .aluno-item {
-                flex-direction: column;
-                align-items: stretch;
+                flex-direction: row;
+                align-items: center;
+                padding: 0.8rem;
+                border-radius: 0.9rem;
+                gap: 0.7rem;
             }
 
             .alunos-acoes {
-                width: 100%;
+                width: auto;
+                flex-shrink: 0;
                 justify-content: flex-end;
+                gap: 0.35rem;
+            }
+
+            .aluno-item-info .aluno-nome {
+                margin-bottom: 0.15rem;
+                font-size: 0.96rem;
+            }
+
+            .aluno-idade {
+                font-size: 0.82rem;
             }
 
             .action-btn {
-                width: 40px;
-                height: 40px;
+                width: 36px;
+                height: 36px;
             }
         }
     </style>
@@ -356,6 +389,7 @@
                 </div>
 
                 <div class="alunos-desktop">
+                    <div class="alunos-lista-scroll {{ $alunos->count() > 3 ? 'scroll-ativo' : '' }}">
                     <div class="alunos-tabela-wrap">
                         <table class="alunos-tabela">
                             <thead>
@@ -399,9 +433,10 @@
                             </tbody>
                         </table>
                     </div>
+                    </div>
                 </div>
 
-                <div class="alunos-mobile">
+                <div class="alunos-mobile alunos-lista-scroll {{ $alunos->count() > 3 ? 'scroll-ativo' : '' }}">
                     @foreach ($alunos as $aluno)
                         <div class="aluno-item">
                             <div class="aluno-item-info">

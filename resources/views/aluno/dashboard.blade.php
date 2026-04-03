@@ -178,64 +178,88 @@
         @media (max-width: 576px) {
             .dashboard-shell {
                 max-width: 400px;
-                padding-top: 0.6rem;
+                padding-top: 0.45rem;
             }
 
             .dashboard-header {
                 display: block;
-                margin-bottom: 0.75rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .dashboard-intro {
+                padding: 0.95rem 1rem;
+                border-radius: 1rem;
+                box-shadow: 0 10px 20px rgba(15, 24, 44, 0.14);
+            }
+
+            .dashboard-kicker {
+                margin-bottom: 0.45rem;
+                font-size: 0.72rem;
+            }
+
+            .dashboard-title {
+                font-size: 1.08rem;
+                line-height: 1.25;
+            }
+
+            .dashboard-subtitle {
+                margin-top: 0.35rem;
+                font-size: 0.82rem;
+                line-height: 1.35;
             }
 
             .dashboard-buttons {
                 display: flex;
                 flex-direction: column;
-                gap: 0.5rem;
+                gap: 0.55rem;
                 width: 100%;
-                margin-top: 10px;
+                margin-top: 0;
             }
 
             .dashboard-buttons a {
-                background: transparent;
-                border: none;
-                box-shadow: none;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(210, 227, 255, 0.08) 100%);
+                border: 1px solid rgba(255, 255, 255, 0.22);
+                box-shadow: 0 10px 20px rgba(15, 24, 44, 0.14);
                 color: #fff !important;
+                border-radius: 1rem;
             }
 
             .dashboard-btn {
-                min-height: auto;
-                padding: 0.8rem;
+                min-height: 102px;
+                padding: 0.8rem 0.9rem;
                 background: transparent;
-                border: none;
                 align-items: center;
                 text-align: center;
             }
 
             .dashboard-btn:hover {
                 transform: none;
-                border: none;
-                box-shadow: none;
-                color: #28365F !important;
+                border-color: rgba(255, 255, 255, 0.22);
+                box-shadow: 0 10px 20px rgba(15, 24, 44, 0.14);
+                color: #fff !important;
             }
 
             .dashboard-btn-icon {
-                width: auto;
-                height: auto;
-                background: transparent !important;
+                width: 42px;
+                height: 42px;
+                background: rgba(255, 255, 255, 0.14) !important;
                 color: #fff !important;
-                font-size: 1.6rem;
+                font-size: 1.2rem;
+                border-radius: 0.85rem;
             }
 
             .dashboard-btn-body {
-                gap: 0.2rem;
+                gap: 0.14rem;
             }
 
             .dashboard-btn-title {
-                font-size: 1rem;
+                font-size: 0.98rem;
             }
 
             .dashboard-btn-text {
-                font-size: 0.82rem;
-                color: rgba(255, 255, 255, 0.85);
+                font-size: 0.75rem;
+                color: rgba(255, 255, 255, 0.84);
+                line-height: 1.35;
             }
 
             .dashboard-btn-span-2 {
