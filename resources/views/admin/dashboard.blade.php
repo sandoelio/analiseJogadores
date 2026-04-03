@@ -124,10 +124,10 @@
     <div class="container-fluid dashboard-container">
         <div class="dashboard-buttons">
 
-            {{-- Logo no grid (sem hover/link) --}}
-            <div class="logo-wrapper">
-                <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana" loading="lazy">
-            </div>
+            <a href="{{ route('admin.relatorios') }}" class="dashboard-btn">
+                <i class="bi bi-bar-chart-fill"></i>
+                Relatorio
+            </a>
 
             <a href="{{ route('usuarios.create') }}" class="dashboard-btn">
                 <i class="bi bi-person-plus-fill"></i>
