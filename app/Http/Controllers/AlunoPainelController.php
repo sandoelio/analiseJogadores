@@ -13,7 +13,7 @@ class AlunoPainelController extends Controller
      */
     public function dashboard()
     {
-        $instId = session('aluno_instituicao_id') ?: Auth::user()?->instituicao_id;
+        $instId = Auth::guard('athlete')->id() ?: Auth::user()?->instituicao_id;
         $alunos = Aluno::where('instituicao_id', $instId)->get();
 
         return view('aluno.dashboard', compact('alunos'));

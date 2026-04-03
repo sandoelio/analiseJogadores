@@ -353,7 +353,7 @@ class AlunoAnaliseController extends Controller
             return $query->firstOrFail();
         }
 
-        $instituicaoId = session('aluno_instituicao_id');
+        $instituicaoId = Auth::guard('athlete')->id();
 
         if (!$instituicaoId && Auth::check()) {
             $instituicaoId = Auth::user()->instituicao_id;

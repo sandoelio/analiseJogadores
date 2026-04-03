@@ -4,18 +4,20 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CheckAlunoSession
 {
     /**
-     * Se não existir instituição de aluno na sessão,
+     * Se nao existir autenticacao do guard athlete,
      * redireciona para o login de aluno.
      */
     public function handle(Request $request, Closure $next)
     {
-        if (! $request->session()->has('aluno_instituicao_id')) {
+        if (!Auth::guard('athlete')->check()) {
             return redirect()->route('aluno.login');
         }
+
         return $next($request);
     }
 }

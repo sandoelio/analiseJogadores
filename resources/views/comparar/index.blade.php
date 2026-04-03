@@ -248,7 +248,7 @@
         $isAdmin = auth()->check() && (int) ($user->is_admin ?? 0) === 1;
         $instituicaoId = $isAdmin
             ? null
-            : (session('aluno_instituicao_id') ?? (auth()->check() ? ($user->instituicao_id ?? null) : null));
+            : (auth('athlete')->id() ?? (auth()->check() ? ($user->instituicao_id ?? null) : null));
         $alunosInst = collect($instituicoes)->firstWhere('id', $instituicaoId)?->alunos ?? collect();
     @endphp
 
@@ -271,8 +271,10 @@
         </div>
 
         @if (session('error'))
-            <div class="alert alert-warning comparar-alerta text-center">
+            <div class="alert alert-warning alert-dismissible fade show comparar-alerta text-center flash-auto flash-floating"
+                data-auto-dismiss="4500" role="alert">
                 {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 

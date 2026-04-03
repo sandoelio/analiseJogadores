@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AlunoAuthLoginRequest;
 use App\Models\Instituicao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AlunoAuthController extends Controller
@@ -26,15 +27,16 @@ class AlunoAuthController extends Controller
                 ->withInput();
         }
 
+        Auth::guard('athlete')->login($inst);
         $request->session()->regenerate();
-        $request->session()->put('aluno_instituicao_id', $inst->id);
 
         return redirect()->route('public.dashboard');
     }
 
     public function logout(Request $request)
     {
-        $request->session()->forget('aluno_instituicao_id');
+        Auth::guard('athlete')->logout();
+        $request->session()->regenerateToken();
 
         return redirect()->route('public.home');
     }

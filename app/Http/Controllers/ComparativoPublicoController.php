@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Aluno;
 use App\Models\Instituicao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ComparativoPublicoController extends Controller
 {
     public function index()
     {
-        $instituicoes = Instituicao::with('alunos')->orderBy('nome')->get();
+        $instituicoes = $this->consultarInstituicoesVisiveis();
+
         return view('comparar.index', compact('instituicoes'));
     }
 
@@ -23,13 +25,13 @@ class ComparativoPublicoController extends Controller
             'aluno2_id.different' => 'Você não pode selecionar o mesmo jogador nos dois campos.',
         ]);
 
-        $aluno1   = Aluno::findOrFail($data['aluno1_id']);
+        $aluno1   = $this->obterAlunoAutorizadoPorId((int) $data['aluno1_id']);
         $analise1 = $aluno1->analises()->latest()->first();
         $stats1   = $analise1
             ? $analise1->only(config('comparativo.campos'))
             : array_fill_keys(config('comparativo.campos'), 0);
 
-        $aluno2   = Aluno::findOrFail($data['aluno2_id']);
+        $aluno2   = $this->obterAlunoAutorizadoPorId((int) $data['aluno2_id']);
         $analise2 = $aluno2->analises()->latest()->first();
         $stats2   = $analise2
             ? $analise2->only(config('comparativo.campos'))
@@ -214,5 +216,46 @@ class ComparativoPublicoController extends Controller
             'narracao' => implode("\n\n", $narracao),
             'placar'   => $placar,
         ];
+    }
+
+    private function consultarInstituicoesVisiveis()
+    {
+        $query = Instituicao::with('alunos')->orderBy('nome');
+
+        if (Auth::check() && Auth::user()->is_admin) {
+            return $query->get();
+        }
+
+        $instituicaoId = $this->obterInstituicaoEfetiva();
+
+        return $query
+            ->whereKey($instituicaoId)
+            ->get();
+    }
+
+    private function obterAlunoAutorizadoPorId(int $alunoId): Aluno
+    {
+        $query = Aluno::query()->whereKey($alunoId);
+
+        if (Auth::check() && Auth::user()->is_admin) {
+            return $query->firstOrFail();
+        }
+
+        return $query
+            ->where('instituicao_id', $this->obterInstituicaoEfetiva())
+            ->firstOrFail();
+    }
+
+    private function obterInstituicaoEfetiva(): int
+    {
+        if (Auth::guard('athlete')->check()) {
+            return (int) Auth::guard('athlete')->id();
+        }
+
+        if (Auth::check()) {
+            return (int) Auth::user()->instituicao_id;
+        }
+
+        abort(403, 'Acesso nao autorizado.');
     }
 }

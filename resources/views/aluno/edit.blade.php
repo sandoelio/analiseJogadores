@@ -330,7 +330,11 @@
                     <p class="edit-subtitle">Atualize o nome abaixo e confirme para salvar a alteracao.</p>
 
                     @if (session('success'))
-                        <div class="alert alert-success edit-alerta">{{ session('success') }}</div>
+                        <div class="alert alert-success alert-dismissible fade show edit-alerta flash-auto flash-floating"
+                            data-auto-dismiss="4500" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     @endif
 
                     <form method="POST" action="{{ route('aluno.update', $aluno) }}" class="edit-form">

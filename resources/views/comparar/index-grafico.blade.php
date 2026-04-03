@@ -274,7 +274,7 @@
     @php
         $user = auth()->user();
         $isAdmin = auth()->check() && (int) ($user->is_admin ?? 0) === 1;
-        $instIdEfetiva = session('aluno_instituicao_id') ?? (auth()->check() ? $user->instituicao_id ?? null : null);
+        $instIdEfetiva = auth('athlete')->id() ?? (auth()->check() ? $user->instituicao_id ?? null : null);
         $instLog = !$isAdmin && $instIdEfetiva ? $instituicoes->firstWhere('id', $instIdEfetiva) : null;
     @endphp
 

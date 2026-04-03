@@ -121,7 +121,7 @@ class AlunoPublicoController extends Controller
             return $query->firstOrFail();
         }
 
-        $instituicaoId = session('aluno_instituicao_id');
+        $instituicaoId = Auth::guard('athlete')->id();
 
         if (! $instituicaoId && Auth::check()) {
             $instituicaoId = Auth::user()->instituicao_id;
@@ -138,8 +138,8 @@ class AlunoPublicoController extends Controller
             return true;
         }
 
-        if (session()->has('aluno_instituicao_id')) {
-            return (int) session('aluno_instituicao_id') === $instituicaoId;
+        if (Auth::guard('athlete')->check()) {
+            return (int) Auth::guard('athlete')->id() === $instituicaoId;
         }
 
         if (Auth::check()) {
@@ -151,6 +151,6 @@ class AlunoPublicoController extends Controller
 
     private function podeVisualizarCvEsportivo(): bool
     {
-        return Auth::check() && ! session()->has('aluno_instituicao_id');
+        return Auth::check() && ! Auth::guard('athlete')->check();
     }
 }

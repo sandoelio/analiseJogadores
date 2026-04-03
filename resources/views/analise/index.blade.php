@@ -644,13 +644,13 @@
         $user = auth()->user();
         $isAdmin = auth()->check() && (int) ($user->is_admin ?? 0) === 1;
 
-        // Para nao-admin: instituicao efetiva (sessao do atleta ou instituicao do tecnico)
+        // Para nao-admin: instituicao efetiva do athlete guard ou do tecnico
         $instituicaoId = $isAdmin
             ? null
-            : session('aluno_instituicao_id') ?? (auth()->check() ? $user->instituicao_id ?? null : null);
+            : auth('athlete')->id() ?? (auth()->check() ? $user->instituicao_id ?? null : null);
 
         // Privilegiado = tecnico/admin (atleta nao)
-        $isPrivilegiado = auth()->check() && !session()->has('aluno_instituicao_id');
+        $isPrivilegiado = auth()->check() && !auth('athlete')->check();
     @endphp
 
     <div class="container-fluid analise-shell">
