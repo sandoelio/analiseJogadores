@@ -9,12 +9,13 @@
             max-width: 600px;
             width: 100%;
             margin: 0 auto;
+            padding-bottom: 1rem;
         }
 
         .dashboard-buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+            gap: 1rem;
             width: 100%;
         }
 
@@ -23,7 +24,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1.2rem;
+            min-height: 110px;
+            padding: 0.9rem;
             background: #fff;
             border: 2px solid #ddd;
             border-radius: 0.5rem;
@@ -38,6 +40,10 @@
             margin-bottom: 0.5rem;
         }
 
+        .dashboard-btn-wide {
+            grid-column: 1 / -1;
+        }
+
         /* Logo com mesma largura do shell/botões */
         .logo-wrap {
             width: 94%;
@@ -45,7 +51,7 @@
             background-color: #28365F;
             border-radius: 0.5rem;
             padding: 0.5rem;
-            margin-bottom: 1.5rem !important;
+            margin-bottom: 1rem !important;
         }
 
         .back-logo {
@@ -61,6 +67,40 @@
         @media (min-width: 577px) and (max-width: 991.98px) {
             .back-logo {
                 max-height: 140px;
+            }
+
+            .dashboard-btn {
+                min-height: 96px;
+                padding: 0.8rem;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .dashboard-shell {
+                max-width: 540px;
+            }
+
+            .dashboard-buttons {
+                gap: 0.85rem;
+            }
+
+            .dashboard-btn {
+                min-height: 92px;
+                padding: 0.8rem;
+            }
+
+            .dashboard-btn i {
+                font-size: 1.8rem;
+                margin-bottom: 0.35rem;
+            }
+
+            .logo-wrap {
+                width: 90%;
+                margin-bottom: 0.85rem !important;
+            }
+
+            .back-logo {
+                max-height: 102px;
             }
         }
 
@@ -119,6 +159,10 @@
             .dashboard-btn i {
                 color: #fff !important;
             }
+
+            .dashboard-btn-wide {
+                grid-column: auto;
+            }
         }
     </style>
 @endpush
@@ -150,6 +194,10 @@
                 <a href="{{ route('public.dashboard') }}" class="dashboard-btn">
                     <i class="bi bi-house-door me-1"></i>
                     Página Inicial
+                </a>
+                <a href="{{ route('tecnico.relatorios') }}" class="dashboard-btn dashboard-btn-wide">
+                    <i class="bi bi-clipboard-data"></i>
+                    Relatorios
                 </a>
             </div>
         </div>
