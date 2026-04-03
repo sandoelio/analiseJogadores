@@ -152,7 +152,7 @@
         }
 
         .alunos-desktop .alunos-lista-scroll.scroll-ativo {
-            max-height: 320px;
+            max-height: 255px;
         }
 
         .alunos-desktop .alunos-lista-scroll.scroll-ativo .alunos-tabela thead th {
@@ -312,7 +312,7 @@
             }
 
             .alunos-mobile.alunos-lista-scroll.scroll-ativo {
-                max-height: 360px;
+                max-height: 250px;
             }
 
             .aluno-item {

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UsuarioStoreRequest;
+use App\Http\Requests\UsuarioUpdateRequest;
 use App\Models\User;
 use App\Models\Instituicao;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Jenssegers\Agent\Agent;
@@ -31,17 +32,10 @@ class UsuarioController extends Controller
         return view('usuarios.create', compact('instituicoes'));
     }
 
-    public function store(Request $request)
+    public function store(UsuarioStoreRequest $request)
     {
         // 1) Validação incluindo credenciais de atleta
-        $data = $request->validate([
-            'name'               => 'required|string|max:255',
-            'email'              => 'required|email|unique:users,email',
-            'password'           => 'required|string|min:6|confirmed',
-            'instituicao_nome'   => 'required|string|max:255',
-            'athlete_email'      => 'required|email|unique:instituicoes,athlete_email',
-            'athlete_password'   => 'required|string|min:8',
-        ]);
+        $data = $request->validated();
 
         // 2) Cria ou atualiza a Instituição
         $instituicao = Instituicao::updateOrCreate(
@@ -72,16 +66,10 @@ class UsuarioController extends Controller
         return view('usuarios.edit', compact('usuario', 'instituicoes'));
     }
 
-    public function update(Request $request, User $usuario)
+    public function update(UsuarioUpdateRequest $request, User $usuario)
     {
         // 1) Validação incluindo credenciais de atleta
-        $data = $request->validate([
-            'name'               => 'required|string|max:255',
-            'email'              => 'required|email|unique:users,email,' . $usuario->id,
-            'password'           => 'nullable|string|min:6|confirmed',
-            'athlete_email'      => 'required|email|unique:instituicoes,athlete_email,' . $usuario->instituicao_id,
-            'athlete_password'   => 'nullable|string|min:8',
-        ]);
+        $data = $request->validated();
 
         // 2) Atualiza o usuário técnico
         $usuario->name  = $data['name'];

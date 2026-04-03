@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\AlunoAuthLoginRequest;
 use App\Models\Instituicao;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AlunoAuthController extends Controller
@@ -13,22 +14,18 @@ class AlunoAuthController extends Controller
         return view('aluno.login');
     }
 
-    public function login(Request $request)
+    public function login(AlunoAuthLoginRequest $request)
     {
-        $data = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required|string',
-        ]);
+        $data = $request->validated();
 
         $inst = Instituicao::where('athlete_email', $data['email'])->first();
 
-        if (! $inst || ! Hash::check($data['password'], $inst->athlete_password)) {
+        if (!$inst || !Hash::check($data['password'], $inst->athlete_password)) {
             return back()
-                ->withErrors(['email' => 'Credenciais inválidas'])
+                ->withErrors(['email' => 'Credenciais invalidas'])
                 ->withInput();
         }
 
-        // força um novo session id e guarda o ID da instituição
         $request->session()->regenerate();
         $request->session()->put('aluno_instituicao_id', $inst->id);
 
@@ -37,8 +34,8 @@ class AlunoAuthController extends Controller
 
     public function logout(Request $request)
     {
-        // limpa só a sessão de atleta
         $request->session()->forget('aluno_instituicao_id');
+
         return redirect()->route('public.home');
     }
 }

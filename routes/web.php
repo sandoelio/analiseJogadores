@@ -5,7 +5,9 @@ use App\Http\Middleware\CheckSession;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\CheckAnySession;
-use App\Http\Controllers\AlunoController;
+use App\Http\Controllers\AlunoPainelController;
+use App\Http\Controllers\AlunoCadastroController;
+use App\Http\Controllers\AlunoAnaliseController;
 use App\Http\Middleware\CheckAlunoSession;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AlunoAuthController;
@@ -47,7 +49,7 @@ Route::post('/aluno/logout',[AlunoAuthController::class, 'logout'])->name('aluno
 | Dashboard do Aluno (só quem tiver sessão de atleta)
 |--------------------------------------------------------------------------
 */
-Route::get('/aluno/dashboard', [AlunoController::class, 'dashboard'])->middleware(CheckAlunoSession::class)->name('aluno.dashboard');
+Route::get('/aluno/dashboard', [AlunoPainelController::class, 'dashboard'])->middleware(CheckAlunoSession::class)->name('aluno.dashboard');
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +62,7 @@ Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function (
 
     Route::get('analise/timeline/event/{id}', [AlunoHistoryController::class, 'eventJson'])->name('analise.timeline.event.json');
 
-    Route::get('/analise/extras/{matricula}', [AlunoController::class, 'fetchExtras'])->name('analise.extras');
+    Route::get('/analise/extras/{matricula}', [AlunoAnaliseController::class, 'fetchExtras'])->name('analise.extras');
 
     // Dashboard genérico
     Route::get('/public/dashboard', [PublicDashboardController::class, 'index'])->name('public.dashboard');
@@ -92,27 +94,27 @@ Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function (
 */
 Route::middleware([ CheckSession::class ])->group(function () {
     
-    Route::get('/alunos/cadastrados', [AlunoController::class, 'index'])->name('aluno.index');
+    Route::get('/alunos/cadastrados', [AlunoPainelController::class, 'index'])->name('aluno.index');
 
-    Route::get('/aluno/create', [AlunoController::class, 'create'])->name('aluno.create');
+    Route::get('/aluno/create', [AlunoCadastroController::class, 'create'])->name('aluno.create');
 
-    Route::post('/aluno', [AlunoController::class, 'store'])->name('aluno.store');
+    Route::post('/aluno', [AlunoCadastroController::class, 'store'])->name('aluno.store');
 
-    Route::get('/aluno/{aluno}/edit', [AlunoController::class, 'edit'])->name('aluno.edit');
+    Route::get('/aluno/{aluno}/edit', [AlunoCadastroController::class, 'edit'])->name('aluno.edit');
 
-    Route::put('/aluno/{aluno}', [AlunoController::class, 'update'])->name('aluno.update');
+    Route::put('/aluno/{aluno}', [AlunoCadastroController::class, 'update'])->name('aluno.update');
 
-    Route::delete('/aluno/{aluno}', [AlunoController::class, 'destroy'])->name('aluno.destroy');
+    Route::delete('/aluno/{aluno}', [AlunoCadastroController::class, 'destroy'])->name('aluno.destroy');
 
-    Route::get('/aluno/atualizar', [AlunoController::class, 'habilidade'])->name('aluno.updateForm');
+    Route::get('/aluno/atualizar', [AlunoAnaliseController::class, 'habilidade'])->name('aluno.updateForm');
 
-    Route::post('/aluno/habilidade/update', [AlunoController::class, 'updateHabilidade'])->name('aluno.habilidade.update');
+    Route::post('/aluno/habilidade/update', [AlunoAnaliseController::class, 'updateHabilidade'])->name('aluno.habilidade.update');
 
-    Route::get('/aluno/{aluno}/ultima-analise', [AlunoController::class, 'fetchLastAnalysis'])->name('aluno.lastAnalysis');
+    Route::get('/aluno/{aluno}/ultima-analise', [AlunoAnaliseController::class, 'fetchLastAnalysis'])->name('aluno.lastAnalysis');
 
-    Route::get('/aluno/comparativo/{aluno}', [AlunoController::class, 'showComparativo'])->name('aluno.comparativo');
+    Route::get('/aluno/comparativo/{aluno}', [AlunoAnaliseController::class, 'showComparativo'])->name('aluno.comparativo');
 
-    Route::get('/tecnico/dashboard', [AlunoController::class, 'dashboard'])->name('tecnico.dashboard');
+    Route::get('/tecnico/dashboard', [AlunoPainelController::class, 'dashboard'])->name('tecnico.dashboard');
 
     Route::get('/tecnico/relatorios', [RelatorioTecnicoController::class, 'index'])->name('tecnico.relatorios');
     
