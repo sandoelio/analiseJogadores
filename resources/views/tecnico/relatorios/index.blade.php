@@ -8,15 +8,44 @@
             max-width: 1180px;
             width: 100%;
             margin: 0 auto;
-            padding-bottom: 2rem;
+            padding: 0.9rem 0 2rem;
         }
 
         .relatorios-topo {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: stretch;
             gap: 1rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .relatorios-heading,
+        .relatorios-voltar-wrap,
+        .relatorios-card {
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 6px 18px rgba(26, 42, 80, 0.08);
+        }
+
+        .relatorios-heading {
+            flex: 1 1 auto;
+            padding: 1rem 1.1rem;
+        }
+
+        .relatorios-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.55rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 999px;
+            background: #eef3fb;
+            color: #28365F;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
 
         .relatorios-titulo {
@@ -32,22 +61,39 @@
             font-weight: 600;
         }
 
+        .relatorios-texto {
+            margin: 0.35rem 0 0;
+            color: #5f6b85;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
+        .relatorios-voltar-wrap {
+            flex: 0 0 170px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.9rem;
+        }
+
         .relatorios-voltar {
-            margin-top: 0.5rem;
+            width: 100%;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.85rem;
+            font-weight: 700;
         }
 
         .relatorios-card {
-            border: 1px solid #dbe1ec;
-            border-radius: 0.8rem;
-            background: #fff;
-            box-shadow: 0 4px 14px rgba(26, 42, 80, 0.06);
             overflow: hidden;
         }
 
         .relatorios-card .nav-tabs {
             border-bottom: 1px solid #dbe1ec;
             background: #f7f9fc;
-            padding: 0.75rem 0.75rem 0;
+            padding: 0.8rem 0.8rem 0;
             gap: 0.4rem;
         }
 
@@ -66,7 +112,20 @@
         }
 
         .relatorios-card .tab-content {
-            padding: 1rem;
+            padding: 1rem 1rem 1.05rem;
+        }
+
+        .relatorios-painel-titulo {
+            margin: 0 0 0.9rem;
+            color: #1f2d4f;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .relatorios-painel-texto {
+            margin: 0 0 0.9rem;
+            color: #5f6b85;
+            font-size: 0.86rem;
         }
 
         .relatorio-tabela-wrap {
@@ -78,7 +137,7 @@
 
         .relatorio-tabela {
             width: 100%;
-            min-width: 720px;
+            min-width: 760px;
             border-collapse: separate;
             border-spacing: 0;
         }
@@ -95,6 +154,14 @@
             white-space: nowrap;
         }
 
+        .relatorio-tabela .relatorio-th-fixo {
+            min-width: 108px;
+            background: #223154;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+        }
+
         .relatorio-tabela tbody td {
             background: #fff;
             color: #263248;
@@ -102,6 +169,16 @@
             padding: 0.7rem 0.8rem;
             text-align: center;
             min-width: 62px;
+        }
+
+        .relatorio-tabela tbody .relatorio-td-fixo {
+            min-width: 108px;
+            background: #f7f9fc;
+            color: #1f2d4f;
+            font-weight: 700;
+            position: sticky;
+            left: 0;
+            z-index: 1;
         }
 
         .relatorio-tabela thead th:last-child,
@@ -118,6 +195,7 @@
         .relatorio-vazio {
             margin: 0;
             color: #6a748a;
+            padding: 0.4rem 0;
         }
 
         @media (max-width: 575.98px) {
@@ -130,12 +208,13 @@
                 font-size: 1.15rem;
             }
 
-            .relatorios-card .tab-content {
+            .relatorios-voltar-wrap {
+                flex-basis: auto;
                 padding: 0.8rem;
             }
 
-            .relatorios-voltar {
-                margin-top: 0;
+            .relatorios-card .tab-content {
+                padding: 0.8rem;
             }
 
             .relatorio-tabela {
@@ -166,15 +245,21 @@
 @section('content')
     <div class="relatorios-shell">
         <div class="relatorios-topo">
-            <div>
+            <div class="relatorios-heading">
+                <span class="relatorios-chip">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    Relatorios
+                </span>
                 <p class="relatorios-subtitulo">
                     Instituicao: {{ $instituicao->nome ?? 'Nao informada' }}
                 </p>
             </div>
 
-            <a href="{{ route('tecnico.dashboard') }}" class="btn btn-secondary relatorios-voltar">
-                Voltar
-            </a>
+            <div class="relatorios-voltar-wrap">
+                <a href="{{ route('tecnico.dashboard') }}" class="btn btn-secondary relatorios-voltar">
+                    Voltar
+                </a>
+            </div>
         </div>
 
         <div class="relatorios-card">
@@ -195,6 +280,8 @@
 
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="relatorio-masculino" role="tabpanel">
+                    <h2 class="relatorios-painel-titulo">Faixa etaria masculina</h2>
+                    <p class="relatorios-painel-texto">Contagem de atletas masculinos por idade cadastrada.</p>
                     @include('tecnico.relatorios.partials.tabela', [
                         'idades' => $idadesMasculino,
                         'relatorio' => $relatorioMasculino,
@@ -202,6 +289,8 @@
                 </div>
 
                 <div class="tab-pane fade" id="relatorio-feminino" role="tabpanel">
+                    <h2 class="relatorios-painel-titulo">Faixa etaria feminina</h2>
+                    <p class="relatorios-painel-texto">Contagem de atletas femininos por idade cadastrada.</p>
                     @include('tecnico.relatorios.partials.tabela', [
                         'idades' => $idadesFeminino,
                         'relatorio' => $relatorioFeminino,

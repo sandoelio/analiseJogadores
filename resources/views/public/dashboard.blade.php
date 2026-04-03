@@ -216,7 +216,7 @@
                     <i class="bi bi-compass-fill"></i>
                     Painel de Consulta
                 </span>
-                <h1 class="dashboard-title">Escolha como deseja visualizar e comparar o desempenho</h1>
+                <h4>Escolha como deseja visualizar e comparar o desempenho</h4>
                 <p class="dashboard-text">
                     A analise individual e o caminho principal. As comparacoes ficam logo abaixo para consultas
                     narrativas e graficas.
