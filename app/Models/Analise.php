@@ -34,7 +34,9 @@ class Analise extends Model
         'imc',
         // Saúde 
         'problema_saude',
+        'problema_saude_descricao',
         'atestado_valido',
+        'data_atestado',
         'usa_medicacao',
         'created_at',
         'updated_at'
@@ -62,7 +64,9 @@ class Analise extends Model
         'imc' => 'float',
         // Saúde 
         'problema_saude' => 'boolean',
+        'problema_saude_descricao' => 'string',
         'atestado_valido' => 'boolean',
+        'data_atestado' => 'date',
         'usa_medicacao' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

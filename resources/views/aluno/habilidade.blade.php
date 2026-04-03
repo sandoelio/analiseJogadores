@@ -248,6 +248,7 @@
             'agilidade' => 'Agilidade (s)',
             'flexibilidade' => 'Flexibilidade',
             'potencia_mmii' => 'Potência MMII',
+            'envergadura_cm' => 'Envergadura (cm)',
         ] as $campo => $label)
                                         <div class="col-6">
                                             <label for="{{ $campo }}"
@@ -267,7 +268,6 @@
                                         'massa_corporal_kg' => 'Massa Corporal (kg)',
                                         'gordura_pct' => 'Gordura (%)',
                                         'massa_magra_pct' => 'Massa Magra (%)',
-                                        'envergadura_cm' => 'Envergadura (cm)',
                                         'imc' => 'IMC',
                                     ] as $campo => $label)
                                         <div class="col-6">
@@ -303,19 +303,47 @@
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio"
                                                         name="{{ $campo }}" id="{{ $campo }}_sim"
-                                                        value="1" disabled>
+                                                        value="1"
+                                                        {{ old($campo) === '1' ? 'checked' : '' }} disabled>
                                                     <label class="form-check-label"
                                                         for="{{ $campo }}_sim">Sim</label>
                                                 </div>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio"
                                                         name="{{ $campo }}" id="{{ $campo }}_nao"
-                                                        value="0" disabled>
+                                                        value="0"
+                                                        {{ old($campo) === '0' ? 'checked' : '' }} disabled>
                                                     <label class="form-check-label"
                                                         for="{{ $campo }}_nao">Não</label>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        @if ($campo === 'problema_saude')
+                                            <div class="col-12 d-none" id="grupo_problema_saude_descricao">
+                                                <label for="problema_saude_descricao" class="form-label">Qual tipo?</label>
+                                                <input type="text" id="problema_saude_descricao"
+                                                    name="problema_saude_descricao"
+                                                    class="form-control @error('problema_saude_descricao') is-invalid @enderror"
+                                                    value="{{ old('problema_saude_descricao') }}"
+                                                    placeholder="Descreva o problema de saÃºde">
+                                                @error('problema_saude_descricao')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        @endif
+
+                                        @if ($campo === 'atestado_valido')
+                                            <div class="col-12 d-none" id="grupo_data_atestado">
+                                                <label for="data_atestado" class="form-label">Data do atestado</label>
+                                                <input type="date" id="data_atestado" name="data_atestado"
+                                                    class="form-control @error('data_atestado') is-invalid @enderror"
+                                                    value="{{ old('data_atestado') }}">
+                                                @error('data_atestado')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        @endif
                                     @endforeach
                                 </div>
                             </div>
@@ -352,8 +380,8 @@
             if (!select) return;
 
             const tecnicos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
-            const fisicos = [ 'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii' ];
-            const composicao = [ 'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc' ];
+            const fisicos = [ 'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii', 'envergadura_cm' ];
+            const composicao = [ 'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'imc' ];
             const saude = ['problema_saude', 'atestado_valido', 'usa_medicacao'];
 
             // Identificação
@@ -363,6 +391,10 @@
             const idadeDisplayEl = document.getElementById('idade_display');
             const idadeHiddenEl = document.getElementById('idade');
             const telefoneEl = document.getElementById('telefone');
+            const problemaSaudeDescricaoEl = document.getElementById('problema_saude_descricao');
+            const grupoProblemaSaudeDescricaoEl = document.getElementById('grupo_problema_saude_descricao');
+            const dataAtestadoEl = document.getElementById('data_atestado');
+            const grupoDataAtestadoEl = document.getElementById('grupo_data_atestado');
             const nomeEl = document.getElementById('nome');
 
             function setReadOnlyByIds(ids, ro = true) {
@@ -382,6 +414,33 @@
                         if (dis) r.checked = false;
                     });
                 });
+            }
+
+            function mostrarCampoCondicional(grupoEl, inputEl, mostrar) {
+                if (!grupoEl || !inputEl) return;
+
+                grupoEl.classList.toggle('d-none', !mostrar);
+
+                if (!mostrar) {
+                    inputEl.value = '';
+                }
+            }
+
+            function atualizarCamposCondicionaisSaude() {
+                const problemaSaudeSim = document.getElementById('problema_saude_sim');
+                const atestadoValidoSim = document.getElementById('atestado_valido_sim');
+
+                mostrarCampoCondicional(
+                    grupoProblemaSaudeDescricaoEl,
+                    problemaSaudeDescricaoEl,
+                    !!problemaSaudeSim?.checked
+                );
+
+                mostrarCampoCondicional(
+                    grupoDataAtestadoEl,
+                    dataAtestadoEl,
+                    !!atestadoValidoSim?.checked
+                );
             }
 
             // Inicial: bloqueia inputs de análise até seleção
@@ -447,11 +506,11 @@
                     // Técnicos 
                     'arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio', 
                     // Físicos 
-                    'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii', 
+                    'potencia_mmss', 'capacidade_aerobica', 'agilidade', 'flexibilidade', 'potencia_mmii', 'envergadura_cm',
                     // Corporal 
-                    'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'envergadura_cm', 'imc', 
+                    'massa_corporal_kg', 'gordura_pct', 'massa_magra_pct', 'imc',
                     // Saúde 
-                    'problema_saude', 'atestado_valido', 'usa_medicacao'
+                    'problema_saude', 'problema_saude_descricao', 'atestado_valido', 'data_atestado', 'usa_medicacao'
                 ];
 
                 // 1) grupos (se existirem)
@@ -518,6 +577,16 @@
                         nao.checked = !!isFalse;
                     }
                 });
+
+                if (problemaSaudeDescricaoEl) {
+                    problemaSaudeDescricaoEl.value = normalized.problema_saude_descricao ?? '';
+                }
+
+                if (dataAtestadoEl) {
+                    dataAtestadoEl.value = normalized.data_atestado ?? '';
+                }
+
+                atualizarCamposCondicionaisSaude();
             }
 
             // Fallback: preenche a partir do dataset da option (quando fetch falhar)
@@ -642,6 +711,14 @@
             }
 
             // Auto-hide success alert (melhor comportamento: usa classes do Bootstrap se disponível)
+            ['problema_saude', 'atestado_valido'].forEach(name => {
+                document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                    radio.addEventListener('change', atualizarCamposCondicionaisSaude);
+                });
+            });
+
+            atualizarCamposCondicionaisSaude();
+
             if (telefoneEl) {
                 telefoneEl.addEventListener('input', () => {
                     telefoneEl.value = aplicarMascaraTelefone(telefoneEl.value);

@@ -176,6 +176,7 @@
                                         'agilidade' => 'Agilidade (s)',
                                         'flexibilidade' => 'Flexibilidade',
                                         'potencia_mmii' => 'Potência MMII',
+                                        'envergadura_cm' => 'Envergadura (cm)',
                                     ] as $campo => $label)
                                         <div class="col-6 col-md-6">
                                             <label for="{{ $campo }}"
@@ -194,7 +195,6 @@
                                         'massa_corporal_kg' => 'Massa Corporal (kg)',
                                         'gordura_pct' => 'Gordura (%)',
                                         'massa_magra_pct' => 'Massa Magra (%)',
-                                        'envergadura_cm' => 'Envergadura (cm)',
                                         'imc' => 'IMC',
                                     ] as $campo => $label)
                                         <div class="col-6 col-md-6">
