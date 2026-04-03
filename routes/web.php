@@ -12,6 +12,7 @@ use App\Http\Controllers\AlunoAuthController;
 use App\Http\Controllers\AlunoHistoryController;
 use App\Http\Controllers\AlunoPublicoController;
 use App\Http\Controllers\PublicDashboardController;
+use App\Http\Controllers\RelatorioTecnicoController;
 use App\Http\Controllers\ComparativoGraficoController;
 use App\Http\Controllers\ComparativoPublicoController;
 
@@ -109,6 +110,8 @@ Route::middleware([ CheckSession::class ])->group(function () {
     Route::get('/aluno/comparativo/{aluno}', [AlunoController::class, 'showComparativo'])->name('aluno.comparativo');
 
     Route::get('/tecnico/dashboard', [AlunoController::class, 'dashboard'])->name('tecnico.dashboard');
+
+    Route::get('/tecnico/relatorios', [RelatorioTecnicoController::class, 'index'])->name('tecnico.relatorios');
     
 });
 

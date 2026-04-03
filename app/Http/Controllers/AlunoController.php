@@ -574,43 +574,42 @@ class AlunoController extends Controller
         return response()->json([
             'fisico' => [
                 'labels' => [
-                    'Potência MMSS', 'Capacidade Aeróbica', 'Agilidade', 'Flexibilidade', 'Potência MMII'
+                    'Potência MMSS', 'Capacidade Aeróbica', 'Agilidade', 'Flexibilidade', 'Potência MMII', 'Envergadura (cm)'
                 ], 
                 'anterior' => [
                     $analiseAnterior?->potencia_mmss, 
                     $analiseAnterior?->capacidade_aerobica, 
                     $analiseAnterior?->agilidade, 
                     $analiseAnterior?->flexibilidade, 
-                    $analiseAnterior?->potencia_mmii
+                    $analiseAnterior?->potencia_mmii,
+                    $analiseAnterior?->envergadura_cm
                 ], 
                 'atual' => [
                     $analiseAtual->potencia_mmss, 
                     $analiseAtual->capacidade_aerobica, 
                     $analiseAtual->agilidade, 
                     $analiseAtual->flexibilidade, 
-                    $analiseAtual->potencia_mmii
+                    $analiseAtual->potencia_mmii,
+                    $analiseAtual->envergadura_cm
                 ]
             ],
             'clinico' => [
                 'labels' => [
                     'Massa Corporal (kg)', 
-                    'Envergadura (cm)', 
-                    'Massa Magra (%)', 
                     'Gordura (%)', 
+                    'Massa Magra (%)', 
                     'IMC'
                 ], 
                 'anterior' => [
                     $analiseAnterior?->massa_corporal_kg, 
-                    $analiseAnterior?->envergadura_cm, 
-                    $analiseAnterior?->massa_magra_pct, 
                     $analiseAnterior?->gordura_pct, 
+                    $analiseAnterior?->massa_magra_pct, 
                     $analiseAnterior?->imc
                 ], 
                 'atual' => [
                     $analiseAtual->massa_corporal_kg, 
-                    $analiseAtual->envergadura_cm, 
-                    $analiseAtual->massa_magra_pct, 
                     $analiseAtual->gordura_pct, 
+                    $analiseAtual->massa_magra_pct, 
                     $analiseAtual->imc
                 ]
             ],
