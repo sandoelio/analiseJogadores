@@ -13,6 +13,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AlunoAuthController;
 use App\Http\Controllers\AlunoHistoryController;
 use App\Http\Controllers\AlunoPublicoController;
+use App\Http\Controllers\AlunoEvolucaoController;
 use App\Http\Controllers\PublicDashboardController;
 use App\Http\Controllers\RelatorioAdminController;
 use App\Http\Controllers\RelatorioTecnicoController;
@@ -73,6 +74,10 @@ Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function (
     Route::get('/analise/aluno/{matricula}', [AlunoPublicoController::class, 'mostrar'])->name('analise.mostrar')->middleware('throttle:60,1');
 
     Route::get('/analise/cv/{matricula}', [AlunoPublicoController::class, 'cvEsportivo'])->name('analise.cv')->middleware('throttle:60,1');
+
+    Route::get('/evolucao', [AlunoEvolucaoController::class, 'index'])->name('evolucao.index');
+
+    Route::get('/evolucao/aluno/{matricula}', [AlunoEvolucaoController::class, 'mostrar'])->name('evolucao.mostrar')->middleware('throttle:60,1');
 
     // Comparativos
     Route::get('/comparar', [ComparativoPublicoController::class, 'index'])->name('comparar.index');

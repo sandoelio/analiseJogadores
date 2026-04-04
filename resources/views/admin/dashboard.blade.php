@@ -212,15 +212,15 @@
             }
 
             .admin-dashboard-grid {
-                display: flex;
-                flex-direction: column;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.55rem;
                 margin-top: 0.35rem;
             }
 
             .admin-dashboard-btn {
-                min-height: 108px;
-                padding: 0.8rem 0.9rem;
+                min-height: 128px;
+                padding: 0.72rem 0.75rem;
                 background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(210, 227, 255, 0.08) 100%);
                 border: 1px solid rgba(255, 255, 255, 0.22);
                 box-shadow: 0 10px 20px rgba(15, 24, 44, 0.14);
@@ -247,18 +247,18 @@
             }
 
             .admin-dashboard-btn-body {
-                gap: 0.14rem;
+                gap: 0.12rem;
             }
 
             .admin-dashboard-btn-title {
-                font-size: 0.98rem;
+                font-size: 0.9rem;
             }
 
             .admin-dashboard-btn-text {
                 display: block;
                 color: rgba(255, 255, 255, 0.84);
-                font-size: 0.76rem;
-                line-height: 1.35;
+                font-size: 0.7rem;
+                line-height: 1.28;
             }
 
             .admin-dashboard-btn-meta {
