@@ -95,7 +95,6 @@
         }
 
         .dashboard-card-primary {
-            grid-column: 1 / -1;
             min-height: 148px;
             background: linear-gradient(135deg, #fff 0%, #f6f9ff 100%);
         }
@@ -161,14 +160,14 @@
             }
 
             .dashboard-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.55rem;
             }
 
             .dashboard-card,
             .dashboard-card-primary {
-                min-height: 108px;
-                padding: 0.8rem 0.9rem;
+                min-height: 128px;
+                padding: 0.72rem 0.75rem;
                 background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(210, 227, 255, 0.08) 100%);
                 border: 1px solid rgba(255, 255, 255, 0.22);
                 box-shadow: 0 10px 20px rgba(15, 24, 44, 0.14);
@@ -195,15 +194,15 @@
             }
 
             .dashboard-card-title {
-                margin-top: 0.35rem !important;
-                font-size: 0.98rem;
+                margin-top: 0.3rem !important;
+                font-size: 0.88rem;
             }
 
             .dashboard-card-text {
                 display: block;
-                margin-top: 0.25rem;
-                font-size: 0.76rem;
-                line-height: 1.35;
+                margin-top: 0.2rem;
+                font-size: 0.69rem;
+                line-height: 1.28;
                 color: rgba(255, 255, 255, 0.84);
             }
 
@@ -243,6 +242,22 @@
                 </div>
                 <span class="dashboard-card-link">
                     Abrir analise
+                    <i class="bi bi-arrow-right"></i>
+                </span>
+            </a>
+
+            <a href="{{ route('evolucao.index') }}" class="dashboard-card">
+                <div>
+                    <span class="dashboard-card-icon">
+                        <i class="bi bi-activity"></i>
+                    </span>
+                    <h2 class="dashboard-card-title mt-3">Evolucao</h2>
+                    <p class="dashboard-card-text">
+                        Veja se os fundamentos subiram, cairam ou se mantiveram na ultima comparacao.
+                    </p>
+                </div>
+                <span class="dashboard-card-link">
+                    Abrir evolucao
                     <i class="bi bi-arrow-right"></i>
                 </span>
             </a>

@@ -312,7 +312,9 @@
 
                     <div class="card-body">
                         @if (session('success'))
-                            <div id="success-message" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <div id="success-message"
+                                class="alert alert-success alert-dismissible fade show flash-auto flash-floating"
+                                data-auto-dismiss="4500" role="alert">
                                 {{ session('success') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"
                                     aria-label="Close"></button>

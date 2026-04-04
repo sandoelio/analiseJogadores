@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthLoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     /**
-     * Exibe o formulário de login.
+     * Exibe o formulario de login.
      */
     public function showLoginForm()
     {
@@ -16,37 +17,29 @@ class AuthController extends Controller
     }
 
     /**
-     * Processa o login de admin ou usuário.
+     * Processa o login de admin ou usuario.
      */
-    public function login(Request $request)
+    public function login(AuthLoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email'    => ['required','email'],
-            'password' => ['required'],
-        ], [
-            'email.required'    => 'O e-mail é obrigatório.',
-            'email.email'       => 'Formato de e-mail inválido.',
-            'password.required' => 'A senha é obrigatória.',
-        ]);
+        $credentials = $request->validated();
 
-        if (! Auth::attempt($credentials)) {
+        if (!Auth::attempt($credentials)) {
             return back()
-                ->withErrors(['email' => 'E-mail ou senha inválidos.'])
+                ->withErrors(['email' => 'E-mail ou senha invalidos.'])
                 ->onlyInput('email');
         }
 
         $request->session()->regenerate();
         $user = Auth::user();
 
-        // Usuário comum deve pertencer a uma instituição
-        if (! $user->is_admin && ! $user->instituicao_id) {
+        if (!$user->is_admin && !$user->instituicao_id) {
             Auth::logout();
+
             return back()->withErrors([
-                'email' => 'Seu usuário ainda não foi vinculado a nenhuma instituição.'
+                'email' => 'Seu usuario ainda nao foi vinculado a nenhuma instituicao.'
             ]);
         }
 
-        // Redireciona admin ou usuário
         return $user->is_admin
             ? redirect()->route('admin.dashboard')
             : redirect()->route('tecnico.dashboard');

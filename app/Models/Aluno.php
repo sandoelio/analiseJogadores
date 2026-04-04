@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -52,6 +53,14 @@ class Aluno extends Model
     public function analises(): HasMany
     {
         return $this->hasMany(Analise::class);
+    }
+
+    /**
+     * Ultima analise registrada para o aluno.
+     */
+    public function ultimaAnalise(): HasOne
+    {
+        return $this->hasOne(Analise::class)->latestOfMany();
     }
     
     /** * Mutator para data_nascimento. * Calcula e preenche a idade automaticamente. */ 

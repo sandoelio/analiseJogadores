@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 
-class Instituicao extends Model
+class Instituicao extends Authenticatable
 {
     use HasFactory;
 
@@ -18,6 +18,8 @@ class Instituicao extends Model
         'athlete_email',
         'athlete_password',
     ];
+
+    protected $guard = 'athlete';
 
     /**
      * Não exibe athlete_password em arrays/JSON
@@ -38,6 +40,11 @@ class Instituicao extends Model
         } else {
             $this->attributes['athlete_password'] = Hash::make($value);
         }
+    }
+
+    public function getAuthPassword(): string
+    {
+        return $this->athlete_password;
     }
 
     /**

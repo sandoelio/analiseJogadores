@@ -60,13 +60,9 @@
 
         .dashboard-buttons {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1rem;
             width: 100%;
-        }
-
-        .dashboard-btn-span-2 {
-            grid-column: span 2;
         }
 
         .dashboard-btn {
@@ -159,10 +155,6 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .dashboard-btn-span-2 {
-                grid-column: auto;
-            }
-
             .dashboard-btn {
                 min-height: 126px;
             }
@@ -225,8 +217,8 @@
             }
 
             .dashboard-btn {
-                min-height: 102px;
-                padding: 0.8rem 0.9rem;
+                min-height: 88px;
+                padding: 0.62rem 0.75rem;
                 background: transparent;
                 align-items: center;
                 text-align: center;
@@ -240,30 +232,26 @@
             }
 
             .dashboard-btn-icon {
-                width: 42px;
-                height: 42px;
+                width: 36px;
+                height: 36px;
                 background: rgba(255, 255, 255, 0.14) !important;
                 color: #fff !important;
-                font-size: 1.2rem;
-                border-radius: 0.85rem;
+                font-size: 1rem;
+                border-radius: 0.75rem;
             }
 
             .dashboard-btn-body {
-                gap: 0.14rem;
+                gap: 0.08rem;
             }
 
             .dashboard-btn-title {
-                font-size: 0.98rem;
+                font-size: 0.9rem;
             }
 
             .dashboard-btn-text {
-                font-size: 0.75rem;
+                font-size: 0.68rem;
                 color: rgba(255, 255, 255, 0.84);
-                line-height: 1.35;
-            }
-
-            .dashboard-btn-span-2 {
-                grid-column: auto;
+                line-height: 1.22;
             }
         }
     </style>
@@ -277,7 +265,6 @@
                     <i class="bi bi-grid-1x2-fill"></i>
                     Painel do Técnico
                 </span>
-                <h1 class="dashboard-title">Acesso rápido às ações principais</h1>
                 <p class="dashboard-subtitle">
                     Cadastre atletas, lance novas avaliações e acompanhe os relatórios.
                 </p>
@@ -316,7 +303,17 @@
                     </span>
                 </a>
 
-                <a href="{{ route('tecnico.relatorios') }}" class="dashboard-btn dashboard-btn-accent dashboard-btn-span-2">
+                <a href="{{ route('evolucao.index') }}" class="dashboard-btn dashboard-btn-primary">
+                    <span class="dashboard-btn-icon">
+                        <i class="bi bi-activity"></i>
+                    </span>
+                    <span class="dashboard-btn-body">
+                        <span class="dashboard-btn-title">Evolucao do Atleta</span>
+                        <span class="dashboard-btn-text">Ver o que subiu, caiu ou manteve na ultima comparacao.</span>
+                    </span>
+                </a>
+
+                <a href="{{ route('tecnico.relatorios') }}" class="dashboard-btn dashboard-btn-accent">
                     <span class="dashboard-btn-icon">
                         <i class="bi bi-clipboard-data"></i>
                     </span>

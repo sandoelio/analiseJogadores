@@ -133,6 +133,59 @@
             overflow: visible;
         }
 
+        .flash-auto {
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .flash-auto.flash-floating {
+            position: fixed;
+            top: 88px;
+            right: 20px;
+            z-index: 1085;
+            width: min(520px, calc(100vw - 2rem));
+            margin: 0;
+            border-width: 1px;
+            border-style: solid;
+            box-shadow: 0 12px 28px rgba(17, 27, 51, 0.18);
+            border-radius: 0.95rem;
+        }
+
+        .flash-auto.flash-floating.alert-success {
+            background: linear-gradient(135deg, #f2fff7 0%, #dcfce7 100%);
+            border-color: #86efac;
+            color: #166534;
+        }
+
+        .flash-auto.flash-floating.alert-success .btn-close {
+            filter: saturate(0.7);
+        }
+
+        .flash-auto.flash-floating.alert-warning {
+            background: linear-gradient(135deg, #fff9eb 0%, #fef3c7 100%);
+            border-color: #fcd34d;
+            color: #92400e;
+        }
+
+        .flash-auto.flash-floating.alert-warning .btn-close {
+            filter: saturate(0.7);
+        }
+
+        .flash-auto.flash-floating.alert-danger {
+            background: linear-gradient(135deg, #fff2f2 0%, #fee2e2 100%);
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+
+        .flash-auto.flash-floating.alert-danger .btn-close {
+            filter: saturate(0.7);
+        }
+
+        .flash-auto.flash-hiding {
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+        }
+
         @media (max-width: 576px) {
             header.site-header {
                 padding: 0.65rem 0;
@@ -179,6 +232,13 @@
                 font-size: 0.9rem;
                 padding: 0.5rem 1rem;
             }
+
+            .flash-auto.flash-floating {
+                top: 82px;
+                left: 1rem;
+                right: 1rem;
+                width: auto;
+            }
         }
     </style>
 
@@ -195,7 +255,7 @@
             </div>
 
             <div class="site-navbar-actions">
-                @if (session()->has('aluno_instituicao_id'))
+                @if (auth('athlete')->check())
                     <form id="aluno-logout-form" action="{{ route('aluno.logout') }}" method="POST"
                         class="me-2 my-2 my-md-0">
                         @csrf
@@ -262,6 +322,30 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.flash-auto[data-auto-dismiss]').forEach(alerta => {
+                const tempo = Number(alerta.dataset.autoDismiss || 4500);
+
+                window.setTimeout(() => {
+                    try {
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                            bootstrap.Alert.getOrCreateInstance(alerta).close();
+                            return;
+                        }
+                    } catch (e) {}
+
+                    alerta.classList.add('flash-hiding');
+
+                    window.setTimeout(() => {
+                        if (alerta.parentNode) {
+                            alerta.parentNode.removeChild(alerta);
+                        }
+                    }, 350);
+                }, tempo);
+            });
+        });
+    </script>
     @stack('scripts')
 </body>
 

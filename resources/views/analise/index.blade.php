@@ -1,7 +1,7 @@
 ﻿{{-- resources/views/analise/index.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'AnÃ¡lise de Desempenhos')
+@section('title', 'Analise de Desempenhos')
 
 @push('styles')
     <style>
@@ -644,13 +644,13 @@
         $user = auth()->user();
         $isAdmin = auth()->check() && (int) ($user->is_admin ?? 0) === 1;
 
-        // Para nÃ£o-admin: instituiÃ§Ã£o efetiva (sessÃ£o do atleta ou instituiÃ§Ã£o do tÃ©cnico)
+        // Para nao-admin: instituicao efetiva do athlete guard ou do tecnico
         $instituicaoId = $isAdmin
             ? null
-            : session('aluno_instituicao_id') ?? (auth()->check() ? $user->instituicao_id ?? null : null);
+            : auth('athlete')->id() ?? (auth()->check() ? $user->instituicao_id ?? null : null);
 
-        // Privilegiado = tÃ©cnico/admin (atleta nÃ£o)
-        $isPrivilegiado = auth()->check() && !session()->has('aluno_instituicao_id');
+        // Privilegiado = tecnico/admin (atleta nao)
+        $isPrivilegiado = auth()->check() && !auth('athlete')->check();
     @endphp
 
     <div class="container-fluid analise-shell">
@@ -680,15 +680,15 @@
             </div>
         </div>
 
-        {{-- SELEÃ‡ÃƒO --}}
+        {{-- SELECAO --}}
         <div class="analise-filtros">
         <div id="selecao-container" class="row gx-1 gy-1 justify-content-center mb-0">
 
             @if ($isAdmin)
-                {{-- ADMIN: InstituiÃ§Ã£o + Atleta --}}
+                {{-- ADMIN: Instituicao + Atleta --}}
                 <div class="col-12 col-md-12 position-relative field-wrapper admin-stack">
                     <select id="instituicao" class="form-select">
-                        <option selected disabled>Selecione a instituiÃ§Ã£o</option>
+                        <option selected disabled>Selecione a instituicao</option>
                         @foreach ($instituicoes as $inst)
                             <option value="{{ $inst->id }}">{{ $inst->nome }}</option>
                         @endforeach
@@ -708,10 +708,10 @@
 
                 </div>
             @else
-                {{-- ATLETA/TÃ‰CNICO: apenas atletas da prÃ³pria instituiÃ§Ã£o --}}
+                {{-- ATLETA/TECNICO: apenas atletas da propria instituicao --}}
                 <div class="col-12 col-md-12 position-relative field-wrapper">
                     <select id="aluno" class="form-select">
-                        <option selected disabled>Carregando atletasâ€¦</option>
+                        <option selected disabled>Carregando atletas...</option>
                     </select>
 
                     <div id="overlay-aluno" class="overlay-spinner d-none">
@@ -722,7 +722,7 @@
             @endif
         </div>
 
-        {{-- GRÃFICO --}}
+        {{-- GRAFICO --}}
         </div>
 
         <div id="estatisticas-container" class="card shadow-sm d-none chart-wrapper">
@@ -774,12 +774,12 @@
             </div>
         </div>
 
-        {{-- Modal: AnÃ¡lise FÃ­sica --}}
+        {{-- Modal: Analise Fisica --}}
         <div class="modal fade" id="modalAnaliseFisica" tabindex="-1">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Atributos FÃ­sicos</h5>
+                        <h5 class="modal-title">Atributos Fisicos</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body chart-modal-body">
@@ -789,18 +789,18 @@
             </div>
         </div>
 
-        {{-- Modal: SaÃºde do Atleta --}}
+        {{-- Modal: Saude do Atleta --}}
         <div class="modal fade" id="modalSaudeAtleta" tabindex="-1">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">ClassificaÃ§Ã£o Corporal</h5>
+                        <h5 class="modal-title">Classificacao Corporal</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body chart-modal-body">
                         <canvas id="graficoClinico"></canvas>
                         <div class="mt-3 text-center">
-                            <strong>ClassificaÃ§Ã£o:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
+                            <strong>Classificacao:</strong> <span id="classificacaoLabel" class="badge bg-info"></span>
                         </div>
                     </div>
                 </div>
@@ -886,7 +886,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 // ------------------------------------------------
-                // ReferÃªncias de elementos
+                // Referencias de elementos
                 // ------------------------------------------------
                 const selectInst = document.getElementById('instituicao'); // existe apenas pro admin
                 const overlayInst = document.getElementById('overlay-instituicao'); // existe apenas pro admin
@@ -920,7 +920,7 @@
                     alunos.forEach(a => {
                         const opt = document.createElement('option');
                         opt.value = a.matricula;
-                        opt.textContent = `${a.nome} â€” ${a.idade !== null ? a.idade + ' anos' : 'â€”'}`;
+                        opt.textContent = `${a.nome} - ${a.idade !== null ? a.idade + ' anos' : '--'}`;
                         selectAluno.append(opt);
                     });
                 }
@@ -931,7 +931,7 @@
                     if (mostrarOverlay) overlayAluno?.classList.remove('d-none');
 
                     selectAluno.disabled = true;
-                    selectAluno.innerHTML = '<option selected disabled>Carregando atletasâ€¦</option>';
+                    selectAluno.innerHTML = '<option selected disabled>Carregando atletas...</option>';
 
                     return fetch(url, {
                             credentials: 'same-origin'
@@ -955,7 +955,7 @@
                 }
 
                 // ------------------------------------------------
-                // Modo ADMIN: escolhe instituiÃ§Ã£o primeiro
+                // Modo ADMIN: escolhe instituicao primeiro
                 // ------------------------------------------------
                 if (window.IS_ADMIN && selectInst) {
                     selectInst.addEventListener('change', () => {
@@ -964,9 +964,9 @@
 
                         overlayInst?.classList.remove('d-none');
 
-                        // reset aluno e grÃ¡fico
+                        // reset aluno e grafico
                         selectAluno.disabled = true;
-                        selectAluno.innerHTML = '<option selected disabled>Carregando atletasâ€¦</option>';
+                        selectAluno.innerHTML = '<option selected disabled>Carregando atletas...</option>';
                         statsCont?.classList.add('d-none');
 
                         carregarAlunosDaInstituicao(selectInst.value, true)
@@ -975,7 +975,7 @@
                 }
 
                 // ------------------------------------------------
-                // Modo TÃ‰CNICO/ATLETA: carrega automÃ¡tico pela instituiÃ§Ã£o efetiva
+                // Modo TECNICO/ATLETA: carrega automatico pela instituicao efetiva
                 // ------------------------------------------------
                 else {
                     if (window.INSTITUICAO_ID) {
@@ -984,12 +984,12 @@
                         overlayAluno?.classList.add('d-none');
                         selectAluno.disabled = true;
                         selectAluno.innerHTML =
-                            '<option selected disabled>Nenhuma instituiÃ§Ã£o vinculada ao usuÃ¡rio</option>';
+                            '<option selected disabled>Nenhuma instituicao vinculada ao usuario</option>';
                     }
                 }
 
                 // ------------------------------------------------
-                // Escolheu atleta â†’ mostra grÃ¡fico principal
+                // Escolheu atleta -> mostra grafico principal
                 // ------------------------------------------------
                 if (selectAluno) {
                     selectAluno.addEventListener('change', () => {
@@ -1083,13 +1083,13 @@
                             .catch(() => {
                                 overlayAluno?.classList.add('d-none');
                                 overlayChart?.classList.add('d-none');
-                                alert('NÃ£o foi possÃ­vel carregar o grÃ¡fico.');
+                                alert('Nao foi possivel carregar o grafico.');
                             });
                     });
                 }
 
                 // ------------------------------------------------
-                // GrÃ¡ficos extras (modais)
+                // Graficos extras (modais)
                 // ------------------------------------------------
                 let graficoFisicoInstance = null;
                 let graficoClinicoInstance = null;
@@ -1106,7 +1106,7 @@
                             return response.json();
                         })
                         .then(data => {
-                            if (!data || !data.fisico || !data.clinico) throw new Error('Payload invÃ¡lido');
+                            if (!data || !data.fisico || !data.clinico) throw new Error('Payload invalido');
 
                             const ctxFisicoEl = document.getElementById('graficoFisico');
                             if (ctxFisicoEl) {
@@ -1219,7 +1219,7 @@
                             }
                         })
                         .catch(() => {
-                            alert('Erro ao carregar dados fÃ­sicos e clÃ­nicos.');
+                            alert('Erro ao carregar dados fisicos e clinicos.');
                         });
                 };
 
@@ -1337,7 +1337,7 @@
                                 grouped[monthLabel].forEach(ev => {
                                     const timeLabel = labelEvento(ev.evento, ev.created_at);
                                     const user = ev.changed_by ?
-                                        `<span class="timeline-user"> â€” por ${escapeHtml(ev.changed_by)}</span>` :
+                                        `<span class="timeline-user"> - por ${escapeHtml(ev.changed_by)}</span>` :
                                         '';
                                     const resumoBreve = ev.evento === 'analise_created' ?
                                         'Atleta Atualizado' :
@@ -1353,7 +1353,7 @@
 
                                     const markerClass = isCreated ? 'marker-created' : (
                                         hasDiff ? 'marker-updated' : 'marker-other');
-                                    const markerIcon = isCreated ? 'â˜…' : (hasDiff ? 'âœŽ' : 'â€¢');
+                                    const markerIcon = isCreated ? '*' : (hasDiff ? '+' : '-');
 
                                     html += `
                                     <div class="timeline-item" data-event-id="${ev.id}" data-evento="${ev.evento}">
@@ -1687,7 +1687,7 @@
                 }
 
                 function escapeHtml(s) {
-                    if (s === null || s === undefined) return 'â€”';
+                    if (s === null || s === undefined) return '--';
                     if (typeof s !== 'string') return String(s);
                     return s.replace(/[&<>"'`=\/]/g, function(c) {
                 return {
@@ -1733,12 +1733,12 @@
                         }
                     });
                 });
-                // âœ… Anti-fantasma: overlay nunca aparece por foco/click
+                // Anti-fantasma: overlay nunca aparece por foco/click
                 function hideAllOverlays() {
                     document.querySelectorAll('.overlay-spinner').forEach(el => el.classList.add('d-none'));
                 }
 
-                // ao clicar/focar em qualquer select, garanta que overlay estÃ¡ escondido
+                // ao clicar/focar em qualquer select, garanta que overlay esta escondido
                 document.querySelectorAll('select.form-select').forEach(sel => {
                     sel.addEventListener('focus', hideAllOverlays);
                     sel.addEventListener('click', hideAllOverlays);

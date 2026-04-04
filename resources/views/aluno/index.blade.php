@@ -152,7 +152,7 @@
         }
 
         .alunos-desktop .alunos-lista-scroll.scroll-ativo {
-            max-height: 320px;
+            max-height: 255px;
         }
 
         .alunos-desktop .alunos-lista-scroll.scroll-ativo .alunos-tabela thead th {
@@ -312,7 +312,7 @@
             }
 
             .alunos-mobile.alunos-lista-scroll.scroll-ativo {
-                max-height: 360px;
+                max-height: 250px;
             }
 
             .aluno-item {
@@ -370,8 +370,10 @@
         </div>
 
         @if (session('success'))
-            <div class="alert alert-success alunos-alerta">
+            <div class="alert alert-success alert-dismissible fade show alunos-alerta flash-auto flash-floating"
+                data-auto-dismiss="4500" role="alert">
                 {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
