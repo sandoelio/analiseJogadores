@@ -348,6 +348,10 @@
                     </div>
 
                     <div class="relatorios-acoes-botoes">
+                    <a href="{{ route('tecnico.ranking') }}" class="relatorios-pendencias-btn">
+                        <i class="bi bi-trophy"></i>
+                        Ranking interno
+                    </a>
                     <a href="{{ route('tecnico.relatorios.pendencias') }}" class="relatorios-pendencias-btn">
                         <i class="bi bi-exclamation-diamond"></i>
                         Painel de pendencias

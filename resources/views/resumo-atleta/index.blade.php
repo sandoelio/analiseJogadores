@@ -47,9 +47,28 @@
         .resumo-lista { display: grid; gap: 0.55rem; }
         .resumo-item { padding-bottom: 0.45rem; border-bottom: 1px solid #edf2f8; color: #1f2d4f; font-weight: 600; }
         .resumo-item:last-child { padding-bottom: 0; border-bottom: none; }
+        .resumo-status-card { background: linear-gradient(135deg, #28365F 0%, #354a7f 100%); color: #fff; border-color: rgba(255, 255, 255, 0.08); }
+        .resumo-status-card .resumo-card-titulo,
+        .resumo-status-card .resumo-card-texto,
+        .resumo-status-card .resumo-numero { color: #fff; }
+        .resumo-status-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.65rem; border-radius: 999px; background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 0.75rem; font-weight: 700; }
+        .resumo-status-motivo { display: inline-flex; align-items: center; min-height: 30px; padding: 0.28rem 0.65rem; border-radius: 999px; background: rgba(255, 255, 255, 0.12); font-size: 0.76rem; font-weight: 700; }
+        .resumo-selos-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .resumo-selo { display: flex; gap: 0.75rem; align-items: flex-start; }
+        .resumo-selo-icone { width: 40px; height: 40px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.9rem; background: #eef3fb; color: #28365F; font-size: 1rem; }
+        .resumo-meta-atual-grid { display: grid; gap: 0.75rem; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 0.75fr)); }
+        .resumo-meta-mini { padding: 0.7rem 0.75rem; border-radius: 0.9rem; background: #f7f9fc; border: 1px solid #edf2f8; }
+        .resumo-meta-mini-rotulo { color: #5f6b85; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; }
+        .resumo-meta-mini-valor { margin-top: 0.2rem; color: #1f2d4f; font-weight: 700; }
+        .resumo-recomendacao { border-left: 4px solid #28365F; }
+        .resumo-grupo-destaque { display: grid; gap: 0.8rem; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+        .resumo-grupo-texto { display: grid; gap: 0.45rem; }
+        .resumo-grupo-indicadores { display: grid; gap: 0.7rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .resumo-indicador-box { padding: 0.75rem; border-radius: 0.9rem; background: #f7f9fc; border: 1px solid #edf2f8; }
         @media (max-width: 991.98px) { .resumo-filtros-grid { grid-template-columns: 1fr 1fr; } .resumo-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (max-width: 767.98px) { .resumo-topo { flex-direction: column; } .resumo-topo-acoes { width: 100%; flex-direction: column; } .resumo-topo-btn { width: 100%; } .resumo-filtros-grid, .resumo-grid-2, .resumo-grid-3 { grid-template-columns: 1fr; } .resumo-tabs { display: grid; grid-template-columns: 1fr; } }
-        @media (max-width: 575.98px) { .resumo-shell { padding-top: 0.45rem; } .resumo-topo, .resumo-filtros, .resumo-box { border-radius: 0.9rem; } .resumo-title { font-size: 1.14rem; } .resumo-texto, .resumo-meta, .resumo-card-texto { font-size: 0.8rem; line-height: 1.35; } .resumo-box, .resumo-card, .resumo-filtros, .resumo-topo { padding: 0.8rem; } .resumo-numero { font-size: 1.18rem; } }
+        @media (max-width: 991.98px) { .resumo-selos-grid, .resumo-meta-atual-grid, .resumo-grupo-destaque { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 767.98px) { .resumo-topo { flex-direction: column; } .resumo-topo-acoes { width: 100%; flex-direction: column; } .resumo-topo-btn { width: 100%; } .resumo-filtros-grid, .resumo-grid-2, .resumo-grid-3, .resumo-selos-grid, .resumo-meta-atual-grid, .resumo-grupo-destaque, .resumo-grupo-indicadores { grid-template-columns: 1fr; } .resumo-tabs { display: grid; grid-template-columns: 1fr; } }
+        @media (max-width: 575.98px) { .resumo-shell { padding-top: 0.45rem; } .resumo-topo, .resumo-filtros, .resumo-box { border-radius: 0.9rem; } .resumo-title { font-size: 1.14rem; } .resumo-texto, .resumo-meta, .resumo-card-texto { font-size: 0.8rem; line-height: 1.35; } .resumo-box, .resumo-card, .resumo-filtros, .resumo-topo { padding: 0.8rem; } .resumo-numero { font-size: 1.18rem; } .resumo-selo { gap: 0.6rem; } .resumo-selo-icone { width: 34px; height: 34px; border-radius: 0.8rem; font-size: 0.9rem; } .resumo-status-chip, .resumo-status-motivo, .resumo-badge { font-size: 0.72rem; } }
     </style>
 @endpush
 
@@ -117,9 +136,61 @@
 
             <div class="resumo-box">
                 <div class="resumo-tabs">
-                    <button type="button" class="resumo-tab-btn active" data-tab-target="resumo-panel-progresso">Progresso</button>
-                    <button type="button" class="resumo-tab-btn" data-tab-target="resumo-panel-grupo">Posicao no grupo</button>
+                    @if ($isPrivilegiado)
+                        <button type="button" class="resumo-tab-btn active" data-tab-target="resumo-panel-progresso">Progresso</button>
+                        <button type="button" class="resumo-tab-btn" data-tab-target="resumo-panel-grupo">Posicao no grupo</button>
+                    @else
+                        <button type="button" class="resumo-tab-btn active" data-tab-target="resumo-panel-momento">Meu momento</button>
+                        <button type="button" class="resumo-tab-btn" data-tab-target="resumo-panel-progresso">Progresso</button>
+                        <button type="button" class="resumo-tab-btn" data-tab-target="resumo-panel-grupo">Como estou no grupo</button>
+                    @endif
                 </div>
+
+                @unless ($isPrivilegiado)
+                    <div id="resumo-panel-momento" class="resumo-panel active">
+                        <div class="resumo-card resumo-status-card">
+                            <div class="d-flex flex-wrap justify-content-between gap-2">
+                                <span class="resumo-status-chip"><i class="bi bi-lightning-charge-fill"></i> Meu momento</span>
+                                <span id="status-motivo" class="resumo-status-motivo">--</span>
+                            </div>
+                            <h3 id="status-rotulo" class="resumo-card-titulo mt-3">--</h3>
+                            <p id="status-mensagem" class="resumo-card-texto mt-2"></p>
+                        </div>
+
+                        <div class="resumo-card mt-3">
+                            <h3 class="resumo-card-titulo">Selos do seu momento</h3>
+                            <div id="selos-grid" class="resumo-selos-grid mt-3"></div>
+                        </div>
+
+                        <div class="resumo-card resumo-recomendacao mt-3">
+                            <h3 class="resumo-card-titulo">Recomendacao rapida</h3>
+                            <p id="recomendacao-curta" class="resumo-card-texto mt-2"></p>
+                        </div>
+
+                        <div class="resumo-card mt-3">
+                            <h3 class="resumo-card-titulo">Meta atual visivel</h3>
+                            <div class="resumo-meta-atual-grid mt-3">
+                                <div class="resumo-meta-mini">
+                                    <div class="resumo-meta-mini-rotulo">Meta</div>
+                                    <div id="meta-titulo" class="resumo-meta-mini-valor">--</div>
+                                    <p id="meta-texto" class="resumo-card-texto mt-2 mb-0"></p>
+                                </div>
+                                <div class="resumo-meta-mini">
+                                    <div class="resumo-meta-mini-rotulo">Status</div>
+                                    <div id="meta-status" class="resumo-meta-mini-valor">--</div>
+                                </div>
+                                <div class="resumo-meta-mini">
+                                    <div class="resumo-meta-mini-rotulo">Prazo</div>
+                                    <div id="meta-prazo" class="resumo-meta-mini-valor">--</div>
+                                </div>
+                                <div class="resumo-meta-mini">
+                                    <div class="resumo-meta-mini-rotulo">Prioridade</div>
+                                    <div id="meta-prioridade" class="resumo-meta-mini-valor">--</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endunless
 
                 <div id="resumo-panel-progresso" class="resumo-panel active">
                     <div class="resumo-grid resumo-grid-3" id="narrativa-resumo-cards"></div>
@@ -143,23 +214,55 @@
                 </div>
 
                 <div id="resumo-panel-grupo" class="resumo-panel">
-                    <div class="resumo-grid resumo-grid-2">
-                        <div class="resumo-card">
-                            <h3 class="resumo-card-titulo">Posicao tecnica no grupo</h3>
-                            <div class="mt-3"><span id="percentil-badge" class="resumo-badge resumo-badge-sem_base">Sem base</span></div>
-                            <p id="percentil-descricao" class="resumo-card-texto mt-3"></p>
-                        </div>
+                    @if ($isPrivilegiado)
+                        <div class="resumo-grid resumo-grid-2">
+                            <div class="resumo-card">
+                                <h3 class="resumo-card-titulo">Posicao tecnica no grupo</h3>
+                                <div class="mt-3"><span id="percentil-badge" class="resumo-badge resumo-badge-sem_base">Sem base</span></div>
+                                <p id="percentil-descricao" class="resumo-card-texto mt-3"></p>
+                            </div>
 
-                        <div class="resumo-card">
-                            <h3 class="resumo-card-titulo">Leitura de referencia</h3>
-                            <div class="resumo-grid resumo-grid-2 mt-3">
-                                <div><div class="resumo-numero" id="percentil-valor">--</div><p class="resumo-card-texto">Percentil</p></div>
-                                <div><div class="resumo-numero" id="percentil-grupo">--</div><p class="resumo-card-texto">Posicao na lista</p></div>
-                                <div><div class="resumo-numero" id="percentil-score">--</div><p class="resumo-card-texto">Score do atleta</p></div>
-                                <div><div class="resumo-numero" id="percentil-media">--</div><p class="resumo-card-texto">Media do grupo</p></div>
+                            <div class="resumo-card">
+                                <h3 class="resumo-card-titulo">Leitura de referencia</h3>
+                                <div class="resumo-grid resumo-grid-2 mt-3">
+                                    <div><div class="resumo-numero" id="percentil-valor">--</div><p class="resumo-card-texto">Percentil</p></div>
+                                    <div><div class="resumo-numero" id="percentil-grupo">--</div><p class="resumo-card-texto">Posicao na lista</p></div>
+                                    <div><div class="resumo-numero" id="percentil-score">--</div><p class="resumo-card-texto">Score do atleta</p></div>
+                                    <div><div class="resumo-numero" id="percentil-media">--</div><p class="resumo-card-texto">Media do grupo</p></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="resumo-grupo-destaque">
+                            <div class="resumo-card">
+                                <h3 id="grupo-titulo" class="resumo-card-titulo">Como voce esta no grupo</h3>
+                                <div class="mt-3"><span id="percentil-badge" class="resumo-badge resumo-badge-sem_base">Sem base</span></div>
+                                <div class="resumo-grupo-texto mt-3">
+                                    <p id="grupo-texto" class="resumo-card-texto mb-0"></p>
+                                    <p id="percentil-descricao" class="resumo-card-texto mb-0"></p>
+                                </div>
+                            </div>
+
+                            <div class="resumo-grupo-indicadores">
+                                <div class="resumo-indicador-box">
+                                    <div class="resumo-numero" id="percentil-valor">--</div>
+                                    <p class="resumo-card-texto mb-0">Percentil</p>
+                                </div>
+                                <div class="resumo-indicador-box">
+                                    <div class="resumo-numero" id="percentil-grupo">--</div>
+                                    <p class="resumo-card-texto mb-0">Posicao na lista</p>
+                                </div>
+                                <div class="resumo-indicador-box">
+                                    <div class="resumo-numero" id="percentil-score">--</div>
+                                    <p class="resumo-card-texto mb-0">Score do atleta</p>
+                                </div>
+                                <div class="resumo-indicador-box">
+                                    <div class="resumo-numero" id="percentil-media">--</div>
+                                    <p class="resumo-card-texto mb-0">Media do grupo</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -220,6 +323,31 @@
                 document.getElementById('resumo-nome').textContent = data.identificacao.nome;
                 document.getElementById('resumo-meta').textContent =
                     `${data.identificacao.instituicao || '--'} | ${data.identificacao.idade ?? '--'} anos | ${data.identificacao.sexo || '--'} | Ultima analise: ${formatDateBR(data.identificacao.ultima_analise)} | Analise anterior: ${formatDateBR(data.identificacao.analise_anterior)}`;
+
+                if (!isPrivilegiado) {
+                    document.getElementById('status-motivo').textContent = data.status_principal.motivo;
+                    document.getElementById('status-rotulo').textContent = data.status_principal.rotulo;
+                    document.getElementById('status-mensagem').textContent = data.status_principal.mensagem;
+                    document.getElementById('recomendacao-curta').textContent = data.recomendacao_curta;
+                    document.getElementById('meta-titulo').textContent = data.meta_atual.titulo;
+                    document.getElementById('meta-texto').textContent = data.meta_atual.texto;
+                    document.getElementById('meta-status').textContent = data.meta_atual.status;
+                    document.getElementById('meta-prazo').textContent = data.meta_atual.prazo;
+                    document.getElementById('meta-prioridade').textContent = data.meta_atual.prioridade;
+                    document.getElementById('grupo-titulo').textContent = data.grupo_resumo.titulo;
+                    document.getElementById('grupo-texto').textContent = data.grupo_resumo.texto;
+
+                    const selosGrid = document.getElementById('selos-grid');
+                    selosGrid.innerHTML = data.selos.map(selo => `
+                        <div class="resumo-card resumo-selo">
+                            <span class="resumo-selo-icone"><i class="bi bi-${escapeHtml(selo.icone)}"></i></span>
+                            <div>
+                                <h3 class="resumo-card-titulo">${escapeHtml(selo.titulo)}</h3>
+                                <p class="resumo-card-texto mb-0 mt-1">${escapeHtml(selo.texto)}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
 
                 document.getElementById('narrativa-resumo-cards').innerHTML = `
                     <div class="resumo-card">
@@ -327,6 +455,8 @@
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => ativarAba(button.dataset.tabTarget));
             });
+
+            ativarAba(isPrivilegiado ? 'resumo-panel-progresso' : 'resumo-panel-momento');
         });
     </script>
 @endpush
