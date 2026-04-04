@@ -250,6 +250,11 @@
                 </p>
 
                 <div class="relatorios-acoes-botoes">
+                    <a href="{{ route('admin.relatorios.alertas') }}" class="relatorios-pendencias-btn">
+                        <i class="bi bi-bell"></i>
+                        Alertas administrativos
+                    </a>
+
                     <a href="{{ route('admin.relatorios.comparativo') }}" class="relatorios-pendencias-btn">
                         <i class="bi bi-arrow-left-right"></i>
                         Comparar instituicoes

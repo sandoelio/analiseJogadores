@@ -136,6 +136,23 @@ class RelatorioAdminController extends Controller
         ));
     }
 
+    public function alertas()
+    {
+        $instituicoes = Instituicao::query()
+            ->with(['alunos.ultimaAnalise'])
+            ->orderBy('nome')
+            ->get(['id', 'nome']);
+
+        $alertas = $this->montarAlertasAdministrativos($instituicoes);
+        $resumoAlertas = [
+            'baixa_presenca_feminina' => $alertas['baixa_presenca_feminina']->count(),
+            'concentracao_etaria' => $alertas['concentracao_etaria']->count(),
+            'baixa_atualizacao' => $alertas['baixa_atualizacao']->count(),
+        ];
+
+        return view('admin.relatorios.alertas', compact('alertas', 'resumoAlertas'));
+    }
+
     private function obterIdadesPorSexo(Collection $alunos, string $sexo): Collection
     {
         return $alunos
@@ -302,6 +319,79 @@ class RelatorioAdminController extends Controller
                 })
             ),
         ]);
+    }
+
+    private function montarAlertasAdministrativos(Collection $instituicoes): array
+    {
+        $limiteAnalise = now()->subDays(30);
+        $baixaPresencaFeminina = collect();
+        $concentracaoEtaria = collect();
+        $baixaAtualizacao = collect();
+
+        foreach ($instituicoes as $instituicao) {
+            $alunos = $instituicao->alunos;
+            $total = $alunos->count();
+
+            if ($total === 0) {
+                continue;
+            }
+
+            $feminino = $alunos->where('sexo', 'Feminino')->count();
+            $femininoPct = $total > 0 ? ($feminino / $total) * 100 : 0;
+
+            if ($total >= 3 && $femininoPct < 30) {
+                $baixaPresencaFeminina->push([
+                    'instituicao' => $instituicao->nome,
+                    'total_atletas' => $total,
+                    'indicador' => $feminino . ' atleta(s)',
+                    'percentual' => $this->formatarNumero($femininoPct, 1) . '%',
+                    'observacao' => 'Participacao feminina abaixo de 30% do total da instituicao.',
+                ]);
+            }
+
+            $idades = $alunos
+                ->pluck('idade')
+                ->filter(fn($idade) => $idade !== null)
+                ->map(fn($idade) => (int) $idade);
+
+            if ($total >= 3 && $idades->isNotEmpty()) {
+                $idadePrincipal = $idades->countBy()->sortDesc()->keys()->first();
+                $quantidadeIdade = $idades->countBy()->sortDesc()->first();
+                $idadePct = $quantidadeIdade ? ($quantidadeIdade / $total) * 100 : 0;
+
+                if ($idadePct >= 45) {
+                    $concentracaoEtaria->push([
+                        'instituicao' => $instituicao->nome,
+                        'total_atletas' => $total,
+                        'indicador' => $idadePrincipal . ' anos',
+                        'percentual' => $this->formatarNumero($idadePct, 1) . '%',
+                        'observacao' => 'Faixa etaria dominante com alta concentracao de atletas nesta idade.',
+                    ]);
+                }
+            }
+
+            $desatualizados = $alunos->filter(function ($aluno) use ($limiteAnalise) {
+                return ! $aluno->ultimaAnalise || $aluno->ultimaAnalise->created_at->lt($limiteAnalise);
+            })->count();
+
+            $desatualizadosPct = $total > 0 ? ($desatualizados / $total) * 100 : 0;
+
+            if ($total >= 3 && $desatualizadosPct >= 35) {
+                $baixaAtualizacao->push([
+                    'instituicao' => $instituicao->nome,
+                    'total_atletas' => $total,
+                    'indicador' => $desatualizados . ' atleta(s)',
+                    'percentual' => $this->formatarNumero($desatualizadosPct, 1) . '%',
+                    'observacao' => 'Volume alto de atletas sem analise recente nos ultimos 30 dias.',
+                ]);
+            }
+        }
+
+        return [
+            'baixa_presenca_feminina' => $baixaPresencaFeminina->values(),
+            'concentracao_etaria' => $concentracaoEtaria->values(),
+            'baixa_atualizacao' => $baixaAtualizacao->values(),
+        ];
     }
 
     private function montarCardPendencia(

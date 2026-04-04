@@ -75,6 +75,22 @@
             border-color: #1f2d4f;
         }
 
+        .evolucao-topo-acoes {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .evolucao-topo-secundario {
+            min-width: 130px;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.85rem;
+            font-weight: 700;
+        }
+
         .evolucao-filtros {
             padding: 0.9rem 1rem 1rem;
             margin-bottom: 0.9rem;
@@ -399,6 +415,11 @@
                 flex-direction: column;
             }
 
+            .evolucao-topo-acoes {
+                width: 100%;
+                flex-direction: column;
+            }
+
             .evolucao-filtros-grid {
                 grid-template-columns: 1fr;
             }
@@ -428,6 +449,10 @@
             }
 
             .evolucao-voltar {
+                width: 100%;
+            }
+
+            .evolucao-topo-secundario {
                 width: 100%;
             }
 
@@ -542,10 +567,17 @@
                 </p>
             </div>
 
-            <a href="{{ $rotaVoltar }}" class="btn btn-primary evolucao-voltar">
-                <i class="bi bi-house-door me-1"></i>
-                Voltar
-            </a>
+            <div class="evolucao-topo-acoes">
+                <a href="{{ route('resumo.atleta.index') }}" class="btn btn-light evolucao-topo-secundario">
+                    <i class="bi bi-journal-text me-1"></i>
+                    Resumo
+                </a>
+
+                <a href="{{ $rotaVoltar }}" class="btn btn-primary evolucao-voltar">
+                    <i class="bi bi-house-door me-1"></i>
+                    Voltar
+                </a>
+            </div>
         </div>
 
         <div class="evolucao-filtros">

@@ -14,6 +14,7 @@ use App\Http\Controllers\AlunoAuthController;
 use App\Http\Controllers\AlunoHistoryController;
 use App\Http\Controllers\AlunoPublicoController;
 use App\Http\Controllers\AlunoEvolucaoController;
+use App\Http\Controllers\AlunoResumoController;
 use App\Http\Controllers\PublicDashboardController;
 use App\Http\Controllers\RelatorioAdminController;
 use App\Http\Controllers\RelatorioTecnicoController;
@@ -79,6 +80,10 @@ Route::middleware([ CheckAnySession::class, 'throttle:20,1' ])->group(function (
 
     Route::get('/evolucao/aluno/{matricula}', [AlunoEvolucaoController::class, 'mostrar'])->name('evolucao.mostrar')->middleware('throttle:60,1');
 
+    Route::get('/resumo-atleta', [AlunoResumoController::class, 'index'])->name('resumo.atleta.index');
+
+    Route::get('/resumo-atleta/aluno/{matricula}', [AlunoResumoController::class, 'mostrar'])->name('resumo.atleta.mostrar')->middleware('throttle:60,1');
+
     // Comparativos
     Route::get('/comparar', [ComparativoPublicoController::class, 'index'])->name('comparar.index');
 
@@ -142,6 +147,8 @@ Route::middleware([ CheckSession::class, CheckAdmin::class ])->group(function ()
     Route::get('/admin/relatorios/pendencias', [RelatorioAdminController::class, 'pendencias'])->name('admin.relatorios.pendencias');
 
     Route::get('/admin/relatorios/comparativo', [RelatorioAdminController::class, 'comparativo'])->name('admin.relatorios.comparativo');
+
+    Route::get('/admin/relatorios/alertas', [RelatorioAdminController::class, 'alertas'])->name('admin.relatorios.alertas');
 
     Route::resource('usuarios', UsuarioController::class)->except(['show']);
 });
