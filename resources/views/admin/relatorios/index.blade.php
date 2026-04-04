@@ -250,6 +250,11 @@
                 </p>
 
                 <div class="relatorios-acoes-botoes">
+                    <a href="{{ route('admin.relatorios.comparativo') }}" class="relatorios-pendencias-btn">
+                        <i class="bi bi-arrow-left-right"></i>
+                        Comparar instituicoes
+                    </a>
+
                     <a href="{{ route('admin.relatorios.pendencias') }}" class="relatorios-pendencias-btn">
                         <i class="bi bi-exclamation-diamond"></i>
                         Painel de pendencias

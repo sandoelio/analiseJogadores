@@ -68,6 +68,74 @@ class RelatorioAdminController extends Controller
         ));
     }
 
+    public function comparativo(Request $request)
+    {
+        $instituicoes = Instituicao::query()
+            ->orderBy('nome')
+            ->get(['id', 'nome']);
+
+        $instituicaoA = null;
+        $instituicaoB = null;
+        $comparativo = null;
+
+        if ($request->filled('instituicao_a_id') || $request->filled('instituicao_b_id')) {
+            $dados = $request->validate([
+                'instituicao_a_id' => 'required|exists:instituicoes,id',
+                'instituicao_b_id' => 'required|exists:instituicoes,id|different:instituicao_a_id',
+            ], [
+                'instituicao_b_id.different' => 'Selecione duas instituicoes diferentes.',
+            ]);
+
+            $instituicaoA = $instituicoes->firstWhere('id', (int) $dados['instituicao_a_id']);
+            $instituicaoB = $instituicoes->firstWhere('id', (int) $dados['instituicao_b_id']);
+
+            $alunos = Aluno::with(['ultimaAnalise'])
+                ->withCount('analises')
+                ->whereIn('instituicao_id', [$instituicaoA->id, $instituicaoB->id])
+                ->orderBy('nome')
+                ->get()
+                ->groupBy('instituicao_id');
+
+            $comparativo = [
+                'instituicao_a' => $this->montarDadosComparativoInstituicao(
+                    $instituicaoA,
+                    $alunos->get($instituicaoA->id, collect())
+                ),
+                'instituicao_b' => $this->montarDadosComparativoInstituicao(
+                    $instituicaoB,
+                    $alunos->get($instituicaoB->id, collect())
+                ),
+                'linhas_volume' => [
+                    ['titulo' => 'Total de atletas', 'chave' => 'total_atletas'],
+                    ['titulo' => 'Masculino', 'chave' => 'masculino'],
+                    ['titulo' => 'Feminino', 'chave' => 'feminino'],
+                    ['titulo' => 'Media de idade', 'chave' => 'media_idade'],
+                    ['titulo' => 'Sem analise', 'chave' => 'sem_analise'],
+                    ['titulo' => 'Sem telefone', 'chave' => 'sem_telefone'],
+                    ['titulo' => 'Analise desatualizada', 'chave' => 'analise_desatualizada'],
+                    ['titulo' => 'Saude pendente', 'chave' => 'saude_pendente'],
+                ],
+                'linhas_desempenho' => [
+                    ['titulo' => 'Atletas avaliados', 'chave' => 'atletas_avaliados'],
+                    ['titulo' => 'Media tecnica geral', 'chave' => 'media_tecnica'],
+                    ['titulo' => 'Arremesso medio', 'chave' => 'arremesso'],
+                    ['titulo' => 'Passe medio', 'chave' => 'passe'],
+                    ['titulo' => 'Marcacao media', 'chave' => 'marcacao'],
+                    ['titulo' => 'Agilidade media', 'chave' => 'agilidade'],
+                    ['titulo' => 'Potencia MMII media', 'chave' => 'potencia_mmii'],
+                    ['titulo' => 'IMC medio', 'chave' => 'imc'],
+                ],
+            ];
+        }
+
+        return view('admin.relatorios.comparativo', compact(
+            'instituicoes',
+            'instituicaoA',
+            'instituicaoB',
+            'comparativo'
+        ));
+    }
+
     private function obterIdadesPorSexo(Collection $alunos, string $sexo): Collection
     {
         return $alunos
@@ -252,5 +320,89 @@ class RelatorioAdminController extends Controller
             'coluna_data' => $colunaData,
             'itens' => $itens->values(),
         ];
+    }
+
+    private function montarDadosComparativoInstituicao(Instituicao $instituicao, Collection $alunos): array
+    {
+        $alunosAvaliados = $alunos->filter(function ($aluno) {
+            return $aluno->ultimaAnalise !== null;
+        });
+
+        $camposTecnicos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
+
+        $volume = [
+            'total_atletas' => $alunos->count(),
+            'masculino' => $alunos->where('sexo', 'Masculino')->count(),
+            'feminino' => $alunos->where('sexo', 'Feminino')->count(),
+            'media_idade' => $this->formatarNumero($alunos->pluck('idade')->filter()->avg(), 1),
+            'sem_analise' => $alunos->where('analises_count', 0)->count(),
+            'sem_telefone' => $alunos->filter(fn($aluno) => blank($aluno->telefone))->count(),
+            'analise_desatualizada' => $alunos->filter(function ($aluno) {
+                return $aluno->ultimaAnalise && $aluno->ultimaAnalise->created_at->lt(now()->subDays(30));
+            })->count(),
+            'saude_pendente' => $alunos->filter(function ($aluno) {
+                if (! $aluno->ultimaAnalise) {
+                    return false;
+                }
+
+                return ((bool) $aluno->ultimaAnalise->problema_saude && blank($aluno->ultimaAnalise->problema_saude_descricao))
+                    || ((bool) $aluno->ultimaAnalise->atestado_valido && ! $aluno->ultimaAnalise->data_atestado);
+            })->count(),
+        ];
+
+        $desempenho = [
+            'atletas_avaliados' => $alunosAvaliados->count(),
+            'media_tecnica' => $this->formatarNumero($this->obterMediaTecnica($alunosAvaliados, $camposTecnicos), 1),
+            'arremesso' => $this->formatarMediaAnalise($alunosAvaliados, 'arremesso'),
+            'passe' => $this->formatarMediaAnalise($alunosAvaliados, 'passe'),
+            'marcacao' => $this->formatarMediaAnalise($alunosAvaliados, 'marcacao'),
+            'agilidade' => $this->formatarMediaAnalise($alunosAvaliados, 'agilidade'),
+            'potencia_mmii' => $this->formatarMediaAnalise($alunosAvaliados, 'potencia_mmii'),
+            'imc' => $this->formatarMediaAnalise($alunosAvaliados, 'imc'),
+        ];
+
+        return [
+            'id' => $instituicao->id,
+            'nome' => $instituicao->nome,
+            'volume' => $volume,
+            'desempenho' => $desempenho,
+        ];
+    }
+
+    private function obterMediaTecnica(Collection $alunos, array $campos): ?float
+    {
+        if ($alunos->isEmpty()) {
+            return null;
+        }
+
+        $medias = collect($campos)
+            ->map(function ($campo) use ($alunos) {
+                return $alunos
+                    ->map(fn($aluno) => $aluno->ultimaAnalise?->{$campo})
+                    ->filter(fn($valor) => $valor !== null)
+                    ->avg();
+            })
+            ->filter(fn($valor) => $valor !== null);
+
+        return $medias->isEmpty() ? null : $medias->avg();
+    }
+
+    private function formatarMediaAnalise(Collection $alunos, string $campo): string
+    {
+        $media = $alunos
+            ->map(fn($aluno) => $aluno->ultimaAnalise?->{$campo})
+            ->filter(fn($valor) => $valor !== null)
+            ->avg();
+
+        return $this->formatarNumero($media, 1);
+    }
+
+    private function formatarNumero($valor, int $casas = 1): string
+    {
+        if ($valor === null) {
+            return '--';
+        }
+
+        return number_format((float) $valor, $casas, ',', '.');
     }
 }

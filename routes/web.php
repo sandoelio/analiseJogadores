@@ -136,5 +136,7 @@ Route::middleware([ CheckSession::class, CheckAdmin::class ])->group(function ()
 
     Route::get('/admin/relatorios/pendencias', [RelatorioAdminController::class, 'pendencias'])->name('admin.relatorios.pendencias');
 
+    Route::get('/admin/relatorios/comparativo', [RelatorioAdminController::class, 'comparativo'])->name('admin.relatorios.comparativo');
+
     Route::resource('usuarios', UsuarioController::class)->except(['show']);
 });
