@@ -35,6 +35,7 @@
         .plano-badge-status-aberto { background: #eef3fb; color: #28365F; }
         .plano-badge-status-em_andamento { background: #fff7e6; color: #c0821a; }
         .plano-badge-status-concluido { background: #eaf7ee; color: #237a43; }
+        .plano-badge-status-vencido { background: #fff0ef; color: #c74e4e; }
         .plano-badge-prioridade-baixa { background: #edf2f8; color: #4c5f87; }
         .plano-badge-prioridade-media { background: #fff0e3; color: #d46317; }
         .plano-badge-prioridade-alta { background: #fff0ef; color: #c74e4e; }
@@ -69,6 +70,13 @@
         @if ($errors->any())
             <div class="alert alert-warning alert-dismissible fade show flash-auto flash-floating" data-auto-dismiss="5500" role="alert">
                 {{ $errors->first() }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if ($planosVencidos > 0)
+            <div class="alert alert-warning alert-dismissible fade show flash-auto flash-floating" data-auto-dismiss="6500" role="alert">
+                {{ $planosVencidos }} {{ $planosVencidos === 1 ? 'plano esta vencido para este atleta.' : 'planos estao vencidos para este atleta.' }} O status so sai de vencido quando voce marcar como concluido.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
@@ -159,7 +167,7 @@
                                         <div>
                                             <h3 class="plano-item-titulo">{{ $plano->titulo }}</h3>
                                             <div class="plano-badges">
-                                                <span class="plano-badge plano-badge-status-{{ $plano->status }}">{{ str_replace('_', ' ', ucfirst($plano->status)) }}</span>
+                                                <span class="plano-badge plano-badge-status-{{ $plano->obterStatusAtual() }}">{{ $plano->obterRotuloStatus() }}</span>
                                                 <span class="plano-badge plano-badge-prioridade-{{ $plano->prioridade }}">{{ ucfirst($plano->prioridade) }}</span>
                                                 <span class="plano-badge plano-badge-prioridade-baixa">Prazo: {{ $plano->prazo?->format('d/m/Y') ?? '--' }}</span>
                                             </div>
@@ -194,6 +202,7 @@
                                             <select name="status" class="form-select">
                                                 <option value="aberto" @selected($plano->status === 'aberto')>Aberto</option>
                                                 <option value="em_andamento" @selected($plano->status === 'em_andamento')>Em andamento</option>
+                                                <option value="vencido" @selected($plano->status === 'vencido')>Vencido</option>
                                                 <option value="concluido" @selected($plano->status === 'concluido')>Concluido</option>
                                             </select>
                                         </div>

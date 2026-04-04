@@ -131,9 +131,10 @@ class Aluno extends Model
 
         $hoje = now()->startOfDay();
         $temPlanoAtrasado = $planos->contains(function ($plano) use ($hoje) {
-            return in_array($plano->status, ['aberto', 'em_andamento'], true)
-                && $plano->prazo
-                && $plano->prazo->lt($hoje);
+            return $plano->status === 'vencido'
+                || (in_array($plano->status, ['aberto', 'em_andamento'], true)
+                    && $plano->prazo
+                    && $plano->prazo->lt($hoje));
         });
 
         $saudePendente = $analise
