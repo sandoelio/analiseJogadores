@@ -143,6 +143,41 @@
             white-space: nowrap;
         }
 
+        .alunos-semaforo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 32px;
+            padding: 0.3rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .alunos-semaforo-verde {
+            background: #eaf7ee;
+            color: #237a43;
+        }
+
+        .alunos-semaforo-amarelo {
+            background: #fff7e6;
+            color: #c0821a;
+        }
+
+        .alunos-semaforo-vermelho {
+            background: #fff0ef;
+            color: #c74e4e;
+        }
+
+        .alunos-semaforo-motivo {
+            display: block;
+            margin-top: 0.2rem;
+            color: #6a748a;
+            font-size: 0.74rem;
+            line-height: 1.3;
+        }
+
         .alunos-tabela-wrap {
             overflow-x: auto;
         }
@@ -398,11 +433,13 @@
                                 <tr>
                                     <th>Nome</th>
                                     <th class="text-center">Idade</th>
+                                    <th class="text-center">Semaforo</th>
                                     <th class="text-center">Acoes</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($alunos as $aluno)
+                                    @php($semaforo = $aluno->obterSemaforo())
                                     <tr>
                                         <td>
                                             <span class="aluno-nome">{{ $aluno->nome }}</span>
@@ -413,7 +450,17 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
+                                            <span class="alunos-semaforo alunos-semaforo-{{ $semaforo['nivel'] }}">
+                                                {{ $semaforo['rotulo'] }}
+                                            </span>
+                                            <span class="alunos-semaforo-motivo">{{ $semaforo['motivo'] }}</span>
+                                        </td>
+                                        <td class="text-center">
                                             <div class="alunos-acoes">
+                                                <a href="{{ route('tecnico.plano.show', $aluno) }}"
+                                                    class="btn btn-outline-primary action-btn" title="Plano de acao">
+                                                    <i class="bi bi-list-check"></i>
+                                                </a>
                                                 <a href="{{ route('aluno.edit', $aluno) }}"
                                                     class="btn btn-outline-secondary action-btn" title="Editar">
                                                     <i class="bi bi-pencil-fill"></i>
@@ -440,15 +487,24 @@
 
                 <div class="alunos-mobile alunos-lista-scroll {{ $alunos->count() > 3 ? 'scroll-ativo' : '' }}">
                     @foreach ($alunos as $aluno)
+                        @php($semaforo = $aluno->obterSemaforo())
                         <div class="aluno-item">
                             <div class="aluno-item-info">
                                 <span class="aluno-nome">{{ $aluno->nome }}</span>
                                 <span class="aluno-idade">
                                     {{ $aluno->idade !== null ? $aluno->idade . ' anos' : '--' }}
                                 </span>
+                                <span class="alunos-semaforo alunos-semaforo-{{ $semaforo['nivel'] }} mt-2">
+                                    {{ $semaforo['rotulo'] }}
+                                </span>
+                                <span class="alunos-semaforo-motivo">{{ $semaforo['motivo'] }}</span>
                             </div>
 
                             <div class="alunos-acoes">
+                                <a href="{{ route('tecnico.plano.show', $aluno) }}" class="btn btn-outline-primary action-btn"
+                                    title="Plano de acao">
+                                    <i class="bi bi-list-check"></i>
+                                </a>
                                 <a href="{{ route('aluno.edit', $aluno) }}" class="btn btn-outline-secondary action-btn"
                                     title="Editar">
                                     <i class="bi bi-pencil-fill"></i>

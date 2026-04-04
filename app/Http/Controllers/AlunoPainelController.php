@@ -31,6 +31,8 @@ class AlunoPainelController extends Controller
         $perPage = $agent->isMobile() ? 6 : 10;
 
         $alunos = Aluno::where('instituicao_id', $instituicaoId)
+            ->with(['ultimaAnalise', 'planosAcao'])
+            ->withCount('analises')
             ->orderByRaw('CASE WHEN idade IS NULL THEN 1 ELSE 0 END, idade ASC')
             ->paginate($perPage);
 

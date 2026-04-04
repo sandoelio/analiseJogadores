@@ -15,6 +15,7 @@ use App\Http\Controllers\AlunoHistoryController;
 use App\Http\Controllers\AlunoPublicoController;
 use App\Http\Controllers\AlunoEvolucaoController;
 use App\Http\Controllers\AlunoResumoController;
+use App\Http\Controllers\TecnicoMonitoramentoController;
 use App\Http\Controllers\PublicDashboardController;
 use App\Http\Controllers\RelatorioAdminController;
 use App\Http\Controllers\RelatorioTecnicoController;
@@ -129,6 +130,16 @@ Route::middleware([ CheckSession::class ])->group(function () {
     Route::get('/tecnico/relatorios', [RelatorioTecnicoController::class, 'index'])->name('tecnico.relatorios');
 
     Route::get('/tecnico/relatorios/pendencias', [RelatorioTecnicoController::class, 'pendencias'])->name('tecnico.relatorios.pendencias');
+
+    Route::get('/tecnico/ranking', [TecnicoMonitoramentoController::class, 'ranking'])->name('tecnico.ranking');
+
+    Route::get('/tecnico/alunos/{aluno}/plano-acao', [TecnicoMonitoramentoController::class, 'plano'])->name('tecnico.plano.show');
+
+    Route::post('/tecnico/alunos/{aluno}/plano-acao', [TecnicoMonitoramentoController::class, 'storePlano'])->name('tecnico.plano.store');
+
+    Route::put('/tecnico/planos-acao/{plano}', [TecnicoMonitoramentoController::class, 'updatePlano'])->name('tecnico.plano.update');
+
+    Route::delete('/tecnico/planos-acao/{plano}', [TecnicoMonitoramentoController::class, 'destroyPlano'])->name('tecnico.plano.destroy');
     
 });
 

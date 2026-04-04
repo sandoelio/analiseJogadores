@@ -56,6 +56,14 @@ class Aluno extends Model
     }
 
     /**
+     * Planos de acao vinculados ao atleta.
+     */
+    public function planosAcao(): HasMany
+    {
+        return $this->hasMany(PlanoAcao::class);
+    }
+
+    /**
      * Ultima analise registrada para o aluno.
      */
     public function ultimaAnalise(): HasOne
@@ -78,5 +86,84 @@ class Aluno extends Model
     public function getIdadeAttribute($value)
     {
         return $value;
+    }
+
+    /**
+     * Media tecnica com base na ultima analise.
+     */
+    public function mediaTecnicaAtual(): ?float
+    {
+        $analise = $this->relationLoaded('ultimaAnalise')
+            ? $this->ultimaAnalise
+            : $this->ultimaAnalise()->first();
+
+        if (! $analise) {
+            return null;
+        }
+
+        $campos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
+
+        $valores = collect($campos)
+            ->map(fn(string $campo) => $analise->{$campo})
+            ->filter(fn($valor) => $valor !== null);
+
+        return $valores->isEmpty() ? null : (float) $valores->avg();
+    }
+
+    /**
+     * Retorna o semaforo operacional do atleta.
+     */
+    public function obterSemaforo(): array
+    {
+        $analise = $this->relationLoaded('ultimaAnalise')
+            ? $this->ultimaAnalise
+            : $this->ultimaAnalise()->first();
+
+        $planos = $this->relationLoaded('planosAcao')
+            ? $this->planosAcao
+            : $this->planosAcao()->get();
+
+        $totalAnalises = $this->getAttribute('analises_count');
+
+        if ($totalAnalises === null) {
+            $totalAnalises = $this->analises()->count();
+        }
+
+        $hoje = now()->startOfDay();
+        $temPlanoAtrasado = $planos->contains(function ($plano) use ($hoje) {
+            return in_array($plano->status, ['aberto', 'em_andamento'], true)
+                && $plano->prazo
+                && $plano->prazo->lt($hoje);
+        });
+
+        $saudePendente = $analise
+            && (((bool) $analise->problema_saude && blank($analise->problema_saude_descricao))
+                || ((bool) $analise->atestado_valido && ! $analise->data_atestado));
+
+        if ($totalAnalises === 0 || $saudePendente || $temPlanoAtrasado) {
+            return [
+                'nivel' => 'vermelho',
+                'rotulo' => 'Critico',
+                'motivo' => $totalAnalises === 0
+                    ? 'Sem analise'
+                    : ($saudePendente ? 'Saude pendente' : 'Plano atrasado'),
+            ];
+        }
+
+        $analiseDesatualizada = $analise && $analise->created_at->lt(now()->subDays(30));
+
+        if (blank($this->telefone) || $analiseDesatualizada) {
+            return [
+                'nivel' => 'amarelo',
+                'rotulo' => 'Atencao',
+                'motivo' => blank($this->telefone) ? 'Sem telefone' : 'Analise desatualizada',
+            ];
+        }
+
+        return [
+            'nivel' => 'verde',
+            'rotulo' => 'Em dia',
+            'motivo' => 'Cadastro e analise em dia',
+        ];
     }
 }
