@@ -117,6 +117,8 @@ Route::middleware([ CheckSession::class ])->group(function () {
     Route::get('/tecnico/dashboard', [AlunoPainelController::class, 'dashboard'])->name('tecnico.dashboard');
 
     Route::get('/tecnico/relatorios', [RelatorioTecnicoController::class, 'index'])->name('tecnico.relatorios');
+
+    Route::get('/tecnico/relatorios/pendencias', [RelatorioTecnicoController::class, 'pendencias'])->name('tecnico.relatorios.pendencias');
     
 });
 
@@ -131,6 +133,8 @@ Route::middleware([ CheckSession::class, CheckAdmin::class ])->group(function ()
     Route::get('/admin/dashboard', fn() => view('admin.dashboard'))->name('admin.dashboard');
 
     Route::get('/admin/relatorios', [RelatorioAdminController::class, 'index'])->name('admin.relatorios');
+
+    Route::get('/admin/relatorios/pendencias', [RelatorioAdminController::class, 'pendencias'])->name('admin.relatorios.pendencias');
 
     Route::resource('usuarios', UsuarioController::class)->except(['show']);
 });

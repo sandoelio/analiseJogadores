@@ -11,12 +11,62 @@
             padding-bottom: 2rem;
         }
 
+        @media (min-width: 992px) {
+            .relatorios-shell {
+                padding-top: 1.2rem;
+            }
+        }
+
         .relatorios-topo {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            display: grid;
             gap: 1rem;
             margin-bottom: 1.25rem;
+        }
+
+        .relatorios-topo-acoes {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.9rem 1rem;
+            border: 1px solid #dbe1ec;
+            border-radius: 0.8rem;
+            background: #fff;
+            box-shadow: 0 4px 14px rgba(26, 42, 80, 0.06);
+        }
+
+        .relatorios-topo-texto {
+            margin: 0;
+            color: #5f6b85;
+            font-size: 0.86rem;
+        }
+
+        .relatorios-acoes-botoes {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .relatorios-pendencias-btn {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            padding: 0.6rem 1rem;
+            border-radius: 0.85rem;
+            background: #28365F;
+            border: 1px solid #28365F;
+            color: #fff;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .relatorios-pendencias-btn:hover {
+            background: #1f2d4f;
+            border-color: #1f2d4f;
+            color: #fff;
         }
 
         .relatorios-subtitulo {
@@ -142,7 +192,13 @@
         }
 
         @media (max-width: 575.98px) {
-            .relatorios-topo {
+            .relatorios-topo-acoes {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 0.75rem 0.8rem;
+            }
+
+            .relatorios-acoes-botoes {
                 flex-direction: column;
                 align-items: stretch;
             }
@@ -188,9 +244,22 @@
 @section('content')
     <div class="relatorios-shell">
         <div class="relatorios-topo">
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary relatorios-voltar">
-                Voltar
-            </a>
+            <div class="relatorios-topo-acoes">
+                <p class="relatorios-topo-texto">
+                    Consulte os relatorios gerais por idade e sexo ou abra o painel de pendencias por instituicao.
+                </p>
+
+                <div class="relatorios-acoes-botoes">
+                    <a href="{{ route('admin.relatorios.pendencias') }}" class="relatorios-pendencias-btn">
+                        <i class="bi bi-exclamation-diamond"></i>
+                        Painel de pendencias
+                    </a>
+
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary relatorios-voltar">
+                        Voltar
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="relatorios-card">

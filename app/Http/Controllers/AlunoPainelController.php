@@ -15,8 +15,9 @@ class AlunoPainelController extends Controller
     {
         $instId = Auth::guard('athlete')->id() ?: Auth::user()?->instituicao_id;
         $alunos = Aluno::where('instituicao_id', $instId)->get();
+        $isAthlete = Auth::guard('athlete')->check();
 
-        return view('aluno.dashboard', compact('alunos'));
+        return view('aluno.dashboard', compact('alunos', 'isAthlete'));
     }
 
     /**

@@ -11,16 +11,20 @@
             padding: 0.9rem 0 2rem;
         }
 
+        @media (min-width: 992px) {
+            .relatorios-shell {
+                padding-top: 1.2rem;
+            }
+        }
+
         .relatorios-topo {
-            display: flex;
-            justify-content: space-between;
-            align-items: stretch;
+            display: grid;
             gap: 1rem;
             margin-bottom: 1rem;
         }
 
         .relatorios-heading,
-        .relatorios-voltar-wrap,
+        .relatorios-acoes-barra,
         .relatorios-card {
             border: 1px solid #dbe1ec;
             border-radius: 1rem;
@@ -68,22 +72,66 @@
             line-height: 1.45;
         }
 
-        .relatorios-voltar-wrap {
-            flex: 0 0 170px;
+        .relatorios-acoes {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.9rem;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 0.75rem;
         }
 
-        .relatorios-voltar {
-            width: 100%;
-            min-height: 42px;
+        .relatorios-acoes-barra {
+            padding: 0.8rem 0.9rem;
+        }
+
+        .relatorios-acao-info {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .relatorios-pendencias-btn {
+            min-height: 44px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 0.45rem;
+            padding: 0.6rem 1rem;
+            border-radius: 0.85rem;
+            background: #28365F;
+            border: 1px solid #28365F;
+            color: #fff;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .relatorios-pendencias-btn:hover {
+            background: #1f2d4f;
+            border-color: #1f2d4f;
+            color: #fff;
+        }
+
+        .relatorios-acao-texto {
+            margin: 0;
+            color: #5f6b85;
+            font-size: 0.84rem;
+            line-height: 1.45;
+        }
+
+        .relatorios-acoes-botoes {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .relatorios-voltar {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 1rem;
             border-radius: 0.85rem;
             font-weight: 700;
+            white-space: nowrap;
         }
 
         .relatorios-card {
@@ -203,18 +251,22 @@
         }
 
         @media (max-width: 575.98px) {
-            .relatorios-topo {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
             .relatorios-titulo {
                 font-size: 1.15rem;
             }
 
-            .relatorios-voltar-wrap {
-                flex-basis: auto;
-                padding: 0.8rem;
+            .relatorios-acoes {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .relatorios-acoes-barra {
+                padding: 0.75rem 0.8rem;
+            }
+
+            .relatorios-acoes-botoes {
+                flex-direction: column;
+                align-items: stretch;
             }
 
             .relatorios-card .tab-content {
@@ -287,10 +339,24 @@
                 </p>
             </div>
 
-            <div class="relatorios-voltar-wrap">
-                <a href="{{ route('tecnico.dashboard') }}" class="btn btn-secondary relatorios-voltar">
-                    Voltar
-                </a>
+            <div class="relatorios-acoes-barra">
+                <div class="relatorios-acoes">
+                    <div class="relatorios-acao-info">
+                        <p class="relatorios-acao-texto">
+                            Acesse o painel de pendencias para ver atletas sem telefone, sem analise, com analise desatualizada ou com saude pendente.
+                        </p>
+                    </div>
+
+                    <div class="relatorios-acoes-botoes">
+                    <a href="{{ route('tecnico.relatorios.pendencias') }}" class="relatorios-pendencias-btn">
+                        <i class="bi bi-exclamation-diamond"></i>
+                        Painel de pendencias
+                    </a>
+                        <a href="{{ route('tecnico.dashboard') }}" class="btn btn-secondary relatorios-voltar">
+                            Voltar
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
