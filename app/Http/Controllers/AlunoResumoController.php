@@ -20,6 +20,12 @@ class AlunoResumoController extends Controller
     public function mostrar(string $matricula): JsonResponse
     {
         $aluno = $this->obterAlunoAutorizadoPorMatricula($matricula, true);
+        $aluno->load(['ultimaAnalise', 'planosAcao' => function ($query) {
+            $query->orderByRaw("CASE WHEN status = 'concluido' THEN 1 ELSE 0 END")
+                ->orderByRaw('CASE WHEN prazo IS NULL THEN 1 ELSE 0 END')
+                ->orderBy('prazo')
+                ->orderByDesc('created_at');
+        }]);
 
         $analises = $aluno->analises()
             ->orderBy('created_at', 'desc')
@@ -34,6 +40,8 @@ class AlunoResumoController extends Controller
         $progresso = $this->montarProgressoNarrativo($analiseAtual, $analiseAnterior);
         $narrativa = $this->montarNarrativa($progresso, $analiseAnterior !== null);
         $percentil = $this->montarPercentilTecnico($aluno, $analiseAtual);
+        $semaforo = $aluno->obterSemaforo();
+        $planoAtual = $this->obterPlanoAtual($aluno);
 
         return response()->json([
             'identificacao' => [
@@ -47,6 +55,11 @@ class AlunoResumoController extends Controller
             ],
             'narrativa' => $narrativa,
             'percentil' => $percentil,
+            'status_principal' => $this->montarStatusPrincipal($semaforo),
+            'selos' => $this->montarSelos($aluno, $analiseAtual, $progresso, $percentil, $planoAtual),
+            'meta_atual' => $this->montarMetaAtual($planoAtual),
+            'recomendacao_curta' => $this->montarRecomendacaoCurta($narrativa, $percentil, $planoAtual),
+            'grupo_resumo' => $this->montarGrupoResumo($percentil),
         ]);
     }
 
@@ -118,6 +131,27 @@ class AlunoResumoController extends Controller
         ];
     }
 
+    private function montarStatusPrincipal(array $semaforo): array
+    {
+        return [
+            'nivel' => $semaforo['nivel'],
+            'rotulo' => match ($semaforo['nivel']) {
+                'verde' => 'Voce esta em dia',
+                'amarelo' => 'Atencao ao seu acompanhamento',
+                default => 'Acao recomendada',
+            },
+            'motivo' => $semaforo['motivo'],
+            'mensagem' => match ($semaforo['motivo']) {
+                'Sem analise' => 'Ainda nao existe analise suficiente para acompanhar seu desempenho.',
+                'Saude pendente' => 'Existe uma pendencia de saude que precisa ser revisada com o tecnico.',
+                'Plano atrasado' => 'Sua meta atual esta atrasada e merece atencao nesta semana.',
+                'Sem telefone' => 'Seu cadastro ainda precisa de alguns ajustes simples.',
+                'Analise desatualizada' => 'Sua ultima analise ja passou do periodo ideal de acompanhamento.',
+                default => 'Seu acompanhamento atual esta regular e sem pendencias importantes.',
+            },
+        ];
+    }
+
     private function montarTextoNarrativo(Collection $melhoras, Collection $quedas, Collection $estaveis, bool $tecnico): string
     {
         $partes = [];
@@ -159,6 +193,14 @@ class AlunoResumoController extends Controller
         $ultimo = array_pop($valores);
 
         return implode(', ', $valores) . ' e ' . $ultimo;
+    }
+
+    private function obterPlanoAtual(Aluno $aluno)
+    {
+        return $aluno->planosAcao
+            ->first(function ($plano) {
+                return $plano->status !== 'concluido';
+            });
     }
 
     private function montarPercentilTecnico(Aluno $aluno, $analiseAtual): array
@@ -231,6 +273,115 @@ class AlunoResumoController extends Controller
         ];
     }
 
+    private function montarSelos(Aluno $aluno, $analiseAtual, Collection $progresso, array $percentil, $planoAtual): array
+    {
+        $selos = [];
+        $pontoForte = $this->obterMelhorIndicadorAtual($analiseAtual);
+        $melhorEvolucao = $progresso->where('status', 'subiu')->sortByDesc('delta')->first();
+
+        if ($pontoForte) {
+            $selos[] = [
+                'icone' => 'star-fill',
+                'titulo' => 'Ponto forte',
+                'texto' => $pontoForte['label'] . ' e o seu melhor indicador atual.',
+            ];
+        }
+
+        if ($melhorEvolucao) {
+            $selos[] = [
+                'icone' => 'graph-up-arrow',
+                'titulo' => 'Melhor evolucao',
+                'texto' => $melhorEvolucao['label'] . ' foi o destaque positivo da ultima comparacao.',
+            ];
+        }
+
+        if ($percentil['class_key'] === 'acima') {
+            $selos[] = [
+                'icone' => 'award-fill',
+                'titulo' => 'Acima do grupo',
+                'texto' => 'Seu desempenho tecnico esta acima do grupo da sua idade e sexo.',
+            ];
+        } elseif ($planoAtual) {
+            $selos[] = [
+                'icone' => 'flag-fill',
+                'titulo' => 'Meta em andamento',
+                'texto' => 'Voce tem uma meta ativa para acompanhar junto com o tecnico.',
+            ];
+        } elseif ($aluno->ultimaAnalise && $aluno->ultimaAnalise->created_at->gte(now()->subDays(30))) {
+            $selos[] = [
+                'icone' => 'check-circle-fill',
+                'titulo' => 'Analise atualizada',
+                'texto' => 'Seu acompanhamento esta dentro do periodo ideal.',
+            ];
+        }
+
+        return collect($selos)->take(3)->values()->all();
+    }
+
+    private function montarMetaAtual($planoAtual): array
+    {
+        if (! $planoAtual) {
+            return [
+                'tem_meta' => false,
+                'titulo' => 'Nenhuma meta ativa',
+                'texto' => 'No momento nao ha plano de acao em aberto para este atleta.',
+                'status' => '--',
+                'prazo' => '--',
+                'prioridade' => '--',
+            ];
+        }
+
+        return [
+            'tem_meta' => true,
+            'titulo' => $planoAtual->titulo,
+            'texto' => $planoAtual->descricao ?: 'Acompanhe esta meta com o tecnico ao longo das proximas analises.',
+            'status' => $planoAtual->obterRotuloStatus(),
+            'prazo' => $planoAtual->prazo?->format('d/m/Y') ?? '--',
+            'prioridade' => ucfirst($planoAtual->prioridade),
+        ];
+    }
+
+    private function montarRecomendacaoCurta(array $narrativa, array $percentil, $planoAtual): string
+    {
+        if (! empty($narrativa['melhoras']) && ! empty($narrativa['quedas'])) {
+            return 'Voce evoluiu em ' . $narrativa['melhoras'][0] . ', mas agora vale focar mais em ' . $narrativa['quedas'][0] . '.';
+        }
+
+        if (! empty($narrativa['melhoras'])) {
+            return 'Voce esta evoluindo em ' . $narrativa['melhoras'][0] . '. Continue esse ritmo na proxima avaliacao.';
+        }
+
+        if (! empty($narrativa['quedas'])) {
+            return 'Seu foco imediato pode ser ' . $narrativa['quedas'][0] . ' para recuperar rendimento.';
+        }
+
+        if ($planoAtual) {
+            return 'Sua meta atual e ' . $planoAtual->titulo . '. Mantenha atencao ao prazo combinado.';
+        }
+
+        return $percentil['class_key'] === 'acima'
+            ? 'Seu desempenho tecnico esta acima do grupo. O objetivo agora e manter consistencia.'
+            : 'Continue acompanhando suas analises para identificar os proximos pontos de evolucao.';
+    }
+
+    private function montarGrupoResumo(array $percentil): array
+    {
+        return [
+            'titulo' => match ($percentil['class_key']) {
+                'acima' => 'Voce esta acima do grupo',
+                'abaixo' => 'Voce esta abaixo do grupo',
+                'dentro' => 'Voce esta dentro do grupo',
+                default => 'Base de comparacao reduzida',
+            },
+            'texto' => match ($percentil['class_key']) {
+                'acima' => 'Seu desempenho tecnico recente esta acima do grupo da mesma idade e sexo.',
+                'abaixo' => 'Existe espaco para crescer em relacao ao grupo da mesma idade e sexo.',
+                'dentro' => 'Seu desempenho tecnico esta dentro da faixa esperada para o grupo.',
+                default => 'Ainda nao existem atletas suficientes com analise para uma leitura completa do grupo.',
+            },
+        ];
+    }
+
     private function retornoPercentilSemBase(string $descricao, ?float $scoreAtleta, $mediaGrupo, int $totalGrupo, ?string $posicaoLista): array
     {
         return [
@@ -244,6 +395,34 @@ class AlunoResumoController extends Controller
             'total_grupo' => $totalGrupo,
             'descricao' => $descricao,
         ];
+    }
+
+    private function obterMelhorIndicadorAtual($analise): ?array
+    {
+        if (! $analise) {
+            return null;
+        }
+
+        return collect([
+            ['campo' => 'arremesso', 'label' => 'Arremesso'],
+            ['campo' => 'passe', 'label' => 'Passe'],
+            ['campo' => 'marcacao', 'label' => 'Marcacao'],
+            ['campo' => 'bandeja', 'label' => 'Bandeja'],
+            ['campo' => 'rebote', 'label' => 'Rebote'],
+            ['campo' => 'dominio', 'label' => 'Dominio de bola'],
+            ['campo' => 'agilidade', 'label' => 'Agilidade'],
+            ['campo' => 'flexibilidade', 'label' => 'Flexibilidade'],
+            ['campo' => 'potencia_mmii', 'label' => 'Potencia MMII'],
+            ['campo' => 'potencia_mmss', 'label' => 'Potencia MMSS'],
+            ['campo' => 'capacidade_aerobica', 'label' => 'Capacidade aerobica'],
+        ])->map(function (array $item) use ($analise) {
+            return [
+                'label' => $item['label'],
+                'valor' => $analise->{$item['campo']},
+            ];
+        })->filter(fn(array $item) => $item['valor'] !== null)
+            ->sortByDesc('valor')
+            ->first();
     }
 
     private function calcularMediaTecnica($analise): ?float

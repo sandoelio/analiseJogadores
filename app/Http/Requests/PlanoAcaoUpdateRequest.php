@@ -17,7 +17,7 @@ class PlanoAcaoUpdateRequest extends FormRequest
             'titulo' => ['required', 'string', 'max:120'],
             'descricao' => ['nullable', 'string', 'max:2000'],
             'prioridade' => ['required', 'in:baixa,media,alta'],
-            'status' => ['required', 'in:aberto,em_andamento,concluido'],
+            'status' => ['required', 'in:aberto,em_andamento,concluido,vencido'],
             'prazo' => ['nullable', 'date'],
         ];
     }

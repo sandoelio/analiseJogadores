@@ -6,8 +6,8 @@ use App\Http\Requests\PlanoAcaoStoreRequest;
 use App\Http\Requests\PlanoAcaoUpdateRequest;
 use App\Models\Aluno;
 use App\Models\PlanoAcao;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class TecnicoMonitoramentoController extends Controller
@@ -15,6 +15,8 @@ class TecnicoMonitoramentoController extends Controller
     public function ranking(Request $request)
     {
         $usuario = Auth::user();
+
+        $this->atualizarPlanosVencidosDaInstituicao((int) $usuario->instituicao_id);
 
         $alunos = Aluno::query()
             ->with(['ultimaAnalise', 'planosAcao'])
@@ -35,7 +37,7 @@ class TecnicoMonitoramentoController extends Controller
                     'media_tecnica' => $media,
                     'media_tecnica_formatada' => $media !== null ? number_format($media, 1, ',', '.') : '--',
                     'semaforo' => $semaforo,
-                    'planos_abertos' => $aluno->planosAcao->whereIn('status', ['aberto', 'em_andamento'])->count(),
+                    'planos_abertos' => $aluno->planosAcao->whereIn('status', ['aberto', 'em_andamento', 'vencido'])->count(),
                 ];
             })
             ->filter(fn(array $item) => $item['media_tecnica'] !== null)
@@ -68,17 +70,22 @@ class TecnicoMonitoramentoController extends Controller
     {
         $aluno = $this->obterAlunoDaInstituicao($aluno->id);
 
+        $this->atualizarPlanosVencidosDoAluno($aluno->id);
+
         $aluno->load(['ultimaAnalise', 'planosAcao' => function ($query) {
-            $query->orderByRaw("CASE WHEN status = 'concluido' THEN 1 ELSE 0 END")
+            $query->orderByRaw("CASE WHEN status = 'vencido' THEN 0 WHEN status = 'concluido' THEN 2 ELSE 1 END")
                 ->orderByRaw('CASE WHEN prazo IS NULL THEN 1 ELSE 0 END')
                 ->orderBy('prazo')
                 ->orderByDesc('created_at');
         }])->loadCount('analises');
 
+        $planosVencidos = $aluno->planosAcao->where('status', 'vencido')->count();
+
         return view('tecnico.monitoramento.plano', [
             'aluno' => $aluno,
             'semaforo' => $aluno->obterSemaforo(),
             'mediaTecnica' => $aluno->mediaTecnicaAtual(),
+            'planosVencidos' => $planosVencidos,
         ]);
     }
 
@@ -86,10 +93,10 @@ class TecnicoMonitoramentoController extends Controller
     {
         $aluno = $this->obterAlunoDaInstituicao($aluno->id);
         $dados = $request->validated();
+        $dados = $this->normalizarDadosPlano($dados);
 
         $dados['aluno_id'] = $aluno->id;
         $dados['user_id'] = Auth::id();
-        $dados['concluido_em'] = $dados['status'] === 'concluido' ? now()->toDateString() : null;
 
         PlanoAcao::create($dados);
 
@@ -102,7 +109,7 @@ class TecnicoMonitoramentoController extends Controller
     {
         $plano = $this->obterPlanoDaInstituicao($plano->id);
         $dados = $request->validated();
-        $dados['concluido_em'] = $dados['status'] === 'concluido' ? now()->toDateString() : null;
+        $dados = $this->normalizarDadosPlano($dados);
 
         $plano->update($dados);
 
@@ -137,5 +144,51 @@ class TecnicoMonitoramentoController extends Controller
             })
             ->with('aluno')
             ->findOrFail($planoId);
+    }
+
+    private function atualizarPlanosVencidosDaInstituicao(int $instituicaoId): void
+    {
+        PlanoAcao::query()
+            ->whereIn('status', ['aberto', 'em_andamento'])
+            ->whereDate('prazo', '<', now()->toDateString())
+            ->whereHas('aluno', function ($query) use ($instituicaoId) {
+                $query->where('instituicao_id', $instituicaoId);
+            })
+            ->update([
+                'status' => 'vencido',
+                'updated_at' => now(),
+            ]);
+    }
+
+    private function atualizarPlanosVencidosDoAluno(int $alunoId): void
+    {
+        PlanoAcao::query()
+            ->where('aluno_id', $alunoId)
+            ->whereIn('status', ['aberto', 'em_andamento'])
+            ->whereDate('prazo', '<', now()->toDateString())
+            ->update([
+                'status' => 'vencido',
+                'updated_at' => now(),
+            ]);
+    }
+
+    private function normalizarDadosPlano(array $dados): array
+    {
+        $prazo = ! empty($dados['prazo']) ? Carbon::parse($dados['prazo'])->startOfDay() : null;
+
+        if (($dados['status'] ?? null) === 'concluido') {
+            $dados['concluido_em'] = now()->toDateString();
+            return $dados;
+        }
+
+        $dados['concluido_em'] = null;
+
+        if ($prazo && $prazo->lt(now()->startOfDay())) {
+            $dados['status'] = 'vencido';
+        } elseif (($dados['status'] ?? null) === 'vencido') {
+            $dados['status'] = 'aberto';
+        }
+
+        return $dados;
     }
 }
