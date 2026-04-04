@@ -180,40 +180,33 @@ class AlunoResumoController extends Controller
             ->where('instituicao_id', $aluno->instituicao_id)
             ->where('sexo', $aluno->sexo)
             ->where('idade', $aluno->idade)
-            ->get()
-            ->map(function (Aluno $colega) {
-                return [
-                    'aluno_id' => $colega->id,
-                    'score' => $this->calcularMediaTecnica($colega->ultimaAnalise),
-                ];
-            })
-            ->filter(fn(array $item) => $item['score'] !== null)
-            ->sortBy('score')
-            ->values();
+            ->get();
 
-        if ($grupo->count() < 3) {
+        $ranking = $this->montarRankingTecnicoDoGrupo($grupo);
+
+        if ($ranking->count() < 2) {
             return $this->retornoPercentilSemBase(
-                'O grupo de referencia ainda esta pequeno para uma leitura segura por idade e sexo.',
+                'O grupo de referencia ainda nao tem atletas suficientes com analise para comparar os fundamentos tecnicos.',
                 $scoreAtleta,
-                $grupo->avg('score'),
-                $grupo->count(),
-                $this->montarPosicaoLista($grupo, $aluno->id)
+                $ranking->avg('score_bruto'),
+                $ranking->count(),
+                $this->montarPosicaoLista($ranking, $aluno->id)
             );
         }
 
-        $posicao = $grupo->search(fn(array $item) => (int) $item['aluno_id'] === (int) $aluno->id);
+        $posicao = $ranking->search(fn(array $item) => (int) $item['aluno_id'] === (int) $aluno->id);
 
         if ($posicao === false) {
             return $this->retornoPercentilSemBase(
                 'Nao foi possivel localizar este atleta dentro do grupo de comparacao.',
                 $scoreAtleta,
-                $grupo->avg('score'),
-                $grupo->count(),
+                $ranking->avg('score_bruto'),
+                $ranking->count(),
                 null
             );
         }
 
-        $percentil = (int) round((($posicao + 1) / $grupo->count()) * 100);
+        $percentil = (int) round((($posicao + 1) / $ranking->count()) * 100);
         $classificacao = 'Dentro do grupo';
         $classKey = 'dentro';
 
@@ -230,11 +223,11 @@ class AlunoResumoController extends Controller
             'classificacao' => $classificacao,
             'class_key' => $classKey,
             'percentil' => $percentil,
-            'posicao_lista' => ($posicao + 1) . ' de ' . $grupo->count(),
+            'posicao_lista' => ($posicao + 1) . ' de ' . $ranking->count(),
             'score_atleta' => $this->formatarNumero($scoreAtleta),
-            'media_grupo' => $this->formatarNumero($grupo->avg('score')),
-            'total_grupo' => $grupo->count(),
-            'descricao' => 'Comparacao com atletas da mesma instituicao, idade e sexo, usando a media tecnica mais recente.',
+            'media_grupo' => $this->formatarNumero($ranking->avg('score_bruto')),
+            'total_grupo' => $ranking->count(),
+            'descricao' => 'Comparacao com atletas da mesma instituicao, idade e sexo, cruzando os 6 fundamentos tecnicos mais recentes de cada atleta.',
         ];
     }
 
@@ -263,6 +256,48 @@ class AlunoResumoController extends Controller
         $valores = collect($campos)->map(fn(string $campo) => $analise->{$campo})->filter(fn($valor) => $valor !== null);
 
         return $valores->isEmpty() ? null : (float) $valores->avg();
+    }
+
+    private function montarRankingTecnicoDoGrupo(Collection $grupo): Collection
+    {
+        $campos = ['arremesso', 'passe', 'marcacao', 'bandeja', 'rebote', 'dominio'];
+
+        return $grupo
+            ->map(function (Aluno $colega) use ($grupo, $campos) {
+                $percentis = collect($campos)
+                    ->map(function (string $campo) use ($grupo, $colega) {
+                        $grupoCampo = $grupo
+                            ->filter(fn(Aluno $item) => $item->ultimaAnalise?->{$campo} !== null)
+                            ->sortBy(fn(Aluno $item) => $item->ultimaAnalise->{$campo})
+                            ->values();
+
+                        if ($grupoCampo->count() < 2 || $colega->ultimaAnalise?->{$campo} === null) {
+                            return null;
+                        }
+
+                        $posicao = $grupoCampo->search(fn(Aluno $item) => (int) $item->id === (int) $colega->id);
+
+                        if ($posicao === false) {
+                            return null;
+                        }
+
+                        return (($posicao + 1) / $grupoCampo->count()) * 100;
+                    })
+                    ->filter(fn($valor) => $valor !== null);
+
+                if ($percentis->isEmpty()) {
+                    return null;
+                }
+
+                return [
+                    'aluno_id' => $colega->id,
+                    'percentil_medio' => (float) $percentis->avg(),
+                    'score_bruto' => $this->calcularMediaTecnica($colega->ultimaAnalise),
+                ];
+            })
+            ->filter(fn($item) => $item !== null)
+            ->sortBy('percentil_medio')
+            ->values();
     }
 
     private function formatarNumero($valor): string

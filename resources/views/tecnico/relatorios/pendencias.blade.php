@@ -486,7 +486,7 @@
 
             <div class="pendencias-acoes">
                 <a href="{{ route('tecnico.relatorios') }}" class="pendencias-btn pendencias-btn-principal">
-                    <i class="bi bi-arrow-left"></i>
+                    <i></i>
                     Voltar para relatorios
                 </a>
                 <p class="pendencias-acoes-texto">
