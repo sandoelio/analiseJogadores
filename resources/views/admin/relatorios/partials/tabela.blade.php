@@ -1,7 +1,7 @@
 @if ($idades->isEmpty())
     <p class="relatorio-vazio">Nao ha atletas com idade preenchida para montar o relatorio.</p>
 @else
-    <div class="relatorio-tabela-wrap">
+    <div class="relatorio-tabela-wrap {{ count($relatorio['linhas']) > 5 ? 'relatorio-tabela-wrap-scroll' : '' }}">
         <table class="relatorio-tabela">
             <thead>
                 <tr>

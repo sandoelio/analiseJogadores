@@ -13,7 +13,36 @@
 
         @media (min-width: 992px) {
             .relatorios-shell {
+                display: flex;
+                flex-direction: column;
+                height: calc(100vh - 132px);
                 padding-top: 1.2rem;
+                padding-bottom: 0;
+                overflow: hidden;
+            }
+
+            .relatorios-topo {
+                flex: 0 0 auto;
+                margin-bottom: 1rem;
+            }
+
+            .relatorios-card {
+                flex: 1 1 auto;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .relatorios-card .tab-content {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            .relatorios-card .tab-pane.active {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
             }
         }
 
@@ -132,6 +161,19 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        .relatorio-tabela-wrap-scroll {
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 992px) {
+            .relatorio-tabela-wrap-scroll {
+                flex: 1 1 auto;
+                min-height: 0;
+                max-height: none;
+            }
+        }
+
         .relatorio-tabela {
             width: 100%;
             min-width: 860px;
@@ -149,6 +191,18 @@
             padding: 0.7rem 0.8rem;
             text-align: center;
             white-space: nowrap;
+        }
+
+        .relatorio-tabela thead tr:first-child th {
+            position: sticky;
+            top: 0;
+            z-index: 4;
+        }
+
+        .relatorio-tabela thead tr:nth-child(2) th {
+            position: sticky;
+            top: 43px;
+            z-index: 3;
         }
 
         .relatorio-tabela tbody td,
@@ -224,6 +278,10 @@
 
             .relatorio-tabela .coluna-projeto {
                 min-width: 180px;
+            }
+
+            .relatorio-tabela-wrap-scroll {
+                max-height: 360px;
             }
         }
 

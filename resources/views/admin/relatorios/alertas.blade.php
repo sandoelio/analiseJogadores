@@ -61,9 +61,8 @@
         <div class="alertas-topo">
             <div>
                 <span class="alertas-chip"><i class="bi bi-bell"></i> Alertas</span>
-                <h1 class="alertas-title">Alertas administrativos</h1>
                 <p class="alertas-texto">
-                    Painel gerencial com instituicoes que pedem atencao por baixa presenca feminina, concentracao etaria excessiva ou baixa atualizacao de analises.
+                    Painel gerencial com instituicoes que pedem atencao por baixa presenca feminina, concentração etaria excessiva ou baixa atualizacao de analises.
                 </p>
             </div>
 
@@ -74,14 +73,14 @@
             $cardsResumo = [
                 'baixa_presenca_feminina' => [
                     'titulo' => 'Baixa presenca feminina',
-                    'descricao' => 'Instituicoes com participacao feminina abaixo do limite de atencao.',
+                    'descricao' => 'Instituicoes com participação feminina abaixo do limite de atenção.',
                 ],
                 'concentracao_etaria' => [
-                    'titulo' => 'Concentracao etaria',
-                    'descricao' => 'Instituicoes com forte concentracao de atletas em uma idade dominante.',
+                    'titulo' => 'Concentração etária',
+                    'descricao' => 'Instituicoes com forte concentração de atletas em uma idade dominante.',
                 ],
                 'baixa_atualizacao' => [
-                    'titulo' => 'Baixa atualizacao',
+                    'titulo' => 'Baixa atualização',
                     'descricao' => 'Instituicoes com volume alto de atletas sem analise recente.',
                 ],
             ];
@@ -116,8 +115,8 @@
         <div class="alertas-grid">
             @foreach ([
                 'baixa_presenca_feminina' => 'Baixa presenca feminina',
-                'concentracao_etaria' => 'Concentracao etaria',
-                'baixa_atualizacao' => 'Baixa atualizacao de analises',
+                'concentracao_etaria' => 'Concentração etária',
+                'baixa_atualizacao' => 'Baixa atualização de analises',
             ] as $chave => $titulo)
                 <div class="alertas-card">
                     <h2>{{ $titulo }}</h2>

@@ -197,6 +197,7 @@
         .comparativo-tabela {
             width: 100%;
             min-width: 760px;
+            table-layout: fixed;
             border-collapse: separate;
             border-spacing: 0;
         }
@@ -226,6 +227,13 @@
         .comparativo-tabela td:first-child {
             font-weight: 700;
             background: #f8fafd;
+        }
+
+        @media (min-width: 992px) {
+            .comparativo-tabela th,
+            .comparativo-tabela td {
+                width: 33.3333%;
+            }
         }
 
         .comparativo-mobile {
@@ -328,7 +336,6 @@
                 <i class="bi bi-arrow-left-right"></i>
                 Comparativo
             </span>
-            <h1 class="comparativo-titulo">Comparativo entre instituicoes</h1>
             <p class="comparativo-texto">
                 Compare dois projetos lado a lado pelo volume cadastral e pelo desempenho medio da ultima analise dos atletas.
             </p>
