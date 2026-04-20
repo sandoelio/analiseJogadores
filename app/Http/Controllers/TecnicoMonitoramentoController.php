@@ -7,6 +7,7 @@ use App\Http\Requests\PlanoAcaoUpdateRequest;
 use App\Models\Aluno;
 use App\Models\PlanoAcao;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,6 +48,19 @@ class TecnicoMonitoramentoController extends Controller
                 $item['posicao'] = $indice + 1;
                 return $item;
             });
+
+        $paginaAtual = LengthAwarePaginator::resolveCurrentPage();
+        $porPagina = 3;
+        $ranking = new LengthAwarePaginator(
+            $ranking->forPage($paginaAtual, $porPagina)->values(),
+            $ranking->count(),
+            $porPagina,
+            $paginaAtual,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
 
         $idades = Aluno::query()
             ->where('instituicao_id', $usuario->instituicao_id)
