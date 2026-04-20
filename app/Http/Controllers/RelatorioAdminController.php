@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Aluno;
 use App\Models\Instituicao;
+use App\Models\MaterialTecnico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -23,13 +24,18 @@ class RelatorioAdminController extends Controller
 
         $relatorioMasculino = $this->montarRelatorioPorSexo($instituicoes, $alunos, $idadesMasculino, 'Masculino');
         $relatorioFeminino = $this->montarRelatorioPorSexo($instituicoes, $alunos, $idadesFeminino, 'Feminino');
+        $materiaisTecnicos = MaterialTecnico::query()
+            ->with('criador:id,name')
+            ->latest()
+            ->get();
 
         return view('admin.relatorios.index', compact(
             'instituicoes',
             'relatorioMasculino',
             'relatorioFeminino',
             'idadesMasculino',
-            'idadesFeminino'
+            'idadesFeminino',
+            'materiaisTecnicos'
         ));
     }
 

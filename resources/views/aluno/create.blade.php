@@ -4,6 +4,103 @@
 
 @push('styles')
     <style>
+        .materiais-card {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid #dbe1ec;
+            border-radius: 1rem;
+            background: linear-gradient(180deg, #fbfcff 0%, #f6f8fc 100%);
+        }
+
+        .materiais-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .materiais-title {
+            margin: 0;
+            color: #1f2d4f;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .materiais-text {
+            margin: 0.2rem 0 0;
+            color: #5f6b85;
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        .materiais-upload {
+            display: grid;
+            gap: 0.85rem;
+            margin-top: 0.9rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e3e9f3;
+        }
+
+        .materiais-upload-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .materiais-lista {
+            display: grid;
+            gap: 0.8rem;
+        }
+
+        .materiais-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.9rem;
+            border: 1px solid #dbe1ec;
+            border-radius: 0.95rem;
+            background: #fff;
+        }
+
+        .materiais-item-title {
+            margin: 0;
+            color: #223154;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .materiais-item-meta {
+            margin: 0.2rem 0 0;
+            color: #6a7690;
+            font-size: 0.82rem;
+        }
+
+        .materiais-item-desc {
+            margin: 0.35rem 0 0;
+            color: #46526d;
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        .materiais-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            flex-shrink: 0;
+        }
+
+        .materiais-vazio {
+            margin: 0;
+            padding: 0.9rem;
+            border: 1px dashed #ccd6e5;
+            border-radius: 0.9rem;
+            background: #fff;
+            color: #5f6b85;
+            font-size: 0.88rem;
+        }
+
         .create-shell {
             max-width: 1100px;
             margin: 0 auto;
@@ -278,16 +375,33 @@
                 align-items: stretch;
             }
 
+            .materiais-header,
             .saude-item {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.7rem;
+            }
+
+            .materiais-item,
+            .materiais-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .materiais-upload-actions .btn,
+            .materiais-actions .btn {
+                width: 100%;
             }
         }
     </style>
 @endpush
 
 @section('content')
+    @php
+        $isAdmin = auth()->check() && (bool) auth()->user()->is_admin;
+        $dashboardRoute = $isAdmin ? route('admin.dashboard') : route('tecnico.dashboard');
+    @endphp
+
     <div class="container-fluid create-shell">
         <div class="create-topo">
             <div class="create-heading">
@@ -429,6 +543,41 @@
                                             </div>
                                         @endforeach
                                     </div>
+
+                                    <section class="materiais-card">
+                                        <div class="materiais-lista">
+                                            @forelse ($materiaisTecnicos as $material)
+                                                <article class="materiais-item">
+                                                    <div>
+                                                        <h4 class="materiais-item-title">{{ $material->titulo }}</h4>
+                                                        <p class="materiais-item-meta">
+                                                            PDF anexado em {{ $material->created_at?->format('d/m/Y H:i') ?? '--' }}
+                                                            @if ($material->arquivo_tamanho)
+                                                                • {{ number_format($material->arquivo_tamanho / 1048576, 2, ',', '.') }} MB
+                                                            @endif
+                                                            @if ($material->criador?->name)
+                                                                • por {{ $material->criador->name }}
+                                                            @endif
+                                                        </p>
+                                                        @if ($material->descricao)
+                                                            <p class="materiais-item-desc">{{ $material->descricao }}</p>
+                                                        @endif
+                                                    </div>
+
+                                                    <div class="materiais-actions">
+                                                        <a href="{{ route('materiais-tecnicos.download', $material) }}"
+                                                            class="btn btn-outline-primary">
+                                                            Baixar PDF
+                                                        </a>
+                                                    </div>
+                                                </article>
+                                            @empty
+                                                <p class="materiais-vazio">
+                                                    Nenhum PDF foi anexado pelo admin ate o momento.
+                                                </p>
+                                            @endforelse
+                                        </div>
+                                    </section>
                                 </div>
 
                                 <div class="tab-pane fade" id="aba4">
@@ -489,7 +638,7 @@
                             </div>
 
                             <div class="create-actions">
-                                <a href="{{ route('tecnico.dashboard') }}" class="btn btn-outline-secondary">
+                                <a href="{{ $dashboardRoute }}" class="btn btn-outline-secondary">
                                     Cancelar
                                 </a>
                                 <button type="submit" class="btn btn-navbar-blue">Salvar</button>
@@ -591,6 +740,7 @@
                     }, 500);
                 }, TIMEOUT);
             }
+
         });
     </script>
 @endpush

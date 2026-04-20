@@ -6,6 +6,7 @@ use App\Http\Requests\AlunoStoreRequest;
 use App\Http\Requests\AlunoUpdateRequest;
 use App\Models\Aluno;
 use App\Models\AlunoHistory;
+use App\Models\MaterialTecnico;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,12 @@ class AlunoCadastroController extends Controller
      */
     public function create()
     {
-        return view('aluno.create');
+        $materiaisTecnicos = MaterialTecnico::query()
+            ->with('criador:id,name')
+            ->latest()
+            ->get();
+
+        return view('aluno.create', compact('materiaisTecnicos'));
     }
 
     /**

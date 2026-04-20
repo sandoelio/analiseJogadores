@@ -21,6 +21,7 @@ use App\Http\Controllers\RelatorioAdminController;
 use App\Http\Controllers\RelatorioTecnicoController;
 use App\Http\Controllers\ComparativoGraficoController;
 use App\Http\Controllers\ComparativoPublicoController;
+use App\Http\Controllers\MaterialTecnicoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -125,6 +126,8 @@ Route::middleware([ CheckSession::class ])->group(function () {
 
     Route::get('/aluno/comparativo/{aluno}', [AlunoAnaliseController::class, 'showComparativo'])->name('aluno.comparativo');
 
+    Route::get('/materiais-tecnicos/{materialTecnico}/download', [MaterialTecnicoController::class, 'download'])->name('materiais-tecnicos.download');
+
     Route::get('/tecnico/dashboard', [AlunoPainelController::class, 'dashboard'])->name('tecnico.dashboard');
 
     Route::get('/tecnico/relatorios', [RelatorioTecnicoController::class, 'index'])->name('tecnico.relatorios');
@@ -162,4 +165,8 @@ Route::middleware([ CheckSession::class, CheckAdmin::class ])->group(function ()
     Route::get('/admin/relatorios/alertas', [RelatorioAdminController::class, 'alertas'])->name('admin.relatorios.alertas');
 
     Route::resource('usuarios', UsuarioController::class)->except(['show']);
+
+    Route::post('/materiais-tecnicos', [MaterialTecnicoController::class, 'store'])->name('materiais-tecnicos.store');
+
+    Route::delete('/materiais-tecnicos/{materialTecnico}', [MaterialTecnicoController::class, 'destroy'])->name('materiais-tecnicos.destroy');
 });
