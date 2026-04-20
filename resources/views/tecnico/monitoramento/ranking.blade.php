@@ -38,6 +38,8 @@
         .ranking-mobile-linha { display: grid; grid-template-columns: 110px 1fr; gap: 0.5rem; padding-top: 0.35rem; font-size: 0.8rem; line-height: 1.35; }
         .ranking-mobile-rotulo { color: #5f6b85; font-weight: 700; }
         .ranking-vazio { margin: 0; padding: 1rem; border-radius: 0.9rem; background: #f7f9fc; color: #5f6b85; font-weight: 600; }
+        .ranking-paginacao { display: flex; justify-content: center; padding: 0 0.8rem 1rem; }
+        .ranking-paginacao .pagination { margin-bottom: 0; }
         @media (max-width: 991.98px) { .ranking-filtro-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 767.98px) { .ranking-topo { flex-direction: column; } .ranking-topo .btn { width: 100%; } .ranking-filtro-grid { grid-template-columns: 1fr; } }
         @media (max-width: 575.98px) { .ranking-shell { padding-top: 0.45rem; } .ranking-tabela-wrap { display: none; } .ranking-mobile { display: block; } }
@@ -160,6 +162,12 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if ($ranking->hasPages())
+                    <div class="ranking-paginacao">
+                        {{ $ranking->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
             @endif
         </div>
     </div>

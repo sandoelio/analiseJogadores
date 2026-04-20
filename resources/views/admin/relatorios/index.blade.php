@@ -4,6 +4,80 @@
 
 @push('styles')
     <style>
+        .materiais-modal-form {
+            display: grid;
+            gap: 0.9rem;
+        }
+
+        .materiais-modal-form .form-control,
+        .materiais-modal-form textarea {
+            border-radius: 0.8rem;
+            border-color: #dbe1ec;
+            box-shadow: none;
+        }
+
+        .materiais-modal-form .form-control:focus,
+        .materiais-modal-form textarea:focus {
+            border-color: #8ea3ce;
+            box-shadow: 0 0 0 0.2rem rgba(40, 54, 95, 0.12);
+        }
+
+        .materiais-modal-alerta {
+            margin-bottom: 1rem;
+            border-radius: 0.9rem;
+        }
+
+        .materiais-modal-lista {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .materiais-modal-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.9rem;
+            border: 1px solid #e0e6f0;
+            border-radius: 0.95rem;
+            background: #f8fafd;
+        }
+
+        .materiais-modal-item h3 {
+            margin: 0;
+            color: #1f2d4f;
+            font-size: 0.96rem;
+            font-weight: 700;
+        }
+
+        .materiais-modal-item p {
+            margin: 0.25rem 0 0;
+            color: #5f6b85;
+            font-size: 0.84rem;
+            line-height: 1.45;
+        }
+
+        .materiais-modal-meta {
+            font-size: 0.8rem;
+        }
+
+        .materiais-modal-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            flex-shrink: 0;
+        }
+
+        .materiais-modal-vazio {
+            margin: 1rem 0 0;
+            padding: 0.95rem;
+            border: 1px dashed #ccd6e5;
+            border-radius: 0.9rem;
+            color: #5f6b85;
+            background: #f8fafd;
+        }
+
         .relatorios-shell {
             max-width: 1220px;
             width: 100%;
@@ -257,6 +331,12 @@
                 align-items: stretch;
             }
 
+            .materiais-modal-item,
+            .materiais-modal-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
             .relatorios-card .tab-content {
                 padding: 0.8rem;
             }
@@ -300,6 +380,11 @@
 @endpush
 
 @section('content')
+    @php
+        $camposMateriais = ['titulo', 'descricao', 'arquivo_pdf'];
+        $abrirModalMateriais = session()->has('material_success') || collect($camposMateriais)->contains(fn($campo) => $errors->has($campo));
+    @endphp
+
     <div class="relatorios-shell">
         <div class="relatorios-topo">
             <div class="relatorios-topo-acoes">
@@ -312,6 +397,12 @@
                         <i class="bi bi-bell"></i>
                         Alertas administrativos
                     </a>
+
+                    <button type="button" class="relatorios-pendencias-btn" data-bs-toggle="modal"
+                        data-bs-target="#materiaisTecnicosModal">
+                        <i class="bi bi-paperclip"></i>
+                        Anexar arquivos
+                    </button>
 
                     <a href="{{ route('admin.relatorios.comparativo') }}" class="relatorios-pendencias-btn">
                         <i class="bi bi-arrow-left-right"></i>
@@ -326,6 +417,109 @@
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary relatorios-voltar">
                         Voltar
                     </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="materiaisTecnicosModal" tabindex="-1" aria-labelledby="materiaisTecnicosModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="materiaisTecnicosModalLabel">Anexar PDF para o modulo tecnico</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        @if (session('material_success'))
+                            <div class="alert alert-success materiais-modal-alerta">
+                                {{ session('material_success') }}
+                            </div>
+                        @endif
+
+                        <form action="{{ route('materiais-tecnicos.store') }}" method="POST" enctype="multipart/form-data"
+                            class="materiais-modal-form">
+                            @csrf
+
+                            <div>
+                                <label for="titulo" class="form-label">Titulo do PDF</label>
+                                <input type="text" id="titulo" name="titulo"
+                                    class="form-control @error('titulo') is-invalid @enderror"
+                                    value="{{ old('titulo') }}" placeholder="Ex.: Protocolo de avaliacao fisica" required>
+                                @error('titulo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="descricao" class="form-label">Descricao</label>
+                                <textarea id="descricao" name="descricao" rows="3"
+                                    class="form-control @error('descricao') is-invalid @enderror"
+                                    placeholder="Opcional: informe como o tecnico deve usar este arquivo.">{{ old('descricao') }}</textarea>
+                                @error('descricao')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="arquivo_pdf" class="form-label">Arquivo PDF</label>
+                                <input type="file" id="arquivo_pdf" name="arquivo_pdf" accept="application/pdf"
+                                    class="form-control @error('arquivo_pdf') is-invalid @enderror" required>
+                                <div class="form-text">Somente PDF, com tamanho maximo de 10 MB.</div>
+                                @error('arquivo_pdf')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="relatorios-pendencias-btn">
+                                    <i class="bi bi-upload"></i>
+                                    Salvar arquivo
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="materiais-modal-lista">
+                            @forelse ($materiaisTecnicos as $material)
+                                <article class="materiais-modal-item">
+                                    <div>
+                                        <h3>{{ $material->titulo }}</h3>
+                                        <p class="materiais-modal-meta">
+                                            Anexado em {{ $material->created_at?->format('d/m/Y H:i') ?? '--' }}
+                                            @if ($material->arquivo_tamanho)
+                                                • {{ number_format($material->arquivo_tamanho / 1048576, 2, ',', '.') }} MB
+                                            @endif
+                                            @if ($material->criador?->name)
+                                                • por {{ $material->criador->name }}
+                                            @endif
+                                        </p>
+                                        @if ($material->descricao)
+                                            <p>{{ $material->descricao }}</p>
+                                        @endif
+                                    </div>
+
+                                    <div class="materiais-modal-actions">
+                                        <a href="{{ route('materiais-tecnicos.download', $material) }}"
+                                            class="btn btn-outline-primary">
+                                            Baixar PDF
+                                        </a>
+
+                                        <form action="{{ route('materiais-tecnicos.destroy', $material) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-danger">
+                                                Remover
+                                            </button>
+                                        </form>
+                                    </div>
+                                </article>
+                            @empty
+                                <p class="materiais-modal-vazio">
+                                    Nenhum arquivo foi anexado ainda para o modulo tecnico.
+                                </p>
+                            @endforelse
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -368,3 +562,16 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if ($abrirModalMateriais)
+                const modalElement = document.getElementById('materiaisTecnicosModal');
+                if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                }
+            @endif
+        });
+    </script>
+@endpush
