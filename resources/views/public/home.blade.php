@@ -32,6 +32,40 @@
             background: #fff;
             box-shadow: 0 6px 18px rgba(26, 42, 80, 0.08);
         }
+        .btn-site{
+
+            display:inline-flex;
+            align-items:center;
+            gap:.5rem;
+
+            background:#fff;
+            color:#28365F;
+
+            border:1px solid #dbe1ec;
+
+            padding:.20rem 1rem;
+
+            border-radius:10px;
+
+            text-decoration:none;
+
+            font-weight:600;
+
+            transition:.25s;
+
+            box-shadow:0 4px 12px rgba(26,42,80,.08);
+
+        }
+
+        .btn-site:hover{
+
+            background:#28365F;
+
+            color:#fff;
+
+            text-decoration:none;
+
+        }
 
         .home-chip {
             display: inline-flex;
@@ -235,6 +269,9 @@
                 <i class="bi bi-door-open-fill"></i>
                 Entrada do Sistema
             </span>
+            <a href="https://cestabaianabasquete.com.br/" class="btn-site">
+                Voltar ao site
+            </a>
             <h1 class="home-title">Escolha o perfil de acesso</h1>
         </div>
 

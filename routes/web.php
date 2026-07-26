@@ -22,13 +22,16 @@ use App\Http\Controllers\RelatorioTecnicoController;
 use App\Http\Controllers\ComparativoGraficoController;
 use App\Http\Controllers\ComparativoPublicoController;
 use App\Http\Controllers\MaterialTecnicoController;
+use App\Http\Controllers\WelcomeController;
 
 /*
 |--------------------------------------------------------------------------
 | Landing Page Pública
 |--------------------------------------------------------------------------
 */
-Route::view('/', 'public.home')->name('public.home');
+
+Route::get('/', [WelcomeController::class, 'index'])->name('welcome');
+Route::view('/home', 'public.home')->name('public.home');
 
 /*
 |--------------------------------------------------------------------------
