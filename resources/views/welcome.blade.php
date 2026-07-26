@@ -11,7 +11,7 @@
         <!-- Logo -->
         <div class="welcome-logo">
 
-            <img src="{{ asset('imagem/logo.png') }}" alt="Cesta Baiana">
+            <img src="{{ asset('imagem/LOGO1.png') }}" alt="Cesta Baiana">
 
         </div>
 
